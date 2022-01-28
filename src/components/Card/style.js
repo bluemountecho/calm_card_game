@@ -95,6 +95,14 @@ const styles = createStyles({
                 }
             }
         }
+    },
+
+    'disabled-card': {
+        pointerEvents: 'none'
+    },
+
+    'disabled-card-opacity': {
+        opacity: '0.7'
     }
 });
 

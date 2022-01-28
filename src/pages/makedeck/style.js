@@ -8,7 +8,7 @@ const styles = createStyles({
     flexDirection: 'column',
     justifyContent: 'space-between',
     minHeight: '100vh',
-    backgroundImage: 'url("/images/makedeck-background.jpg")',
+    backgroundImage: 'url("/images/deck/makedeck-background.jpg")',
     backgroundSize: 'cover',
     padding: '120px 20px 40px 20px',
     [theme.breakpoints.down('1280')]: {
@@ -35,11 +35,126 @@ const styles = createStyles({
     }
   },
 
+  cardListHeader: {
+    display: 'block',
+    padding: '10px',
+
+    '& > ul.titleContainer': {
+      padding: '0px',
+      margin: '0px',
+      listStyle: 'none',
+      display: 'flex',
+      WebkitBoxPack: 'center',
+      justifyContent: 'center',
+
+      '& > li.titleLeftStart': {
+        opacity: '0.4',
+        background: 'url(/images/deck/titleleftstart.png) center top no-repeat',
+        WebkitBoxFlex: '0',
+        flexGrow: '0',
+        width: '20px',
+        minWidth: '20px',
+        paddingBottom: '30px',
+        height: '1.125rem',
+        lineHeight: '1.125rem'
+      },
+
+      '& > li.titleLeftMiddle': {
+        opacity: '0.4',
+        background: 'url(/images/deck/titleleftmiddle.png) center top / 100% 62.66% no-repeat',
+        WebkitBoxFlex: '2',
+        flexGrow: '2',
+        minWidth: '70px',
+        height: '1.125rem',
+        lineHeight: '1.125rem'
+      },
+
+      '& > li.titleLeftEnd': {
+        opacity: '0.4',
+        background: 'url(/images/deck/titleleftend.png) center top no-repeat',
+        marginLeft: '0px',
+        WebkitBoxFlex: '0',
+        flexGrow: '0',
+        width: '20px',
+        minWidth: '20px',
+        paddingBottom:  '30px',
+        height: '1.125rem',
+        lineHeight: '1.125rem'
+      },
+
+      '& > li.titleContent': {
+        padding: "0px 30px",
+        marginTop: "-5px",
+        minWidth: "fit-content",
+
+        '& > div': {
+          width: "300px",
+          height: "75px",
+          margin: "0px 40px",
+          position: "relative",
+          top: "-30px",
+          transition: "all 0.125s ease-out 0s",
+          fill: "rgb(97, 67, 38)",
+          fillOpacity: "0.4",
+
+          '& > h5': {
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            adding: "0px",
+            margin: "0px",
+            width: "130px",
+            textAlign: "center",
+            color: "rgb(97, 67, 38)",
+            whiteSpace: "nowrap",
+            transition: "all 0.125s ease-out 0s"
+          }
+        }
+      },
+
+      '& > li.titleRightStart': {
+        opacity: '0.4',
+        background: 'url(/images/deck/titlerightstart.png) center top no-repeat',
+        WebkitBoxFlex: '0',
+        flexGrow: '0',
+        width: '20px',
+        minWidth: '20px',
+        paddingBottom: '30px',
+        height: '1.125rem',
+        lineHeight: '1.125rem'
+      },
+
+      '& > li.titleRightMiddle': {
+        opacity: '0.4',
+        background: 'url(/images/deck/titlerightmiddle.png) center top / 100% 62.66% no-repeat',
+        WebkitBoxFlex: '2',
+        flexGrow: '2',
+        minWidth: '70px',
+        height: '1.125rem',
+        lineHeight: '1.125rem'
+      },
+
+      '& > li.titleRightEnd': {
+        opacity: '0.4',
+        background: 'url(/images/deck/titlerightend.png) center top no-repeat',
+        marginLeft: '0px',
+        WebkitBoxFlex: '0',
+        flexGrow: '0',
+        width: '20px',
+        minWidth: '20px',
+        paddingBottom:  '30px',
+        height: '1.125rem',
+        lineHeight: '1.125rem'
+      },
+    }
+  },
+
   deckCardList: {
     display: 'inline-block',
     width: '400px',
     marginLeft: '20px',
-    background: 'url(/images/deckCardListBackground.png) center top / cover no-repeat',
+    background: 'url(/images/deck/deckCardListBackground.png) center top / cover no-repeat',
     position: 'fixed',
     height: 'calc(100vh - 170px)',
     [theme.breakpoints.down('1280')]: {
@@ -50,7 +165,7 @@ const styles = createStyles({
   'l-container': {
     display: 'grid',
     gridTemplateColumns: 'repeat(5, 1fr)',
-    gridGap: '30px',
+    gridGap: '50px',
     width: '100%',
     maxWidth: '1200px',
     padding: '30px',
@@ -77,18 +192,18 @@ const styles = createStyles({
   },
 
   deckCardListHeader: {
-    backgroundImage: 'url(/images/deckCardListTop.png)',
+    backgroundImage: 'url(/images/deck/deckCardListTop.png)',
     backgroundSize: 'cover',
     height: '142px'
   },
 
   deckCardListBody: {
-    backgroundImage: 'url(/images/deckCardListMiddle.png)',
+    backgroundImage: 'url(/images/deck/deckCardListMiddle.png)',
     height: 'calc(100% - 251px)'
   },
 
   deckCardListFooter: {
-    backgroundImage: 'url(/images/deckCardListBottom.png)',
+    backgroundImage: 'url(/images/deck/deckCardListBottom.png)',
     backgroundSize: 'cover',
     height: '109px'
   },
