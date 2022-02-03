@@ -24,6 +24,11 @@
   src: url(/fonts/Rajdhani-Bold.ttf);
 }
 
+@font-face {
+  font-family: 'Belwe Bold';
+  src: url(/fonts/Belwe-Bold.otf);
+}
+
 body * {
   font-family: 'Rajdhani';
   color: black;

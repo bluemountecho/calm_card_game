@@ -199,7 +199,35 @@ const styles = createStyles({
 
   deckCardListBody: {
     backgroundImage: 'url(/images/deck/deckCardListMiddle.png)',
-    height: 'calc(100% - 251px)'
+    height: 'calc(100% - 251px)',
+
+    '& > .deck-cards-container': {
+      margin: '0px 5px',
+      width: 'calc(100% - 10px)',
+      padding: '10px 13px 0px 28px',
+      overflowY: 'scroll',
+      overflowX: 'hidden',
+      height: '100%',
+
+      '&::-webkit-scrollbar-track': {
+        WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.3)',
+        backgroundColor: 'rgba(58, 40, 24, 0.7)',
+        borderRadius: '5px'
+      },
+
+      '&::-webkit-scrollbar': {
+        width: '10px',
+        backgroundColor: 'rgba(58, 40, 24, 0.7)',
+        borderRadius: '5px'
+      },
+
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#F90',
+        borderRadius: '5px',
+        border: '2px solid black',
+        backgroundImage: '-webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent)'
+      }
+    }
   },
 
   deckCardListFooter: {

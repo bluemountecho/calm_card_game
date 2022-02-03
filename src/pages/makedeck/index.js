@@ -1,5 +1,5 @@
 
-import React, {useEffect} from 'react'
+import React, {useEffect, useState} from 'react'
 import { Button, makeStyles } from '@material-ui/core'
 import { useRouter } from 'next/router'
 import styles from './style'
@@ -7,9 +7,55 @@ import Card from '../../components/Card/Card';
 
 const useStyles = makeStyles(styles);
 
+var monsterCards = []
+var spellCards = []
+var equipCards = []
+
+for (var i = 1; i <= 38; i ++) {
+  monsterCards.push({
+    Type: "Monster",
+    Card: "card0a",
+    CardName: "Monster" + i,
+    AttackPoint: 20 + i % 10,
+    DefensePoint: 20 - i % 10,
+    ManaCost: Math.floor(i / 10 + 1),
+  })
+}
+
+for (var i = 1; i <= 51; i ++) {
+  spellCards.push({
+    Type: "Spell",
+    Card: "card0b",
+    CardName: "Spell" + i,
+    AttackPoint: 5 + i % 3,
+    DefensePoint: 5 - i % 3,
+    ManaCost: Math.floor(i / 10 + 1),
+  })
+}
+
+for (var i = 1; i <= 33; i ++) {
+  equipCards.push({
+    Type: "Equip",
+    Card: "card8c",
+    CardName: "Equip" + i,
+    AttackPoint: 5 + i % 3,
+    DefensePoint: 5 - i % 3,
+    ManaCost: Math.floor(i / 10 + 1),
+  })
+}
+
 function MakeDeckPage() {
   const classes = useStyles();
   const router = useRouter();
+  const [addedCards, setAddedCards] = useState([])
+
+  function SetAddedCards(cardObj, idx = -1) {
+    if (idx == -1) {
+      setAddedCards([cardObj, ...addedCards])
+    } else {
+      addedCards[idx] = cardObj
+    }
+  }
 
   useEffect(() => {
     window.jQuery = require('../../../public/js/jquery.min');
@@ -60,54 +106,23 @@ function MakeDeckPage() {
     <>
       <div className={classes.deckContainer}>
         <div className={classes.container}>
-          <CardList />
-          <DeckCardList />
+          <CardList
+            addedCards={addedCards}
+            SetAddedCards={SetAddedCards}
+          />
+          <DeckCardList
+            addedCards={addedCards}
+            SetAddedCards={SetAddedCards}
+          />
         </div>
       </div>
     </>
   );
 }
 
-function CardList() {
+function CardList(props) {
   const classes = useStyles()
   const router = useRouter()
-
-  var monsterCards = []
-  var spellCards = []
-  var equipCards = []
-
-  for (var i = 1; i <= 38; i ++) {
-    monsterCards.push({
-      Type: "Monster",
-      Card: "card0a",
-      CardName: "Monster" + i,
-      AttackPoint: 20 + i % 10,
-      DefensePoint: 20 - i % 10,
-      ManaCost: Math.floor(i / 10 + 1),
-    })
-  }
-
-  for (var i = 1; i <= 51; i ++) {
-    spellCards.push({
-      Type: "Spell",
-      Card: "card0b",
-      CardName: "Spell" + i,
-      AttackPoint: 5 + i % 3,
-      DefensePoint: 5 - i % 3,
-      ManaCost: Math.floor(i / 10 + 1),
-    })
-  }
-
-  for (var i = 1; i <= 33; i ++) {
-    equipCards.push({
-      Type: "Spell",
-      Card: "card8c",
-      CardName: "Spell" + i,
-      AttackPoint: 5 + i % 3,
-      DefensePoint: 5 - i % 3,
-      ManaCost: Math.floor(i / 10 + 1),
-    })
-  }
 
   return (
     <>
@@ -115,6 +130,7 @@ function CardList() {
         <CardListTitle title="Monster Cards" haveTopSpace="false" />
         <div className={classes['l-container']}>
           { monsterCards.map((card, index) => (<Card
+            CardShowType="big"
             Type={card.Type}
             Card={card.Card}
             CardName={card.CardName}
@@ -123,11 +139,13 @@ function CardList() {
             ManaCost={card.ManaCost}
             key={index}
             CardID={'Monster_' + index}
+            SetAddedCards={props.SetAddedCards}
           />))}
         </div>
         <CardListTitle title="Spell Cards" haveTopSpace="true" />
         <div className={classes['l-container']}>
           { spellCards.map((card, index) => (<Card
+            CardShowType="big"
             Type={card.Type}
             Card={card.Card}
             CardName={card.CardName}
@@ -136,11 +154,13 @@ function CardList() {
             ManaCost={card.ManaCost}
             key={index}
             CardID={'Spell_' + index}
+            SetAddedCards={props.SetAddedCards}
           />))}
         </div>
         <CardListTitle title="Equip Cards" haveTopSpace="true" />
         <div className={classes['l-container']}>
           { equipCards.map((card, index) => (<Card
+            CardShowType="big"
             Type={card.Type}
             Card={card.Card}
             CardName={card.CardName}
@@ -149,6 +169,7 @@ function CardList() {
             ManaCost={card.ManaCost}
             key={index}
             CardID={'Equip_' + index}
+            SetAddedCards={props.SetAddedCards}
           />))}
         </div>
       </div>
@@ -197,7 +218,7 @@ function CardListTitle(props) {
   )
 }
 
-function DeckCardList() {
+function DeckCardList(props) {
   const classes = useStyles()
   const router = useRouter()
 
@@ -205,7 +226,10 @@ function DeckCardList() {
     <>
       <div className={classes.deckCardList}>
         <DeckCardListHeader />
-        <DeckCardListBody />
+        <DeckCardListBody
+          addedCards={props.addedCards}
+          SetAddedCards={props.SetAddedCards}
+        />
         <DeckCardListFooter />
       </div>
     </>
@@ -219,20 +243,34 @@ function DeckCardListHeader() {
   return (
     <>
       <div className={classes.deckCardListHeader}>
-
+        
       </div>
     </>
   )
 }
 
-function DeckCardListBody() {
+function DeckCardListBody(props) {
   const classes = useStyles()
   const router = useRouter()
 
   return (
     <>
       <div className={classes.deckCardListBody + ' deck-card-list-body'}>
-
+        <div className="deck-cards-container">
+          { props.addedCards.map((card, index) => (<Card
+            CardShowType="small"
+            Type={card.Type}
+            Card={card.Card}
+            CardName={card.CardName}
+            AttackPoint={card.AttackPoint}
+            DefensePoint={card.DefensePoint}
+            ManaCost={card.ManaCost}
+            key={index}
+            CardID={card.Type + '_' + index}
+            IsNew={card.IsNew}
+            SetAddedCards={props.SetAddedCards}
+          />))}
+        </div>
       </div>
     </>
   )
