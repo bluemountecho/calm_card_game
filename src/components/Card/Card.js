@@ -2,7 +2,6 @@ import React from 'react';
 import { makeStyles } from '@material-ui/core'
 import styles from './style';
 import $ from "jquery"
-import { ScatterPlot } from '@material-ui/icons';
 
 const useStyles = makeStyles(styles);
 
