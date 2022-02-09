@@ -4,6 +4,7 @@ import { Button, makeStyles } from '@material-ui/core'
 import { useRouter } from 'next/router'
 import styles from './style'
 import Card from '../../components/Card/Card';
+import {connect} from '../../components/connector'
 
 const useStyles = makeStyles(styles);
 
@@ -59,6 +60,7 @@ function MakeDeckPage() {
 
   useEffect(() => {
     window.jQuery = require('../../../public/js/jquery.min');
+    connect()
 
     const maxTilt = 30;
 
@@ -139,6 +141,7 @@ function CardList(props) {
             ManaCost={card.ManaCost}
             key={index}
             CardID={'Monster_' + index}
+            addedCards={props.addedCards}
             SetAddedCards={props.SetAddedCards}
           />))}
         </div>
@@ -154,6 +157,7 @@ function CardList(props) {
             ManaCost={card.ManaCost}
             key={index}
             CardID={'Spell_' + index}
+            addedCards={props.addedCards}
             SetAddedCards={props.SetAddedCards}
           />))}
         </div>
@@ -169,6 +173,7 @@ function CardList(props) {
             ManaCost={card.ManaCost}
             key={index}
             CardID={'Equip_' + index}
+            addedCards={props.addedCards}
             SetAddedCards={props.SetAddedCards}
           />))}
         </div>
@@ -225,7 +230,9 @@ function DeckCardList(props) {
   return (
     <>
       <div className={classes.deckCardList}>
-        <DeckCardListHeader />
+        <DeckCardListHeader
+          addedCards = {props.addedCards}
+        />
         <DeckCardListBody
           addedCards={props.addedCards}
           SetAddedCards={props.SetAddedCards}
@@ -236,14 +243,20 @@ function DeckCardList(props) {
   )
 }
 
-function DeckCardListHeader() {
+function DeckCardListHeader(props) {
   const classes = useStyles()
   const router = useRouter()
 
   return (
     <>
       <div className={classes.deckCardListHeader}>
-        
+        <h1 style={{
+          color: 'white',
+          margin: '0px',
+          top: '50px',
+          left: '50px',
+          position: "absolute"
+        }}>40 / {props.addedCards.length}</h1>
       </div>
     </>
   )
@@ -283,7 +296,9 @@ function DeckCardListFooter() {
   return (
     <>
       <div className={classes.deckCardListFooter}>
-
+        <div className={classes.button} onClick={() => router.push('/gameboard')}>
+          <p>Start Game</p>
+        </div>
       </div>
     </>
   )

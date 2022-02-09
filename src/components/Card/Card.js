@@ -14,6 +14,8 @@ export default (props) => {
 
         $('*').removeClass('new-small-card')
 
+        if (props.addedCards.length == 40) return
+
         setTimeout(() => {
             console.log('#small_' + props.CardName)
             $('#small_' + props.CardName).addClass('new-small-card')

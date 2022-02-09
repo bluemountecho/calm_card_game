@@ -233,7 +233,38 @@ const styles = createStyles({
   deckCardListFooter: {
     backgroundImage: 'url(/images/deck/deckCardListBottom.png)',
     backgroundSize: 'cover',
-    height: '109px'
+    height: '109px',
+    paddingTop: '35px',
+    paddingBottom: '23px',
+    paddingLeft: "30px",
+    justifyContent: 'center'
+  },
+  
+  button: {
+    cursor: 'pointer',
+    width: '160px',
+    height: '100%',
+    backgroundImage: 'url("/images/button_startgame.png")',
+    backgroundSize: 'cover',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    '&:hover': {
+      opacity: '0.8',
+    },
+    '& > p': {
+      margin: '0',
+      fontFamily: 'RajdhaniBold',
+      fontSize: '20px',
+      textTransform: 'uppercase',
+    },
+    [theme.breakpoints.down('930')]: {
+      width: '75vw',
+      height: '24vw',
+      '& > p': {
+        fontSize: '10vw',
+      },
+    },
   },
 });
 

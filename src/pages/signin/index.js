@@ -1,16 +1,20 @@
 
-import React from 'react';
+import React, {useState, useEffect} from 'react';
+import { Router, Link } from "react-router-dom";
 import { makeStyles, TextField } from '@material-ui/core';
 import styles from './style';
-import Link from '../../Link';
+import {connect} from '../../components/connector'
 
 const useStyles = makeStyles(styles);
 
 function SigninPage() {
-  const classes = useStyles();
+  const classes = useStyles()
+  const [ username, setUsername ] = useState('')
 
-  const [ username, setUsername ] = React.useState('');
-  const [ password, setPassword ] = React.useState('');
+  function OnLogin() {
+  }
+
+  connect()
 
   return (
     <>
@@ -21,17 +25,11 @@ function SigninPage() {
           variant="outlined" 
           value={username}
           onChange={(e) => setUsername(e.target.value)}
+          placeholder="Enter Your Name"
         />
-        <TextField
-          className={classes.textfield}
-          variant="outlined" 
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <div className={classes.button}>
+        <div className={classes.button} onClick={OnLogin}>
           <p>Login</p>
         </div>
-        <Link href="#">forget password?</Link>
       </div>
     </>
   );

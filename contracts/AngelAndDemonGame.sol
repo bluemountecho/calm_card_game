@@ -18,6 +18,7 @@ contract AngelAndDemonGame is Ownable {
         uint attackPoint;
         uint defensePoint;
         uint manaCost;
+        uint healthPoint;
     }
     struct BattlePlayer {
         address player;
@@ -73,7 +74,7 @@ contract AngelAndDemonGame is Ownable {
     Battle[] public battles;
     AngelAndDemonToken angelAndDemonToken;
 
-    constructor(address andToken) { 
+    constructor(address andToken) {
         _manaPoint = 2;
         _lifePoint = 100;
         _name = "AngelsAndDemonsGame";
@@ -81,8 +82,8 @@ contract AngelAndDemonGame is Ownable {
         angelAndDemonToken = AngelAndDemonToken(andToken);
     }
 
-    function addMonster(uint _monsterId, uint attackPoint, uint defensePoint, uint manaCost) 
-        public 
+    function addMonster(uint _monsterId, uint attackPoint, uint defensePoint, uint manaCost, uint healthPoint) 
+        public onlyOwner
     {
         require(angelAndDemonToken.ownerOf(_monsterId) == msg.sender);
         monsters[msg.sender][_monsterId] = Monster(attackPoint, defensePoint, manaCost);

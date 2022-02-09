@@ -186,7 +186,7 @@ export default function Header() {
         <h3>Test</h3>
       </div>
       <div>
-        <Link href="/signin">
+        <Link href="/signin" id="signIn">
           Sign In
         </Link>
       </div>
