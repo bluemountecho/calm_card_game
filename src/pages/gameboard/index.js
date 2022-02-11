@@ -75,7 +75,10 @@ const Life = (props) => {
 
 const CardsInHand = (props) => {
   const classes = useStyles();
-  const { cards } = props
+  var { cards } = props
+
+  if (!cards) cards = []
+
   return (
     <div className={classes.cards_inhand}>
       <img src="/images/cards5_back.png" alt="" />

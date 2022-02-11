@@ -68,25 +68,31 @@ export default (props) => {
         })
     }
 
-    function onClickPlaySmall(e) {
-        var tmpInfo = props.playerInfo
-        var i
+    // function onClickPlaySmall(e) {
+    //     var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
+    //     var tmpArr = []
+    //     var i
 
-        for (i = 0; i < tmpInfo.cardsDeck.length; i ++) {
-            if (tmpInfo.cardsDeck[i] == props.TokenID) {
-                break;
-            }
-        }
+    //     console.log(tmpInfo)
 
-        for (; i < tmpInfo.cardsDeck.length; i ++) {
-            tmpInfo.cardsDeck[i] = tmpInfo.cardsDeck[i + 1]
-        }
+    //     for (i = 0; i < tmpInfo.cardsDeck.length; i ++) {
+    //         if (tmpInfo.cardsDeck[i] == props.TokenID) {
+    //             break;
+    //         }
 
-        delete tmpInfo.cardsDeck[i]
-        tmpInfo.cardsInHand.push(props.TokenID)
+    //         tmpArr.push(tmpInfo.cardsDeck[i])
+    //     }
 
-        props.setPlayerInfo(tmpInfo)
-    }
+    //     i ++
+
+    //     for (; i < tmpInfo.cardsDeck.length; i ++) {
+    //         tmpArr.push(tmpInfo.cardsDeck[i])
+    //     }
+
+    //     tmpInfo.cardsInHand = tmpArr
+
+    //     props.setPlayerInfo(tmpInfo)
+    // }
 
     if (props.CardShowType == 'big') {
         return (
@@ -148,7 +154,7 @@ export default (props) => {
     } else if (props.CardShowType == 'play_small') {
         return (
             <>
-                <div className={classes.smallCard} onClick={onClickPlaySmall()}>
+                <div className={classes.smallCard}>
                     <div className="CardRow">
                         <span className="overlay" style={{backgroundImage: 'url(' + props.Card + ')'}}></span>
                         <span className="cardRow-Cost">{props.ManaCost}</span>
