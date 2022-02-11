@@ -225,6 +225,7 @@ const CardsDeck = (props) => {
             TokenID={card.TokenID}
             playerInfo={playerInfo}
             setPlayerInfo={setPlayerInfo}
+            isSelf={isSelf}
           />))}
         </div>
       </div>

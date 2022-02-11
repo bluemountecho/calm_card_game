@@ -117,7 +117,7 @@ const styles = createStyles({
     },
     '& > .b-game-card': {
       width: '8.5%',
-      top: '0.6vw',
+      top: '0.7vw',
       position: "relative",
       // height: 'fit-content',
       margin: '0 2%',
