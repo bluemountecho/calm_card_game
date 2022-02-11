@@ -17,7 +17,6 @@ export default (props) => {
         if (props.addedCards.length == 40) return
 
         setTimeout(() => {
-            console.log('#small_' + props.CardName)
             $('#small_' + props.CardName).addClass('new-small-card')
         }, 500)
 
@@ -28,7 +27,8 @@ export default (props) => {
             AttackPoint: props.AttackPoint,
             DefensePoint: props.DefensePoint,
             ManaCost: props.ManaCost,
-            IsNew: true
+            IsNew: true,
+            TokenID: props.TokenID
         })
 
         if (!$(e.target).hasClass('explore-effect')) {
@@ -68,11 +68,31 @@ export default (props) => {
         })
     }
 
+    function onClickPlaySmall(e) {
+        var tmpInfo = props.playerInfo
+        var i
+
+        for (i = 0; i < tmpInfo.cardsDeck.length; i ++) {
+            if (tmpInfo.cardsDeck[i] == props.TokenID) {
+                break;
+            }
+        }
+
+        for (; i < tmpInfo.cardsDeck.length; i ++) {
+            tmpInfo.cardsDeck[i] = tmpInfo.cardsDeck[i + 1]
+        }
+
+        delete tmpInfo.cardsDeck[i]
+        tmpInfo.cardsInHand.push(props.TokenID)
+
+        props.setPlayerInfo(tmpInfo)
+    }
+
     if (props.CardShowType == 'big') {
         return (
             <>
-                <div className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => {onClick(e)}}>
-                    <div className='cover' style={{backgroundImage: 'url(/images/' + props.Card + '.png)'}}>
+                <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => {onClick(e)}}>
+                    <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="description">
                             <h3>{props.CardName}</h3>
@@ -103,11 +123,11 @@ export default (props) => {
             <>
                 <div id={"small_" + props.CardName} className={classes.smallCard}>
                     <div className="CardRow">
-                        <span className="overlay" style={{backgroundImage: 'url(/images/' + props.Card + '.png)'}}></span>
+                        <span className="overlay" style={{backgroundImage: 'url(' + props.Card + ')'}}></span>
                         <span className="cardRow-Cost">{props.ManaCost}</span>
                         <span className="cardRow-Name">{props.CardName}</span>
                         <div className="cardRow-fill"></div>
-                        <div className="cardRow-cropImage" style={{backgroundImage: 'url(/images/' + props.Card + '.png)'}}></div>
+                        <div className="cardRow-cropImage" style={{backgroundImage: 'url(' + props.Card + ')'}}></div>
                         <div className="cardRow-cropMask"></div>
                         <span className="cardRow-Count "></span>
                         <div className="CardControls">
@@ -121,6 +141,22 @@ export default (props) => {
                                 <svg viewBox="0 0 100 100"><rect x="13.37" y="43" width="73.27" height="14" fill="rgb(252, 209, 68)"></rect></svg>
                             </div>
                         </div>
+                    </div>
+                </div>
+            </>
+        )
+    } else if (props.CardShowType == 'play_small') {
+        return (
+            <>
+                <div className={classes.smallCard} onClick={onClickPlaySmall()}>
+                    <div className="CardRow">
+                        <span className="overlay" style={{backgroundImage: 'url(' + props.Card + ')'}}></span>
+                        <span className="cardRow-Cost">{props.ManaCost}</span>
+                        <span className="cardRow-Name">{props.CardName}</span>
+                        <div className="cardRow-fill"></div>
+                        <div className="cardRow-cropImage" style={{backgroundImage: 'url(' + props.Card + ')'}}></div>
+                        <div className="cardRow-cropMask"></div>
+                        <span className="cardRow-Count "></span>
                     </div>
                 </div>
             </>

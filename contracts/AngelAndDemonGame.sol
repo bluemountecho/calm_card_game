@@ -8,308 +8,260 @@ import './AngelAndDemonToken.sol';
 contract AngelAndDemonGame is Ownable {
     uint private _manaPoint;
     uint private _lifePoint;
-    //uint gameTurn;
-    bool battleStart;
+    uint private _curBattleCounter;
     string private _name;
-
-    // Token symbol
     string private _symbol;
+    string private _baseURL;
+
     struct Monster {
         uint attackPoint;
         uint defensePoint;
         uint manaCost;
-        uint healthPoint;
     }
+
+    struct Spell {
+        uint attackPoint;
+        uint defensePoint;
+        uint manaCost;
+    }
+
+    struct Equip {
+        uint attackPoint;
+        uint defensePoint;
+        uint manaCost;
+    }
+
     struct BattlePlayer {
-        address player;
-        uint[] MonsterCardId;
-        uint ManaPoint;
-        uint LifePoint;
-        uint[] SpellCardId;
-        uint[] EquipCardId;
-        uint FieldCardId;
-        uint LastResortCardId;
+        address playerAddress;
+        uint lifePoint;
+        uint manaPoint;
+        uint[] cardsInHand;
+        uint[] cardsInPlay;
+        uint[] cardsDeck;
     }
+
     struct Battle {
-        uint index;
+        uint battleID;
         BattlePlayer player1;
-        //add fee and other variable
         BattlePlayer player2;
-        //add fee and other variable
-        
+        bool isAccepted;
         address winner;
-        bool ended;
         uint createdAt;
-        uint playerstate;//0->p1 attack, 1->p2 attack
-        uint gameTurn;
+        uint playerState; //1 -> player1 attack, 2 -> player2 attack
+        uint turn;
     }
 
-    // mapping (address => mapping (uint => Monster)) public monsters;
-    // mapping (address => uint[]) public monsterList;
-    // mapping (address => uint[]) public spellCardList;
-    // mapping (address => uint[]) public equipCardList;
+    mapping (address => mapping (uint => Monster)) monsters;
+    mapping (address => mapping (uint => Spell)) spells;
+    mapping (address => mapping (uint => Equip)) equips;
+    mapping (address => uint[]) monsterList;
+    mapping (address => uint[]) spellList;
+    mapping (address => uint[]) equipList;
+    mapping (address => uint[]) deckList;
+    mapping (address => string) playerNames;
+    mapping (address => uint) currentBattles; //Battle.battleID
+    mapping (address => uint[]) endedBattles;
+    Battle[] currentBattleList;
+    Battle[] endedBattleList;
 
-    // mapping (address =>mapping (uint => uint)) MonsterCardCheck;
-    // mapping (address =>mapping (uint => uint)) SpellCardCheck;
-    // mapping (address =>mapping (uint => uint)) EquipCardCheck;
-    // mapping (address => uint) FieldCardCheck;
-    // mapping (address => uint) LastResortCardCheck;
-    mapping (uint => uint) monsterCardCheck;
-    mapping (uint => uint) spellCardCheck;
-    mapping (uint => uint) equipCardCheck;
-    struct CardCheck {// if 0 then don't use, 1 then use;
-        uint[] MonsterCardIds;
-        uint[] SpellCardIds;
-        uint[] EquipCardIds;
-        uint FieldCardCheck;
-        uint LastResortCardCheck;        
-    }
-
-    mapping (address => mapping (uint => Monster)) public monsters;
-    mapping (address => uint[]) public monsterList;
-    mapping (address => uint[]) public spellCardList;
-    mapping (address => uint[]) public equipCardList;
-    mapping (address => CardCheck) public cardChecks;
-    //Monster[] public monsters;
-    Battle[] public battles;
     AngelAndDemonToken angelAndDemonToken;
 
     constructor(address andToken) {
-        _manaPoint = 2;
+        _manaPoint = 10;
         _lifePoint = 100;
         _name = "AngelsAndDemonsGame";
         _symbol = "ANGEL_AND_DEMON_GAME";
+        _baseURL = "http://167.86.120.197:3000/images/";
+        _curBattleCounter = 1;
         angelAndDemonToken = AngelAndDemonToken(andToken);
     }
 
-    function addMonster(uint _monsterId, uint attackPoint, uint defensePoint, uint manaCost, uint healthPoint) 
-        public onlyOwner
-    {
+    function addMonster(
+        uint attackPoint,
+        uint defensePoint,
+        uint manaCost,
+        string memory cardURL
+    ) private {
+        uint _monsterId = angelAndDemonToken.safeMintTo(msg.sender, string(abi.encodePacked(_baseURL, cardURL)));
         require(angelAndDemonToken.ownerOf(_monsterId) == msg.sender);
         monsters[msg.sender][_monsterId] = Monster(attackPoint, defensePoint, manaCost);
         monsterList[msg.sender].push(_monsterId);
     }
-    
-    function createBattle (uint[] memory  _p1MonsterCardId, uint _p1ManaPoint, uint _p1LifePoint, uint[] memory _p1SpellCardId, uint[] memory _p1EquipCardId, uint _p1FieldCardId, uint _p1LastResortCardId) 
-        public payable 
-        returns(uint256 ind)
-    {
-        require(msg.value > 0);
-        uint i;
-        for(i = 0; i< _p1MonsterCardId.length; i++){
-            require(angelAndDemonToken.ownerOf(_p1MonsterCardId[i]) == msg.sender);
-        }
-        for(i = 0; i< _p1MonsterCardId.length; i++){
-            require(angelAndDemonToken.ownerOf(_p1SpellCardId[i]) == msg.sender);
-        }
-        for(i = 0; i< _p1MonsterCardId.length; i++){
-            require(angelAndDemonToken.ownerOf(_p1EquipCardId[i]) == msg.sender);
-        }
-        require(angelAndDemonToken.ownerOf(_p1FieldCardId) == msg.sender);
-        require(angelAndDemonToken.ownerOf(_p1LastResortCardId) == msg.sender);
-        uint256 id = battles.length;
-        uint[] memory buffer;
-        buffer[buffer.length] = 0;        
-        battleStart = false;
-        battles.push(Battle(id, BattlePlayer(msg.sender, _p1MonsterCardId, _p1ManaPoint, _p1LifePoint, _p1SpellCardId, _p1EquipCardId, _p1FieldCardId,  _p1LastResortCardId), BattlePlayer(address(0), buffer, 0, 0, buffer, buffer, 0, 0), address(0), false, block.timestamp, 1, 0));
-        return id;
+
+    function addSpell(
+        uint attackPoint,
+        uint defensePoint,
+        uint manaCost,
+        string memory cardURL
+    ) private {
+        uint _spellId = angelAndDemonToken.safeMintTo(msg.sender, string(abi.encodePacked(_baseURL, cardURL)));
+        require(angelAndDemonToken.ownerOf(_spellId) == msg.sender);
+        spells[msg.sender][_spellId] = Spell(attackPoint, defensePoint, manaCost);
+        spellList[msg.sender].push(_spellId);
     }
-    
-    function acceptBattle (uint _battleId, uint[] memory _p2MonsterCardId, uint _p2ManaPoint, uint _p2LifePoint, uint[] memory _p2SpellCardId, uint[] memory _p2EquipCardId, uint _p2FieldCardId, uint _p2LastResortCardId) 
-        public payable 
-    {
-         // require(msg.sender != battles[_battleId].p1);
-        require(msg.value > 0);
-        uint i;
-        for(i = 0; i< _p2MonsterCardId.length; i++){
-            require(angelAndDemonToken.ownerOf(_p2MonsterCardId[i]) == msg.sender);
-        }
-        for(i = 0; i< _p2MonsterCardId.length; i++){
-            require(angelAndDemonToken.ownerOf(_p2SpellCardId[i]) == msg.sender);
-        }
-        for(i = 0; i< _p2MonsterCardId.length; i++){
-            require(angelAndDemonToken.ownerOf(_p2EquipCardId[i]) == msg.sender);
-        }
-        require(angelAndDemonToken.ownerOf(_p2FieldCardId) == msg.sender);
-        require(angelAndDemonToken.ownerOf(_p2LastResortCardId) == msg.sender);
+
+    function addEquip(
+        uint attackPoint,
+        uint defensePoint,
+        uint manaCost,
+        string memory cardURL
+    ) private {
+        uint _equipId = angelAndDemonToken.safeMintTo(msg.sender, string(abi.encodePacked(_baseURL, cardURL)));
+        require(angelAndDemonToken.ownerOf(_equipId) == msg.sender);
+        equips[msg.sender][_equipId] = Equip(attackPoint, defensePoint, manaCost);
+        equipList[msg.sender].push(_equipId);
+    }
+
+    function addCardsToPlayer(
+        bytes calldata params
+    ) public {
+        (uint _monsterCount,
+        Monster[] memory _monsters,
+        string[] memory _monsterURLs,
+        uint _sepllCount,
+        Spell[] memory _spells,
+        string[] memory _spellURLs,
+        uint _equipCount,
+        Equip[] memory _equips,
+        string[] memory _equipURLs) = abi.decode(params, (uint, Monster[], string[], uint, Spell[], string[], uint, Equip[], string[]));
         
-        Battle storage b = battles[_battleId];
-        b.player2.player = msg.sender;
-        b.player2.MonsterCardId = _p2MonsterCardId;
-        b.player2.ManaPoint = _p2ManaPoint;
-        b.player2.LifePoint = _p2LifePoint;
-        b.player2.SpellCardId = _p2SpellCardId;
-        b.player2.EquipCardId = _p2EquipCardId;
-        b.player2.FieldCardId = _p2FieldCardId;
-        b.player2.LastResortCardId = _p2LastResortCardId;
-        b.gameTurn++;
-        battleStart = true;
-    }
-    
-    function endBattle (uint _battleId) 
-        public 
-    {
-        Battle storage b = battles[_battleId];
-        b.ended = true;
-        //
-        //delete monsters[b.p1];
-        //delete monsters[b.p2];
-        //delete battles[_battleId];
-    }
-    
-    function upgradeMonster(uint _monsterId, uint _attackPoint, uint _defensePoint, uint _manaCost) 
-        internal 
-    {
-        Monster storage m = monsters[msg.sender][_monsterId];
-        m.attackPoint = _attackPoint;
-        m.defensePoint = _defensePoint;
-        m.manaCost = _manaCost;
-    }
-    
-    function cancelBattle (uint _battleId) 
-        public 
-    {
-        require( block.timestamp > battles[_battleId].createdAt + 86400);
-        Battle storage b = battles[_battleId];
-        b.ended = true;
-    }
-    
-    function getBattlesCount() 
-        public view 
-        returns(uint) 
-    {
-        return battles.length;
-    }
-
-    function getplayerState(uint _battleId) 
-        public view 
-        returns(uint)
-    {
-        Battle storage b = battles[_battleId];
-        return b.playerstate;
-    }
-
-    function setLifepoint(uint _battleId, uint _setLifePoint) 
-        public 
-    {
-        Battle storage b = battles[_battleId];
-        require(b.player1.player == msg.sender|| b.player2.player == msg.sender);
-        if(b.player1.player == msg.sender){
-            b.player1.LifePoint = _setLifePoint;
+        for (uint i = 0; i < _monsterCount; i ++) {
+            addMonster(_monsters[i].attackPoint, _monsters[i].defensePoint, _monsters[i].manaCost, _monsterURLs[i]);
         }
-        else{
-            b.player2.LifePoint = _setLifePoint;
+
+        for (uint i = 0; i < _sepllCount; i ++) {
+            addSpell(_spells[i].attackPoint, _spells[i].defensePoint, _spells[i].manaCost, _spellURLs[i]);
+        }
+
+        for (uint i = 0; i < _equipCount; i ++) {
+            addEquip(_equips[i].attackPoint, _equips[i].defensePoint, _equips[i].manaCost, _equipURLs[i]);
         }
     }
 
-    function getMonsterListInBattle(address monsterOwner) 
-        public view 
-        returns(uint[] memory)
-    {
-        return monsterList[monsterOwner];
+    function getCardsOfPlayer(address _sender) public view returns(bytes memory) {
+        // uint constant mLen = monsterList[_sender].length;
+        // uint balance[] = new uint[](size);
+        Monster[] memory _monsters = new Monster[](monsterList[_sender].length);
+        string[] memory _monsterURLs = new string[](monsterList[_sender].length);
+        uint[] memory _monsterIDs = new uint[](monsterList[_sender].length);
+        Spell[] memory _spells = new Spell[](spellList[_sender].length);
+        string[] memory _spellURLs = new string[](spellList[_sender].length);
+        uint[] memory _spellIDs = new uint[](spellList[_sender].length);
+        Equip[] memory _equips = new Equip[](equipList[_sender].length);
+        string[] memory _equipURLs = new string[](equipList[_sender].length);
+        uint[] memory _equipIDs = new uint[](equipList[_sender].length);
+
+        for (uint i = 0; i < monsterList[_sender].length; i ++) {
+            _monsters[i] = monsters[_sender][monsterList[_sender][i]];
+            _monsterURLs[i] = angelAndDemonToken.tokenURI(monsterList[_sender][i]);
+            _monsterIDs[i] = monsterList[_sender][i];
+        }
+
+        for (uint i = 0; i < spellList[_sender].length; i ++) {
+            _spells[i] = spells[_sender][spellList[_sender][i]];
+            _spellURLs[i] = angelAndDemonToken.tokenURI(spellList[_sender][i]);
+            _spellIDs[i] = spellList[_sender][i];
+        }
+
+        for (uint i = 0; i < equipList[_sender].length; i ++) {
+            _equips[i] = equips[_sender][equipList[_sender][i]];
+            _equipURLs[i] = angelAndDemonToken.tokenURI(equipList[_sender][i]);
+            _equipIDs[i] = equipList[_sender][i];
+        }
+
+        return abi.encode(_monsters, _monsterURLs, _monsterIDs, _spells, _spellURLs, _spellIDs, _equips, _equipURLs, _equipIDs);
     }
 
-    function getSpellListInBattle(address spellCardOwner) 
-        public view 
-        returns(uint[] memory)
-    {
-        return spellCardList[spellCardOwner];
+    function addCardsToDeck(uint[] memory cardIDs) public {
+        delete deckList[msg.sender];
+
+        for (uint i = 0; i < cardIDs.length; i ++) {
+            deckList[msg.sender].push(cardIDs[i]);
+        }
     }
 
-    function getEquipListInBattle(address equipCardOwner) 
-        public view 
-        returns(uint[] memory)
-    {
-        return equipCardList[equipCardOwner];
+    function getCardsFromDeck(address _sender) public view returns(bytes memory) {
+        return abi.encode(deckList[_sender]);
     }
 
-    function setCardCheck(uint[][] memory _MonsterCardCheck, uint[][] memory _SpellCardCheck, uint[][] memory _EquipCardCheck, uint _FieldCardCheck, uint _LastResortCardCheck) 
-        public 
-    {
+    function setPlayerName(string memory _playerName) public {
+        playerNames[msg.sender] = _playerName;
+    }
+
+    function getPlayerName(address _playerAddress) public view returns(string memory) { 
+        return playerNames[_playerAddress];
+    }
+
+    function findBattle() public {
+        require(currentBattles[msg.sender] == 0, 'You are already in battle.');
+        require(deckList[msg.sender].length == 40, 'Please select deck.');
+
         uint i;
-        uint[] memory bufferMonsterIds;
-        uint[] memory bufferSpellIds;
-        uint[] memory bufferEquipIds;
+        uint[] memory cardsDeck = new uint[](40);
 
-       for (i = 0; i < _MonsterCardCheck.length; i++){
-            monsterCardCheck[_MonsterCardCheck[i][0]] = _MonsterCardCheck[i][1];
-            bufferMonsterIds[i] = _MonsterCardCheck[i][0];
+        for (i = 0; i < 40; i ++) {
+            cardsDeck[i] = deckList[msg.sender][i];
         }
 
-        for (i = 0; i < _SpellCardCheck.length; i++){
-            spellCardCheck[_SpellCardCheck[i][0]] = _SpellCardCheck[i][1];
-            bufferSpellIds[i] = _SpellCardCheck[i][0];
-        }
-        
-        for (i = 0; i < _EquipCardCheck.length; i++){
-            equipCardCheck[_EquipCardCheck[i][0]] = _EquipCardCheck[i][1];
-            bufferEquipIds[i] = _EquipCardCheck[i][0];
-        }
-        
-       cardChecks[msg.sender] = CardCheck(bufferMonsterIds, bufferSpellIds, bufferEquipIds, _FieldCardCheck, _LastResortCardCheck);
-    }
-
-    function battleMission(uint _battleId) 
-        public 
-    {
-        Battle storage b = battles[_battleId];
-        if(b.playerstate> 0){
-            require(sumTotalAttack(b.player2.player)>=sumTotalDefense(b.player1.player));
-            b.player1.LifePoint = sumTotalAttack(b.player2.player) - sumTotalDefense(b.player1.player);
-        }
-        else{
-            require(sumTotalAttack(b.player1.player)>=sumTotalDefense(b.player2.player));
-            b.player2.LifePoint = sumTotalAttack(b.player1.player) - sumTotalDefense(b.player2.player);
-        }
-
-        b.playerstate = 1- b.playerstate;
-        if (b.playerstate > 0){
-            b.gameTurn++;
-        }
-    }
-
-    function canUseLastResortCard(uint _battleId) 
-        public view 
-        returns(bool)
-    {     
-        Battle storage b = battles[_battleId]; 
-        return b.gameTurn >= 5 ? true : false;
-    }
-
-    function sumTotalAttack(address monsterOwner) public view returns(uint){
-        uint sum = 0;
-        for (uint i = 0; i < cardChecks[monsterOwner].MonsterCardIds.length; i++){
-            if(monsterCardCheck[cardChecks[monsterOwner].MonsterCardIds[i]] > 0){
-                sum+= monsters[monsterOwner][cardChecks[monsterOwner].MonsterCardIds[i]].attackPoint;
+        for (i = 0; i < currentBattleList.length; i ++) {
+            if (currentBattleList[i].isAccepted == false) {
+                break;
             }
         }
-        return sum;
-    }
 
-    function sumTotalDefense(address monsterOwner) 
-        public view 
-        returns(uint)
-    {
-        uint sum = 0;
-        for (uint i = 0; i < cardChecks[monsterOwner].MonsterCardIds.length; i++){
-            if(monsterCardCheck[cardChecks[monsterOwner].MonsterCardIds[i]] > 0){
-                sum+= monsters[monsterOwner][cardChecks[monsterOwner].MonsterCardIds[i]].defensePoint;
-            }
+        if (i == currentBattleList.length) {
+            currentBattleList.push(Battle(
+                _curBattleCounter,
+                BattlePlayer(
+                    msg.sender,
+                    100,
+                    10,
+                    new uint[](0),
+                    new uint[](0),
+                    cardsDeck
+                ),
+                BattlePlayer(
+                    address(0),
+                    0,
+                    0,
+                    new uint[](0),
+                    new uint[](0),
+                    new uint[](0)
+                ),
+                false,
+                address(0),
+                block.timestamp,
+                1,
+                1
+            ));
+
+            currentBattles[msg.sender] = _curBattleCounter;
+            _curBattleCounter = _curBattleCounter + 1;
+        } else {
+            currentBattleList[i].player2 = BattlePlayer(
+                msg.sender,
+                100,
+                10,
+                new uint[](0),
+                new uint[](0),
+                cardsDeck
+            );
+            currentBattleList[i].isAccepted = true;
+            currentBattles[msg.sender] = currentBattleList[i].battleID;
         }
-        return sum;
     }
 
-    // function _transferOwnership(address recipient)
-    //     public onlyOwner
-    // {      
-    //     transferOwnership(recipient);
-    // } 
+    function getBattle(address _sender) public view returns(Battle memory) {
+        require(currentBattles[_sender] != 0, 'You have no battle.');
 
-    function _ownerOfContract() 
-        public view 
-        returns(address)
-    {      
-        return owner();
+        uint i;
+
+        for (i = 0; i < currentBattleList.length; i ++) {
+            if (currentBattleList[i].battleID == currentBattles[_sender]) break;
+        }
+
+        require(i != currentBattleList.length, 'You have no battle.');
+
+        return currentBattleList[i];
     }
-
 }

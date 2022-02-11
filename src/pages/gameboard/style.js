@@ -1,3 +1,4 @@
+import { Autorenew } from '@material-ui/icons';
 import { createStyles } from '@material-ui/styles';
 import theme from '../../theme';
 
@@ -44,10 +45,14 @@ const styles = createStyles({
       '& > div:last-child': {
         justifyContent: 'end',
       },
+
+      '& > div': {
+        display: 'flex'
+      }
     },
   },
   avatar: {
-    width: '40%',
+    width: '20%',
     display: 'flex',
     alignItems: 'center',
     '& > div': {
@@ -55,34 +60,36 @@ const styles = createStyles({
       display: 'flex',
       alignItems: 'center',
       '& > img:first-child': {
-        width: '8vw',
+        width: '6vw',
       },
       '& > img:last-child': {
-        width: '6vw',
-        margin: '1vw',
+        width: '4.5vw',
+        margin: '0.75vw',
         position: 'absolute',
       },
     },
     '& > p': {
       fontFamily: 'RajdhaniBold',
-      fontSize: '2vw',
+      fontSize: '1.5vw',
       fontWeight: '600',
       color: 'white',
     },
   },
   life: {
-    display: 'flex',
+    paddingTop: '1.5vw',
+    display: 'block !important',
     alignItems: 'center',
-    width: '40%',
+    width: '20%',
     '& > img': {
-      width: '12%',
+      width: '14%',
       zIndex: '1',
+      display: 'inline-block',
     },
     '& > div': {
       position: 'relative',
-      display: 'flex',
+      display: 'inline-block',
       alignItems: 'center',
-      width: '30%',
+      width: '40%',
       '& > img:first-child': {
         width: '100%',
       },
@@ -90,6 +97,7 @@ const styles = createStyles({
         position: 'absolute',
         right: '7%',
         height: '45%',
+        top: '0.6vw'
       },
     },
     '& > *:first-child': {
@@ -98,86 +106,84 @@ const styles = createStyles({
   },
   cards_inhand: {
     position: 'relative',
-    width: '20%',
-    display: 'flex',
-    justifyContent: 'center',
-    '& > img': {
-      width: '25%',
-      position: 'absolute',
-      '&:nth-child(2)': {
-        transform: 'rotate(45deg) translate(70%, -15%)',
-      },
-      '&:nth-child(3)': {
-        transform: 'rotate(-45deg) translate(-70%, -10%)',
-      },
-    },
-  },
-  cards_side: {
-    position: 'relative',
-    width: '20%',
-    display: 'flex',
-    '& > img:first-child': {
-      width: '40%',
-    },
-    '& > img:not(:first-child)': {
-      width: '25%',
-      position: 'absolute',
-      '&:nth-last-child(3)': {
-        transform: 'rotate(45deg) translate(20%, -10%)',
-      },
-      '&:nth-last-child(2)': {
-        transform: 'rotate(-45deg) translate(-50%, -20%)',
-      },
-    },
-  },
-  side_card_left: {
-    top: '5%',
-    left: '10%',
-  },
-  side_card_right: {
-    top: '10%',
-    right: '5%',
-  },
-  rotate: {
-    transform: 'rotate(180deg)',
-  },
-  cards_five: {
-    position: 'relative',
     width: '60%',
     display: 'flex',
-    justifyContent: 'center',
+    height: '8vw',
+    justifyContent: 'left',
     '& > img:first-child': {
-      width: '90%',
+      width: '100%',
       position: 'absolute',
       zIndex: '1',
     },
     '& > img:not(:first-child)': {
-      width: '10%',
-      height: 'fit-content',
-      margin: '0 3%',
-      zIndex: '2',
-      transform: 'translateY(15%)',
-    },
-  },
-  cards_three: {
-    position: 'relative',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center !important',
-    marginBottom: '3vh',
-    '& > img:first-child': {
-      width: '30%',
-      position: 'absolute',
-      zIndex: '1',
-    },
-    '& > img:not(:first-child)': {
-      width: '5%',
+      width: '8.5%',
+      top: '-0.1vw',
+      position: "relative",
       height: 'fit-content',
       margin: '0 2%',
       zIndex: '2',
       transform: 'translateY(15%)',
     },
   },
+  cards_play: {
+    width: '60%'
+  },
+  cards_deck: {
+    width: '20%',
+
+    '& > div': {
+      width: '80%',
+      overflow: 'auto',
+      maxHeight: '10vw',
+
+      '&::-webkit-scrollbar-track': {
+        WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.3)',
+        backgroundColor: 'rgba(255, 153, 1, 0.4)',
+        borderRadius: '5px'
+      },
+
+      '&::-webkit-scrollbar': {
+        width: '10px',
+        backgroundColor: 'rgba(255, 153, 1, 0.4)',
+        borderRadius: '5px'
+      },
+
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#F90',
+        borderRadius: '5px',
+        border: '2px solid black',
+        backgroundImage: '-webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent)'
+      }
+    },
+  },
+  battle_history: {
+    width: '20%',
+
+    '& > div': {
+      width: '80%',
+      overflow: 'auto',
+      maxHeight: '10vw',
+
+      '&::-webkit-scrollbar-track': {
+        WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.3)',
+        backgroundColor: 'rgba(255, 153, 1, 0.4)',
+        borderRadius: '5px'
+      },
+
+      '&::-webkit-scrollbar': {
+        width: '10px',
+        backgroundColor: 'rgba(255, 153, 1, 0.4)',
+        borderRadius: '5px'
+      },
+
+      '&::-webkit-scrollbar-thumb': {
+        backgroundColor: '#F90',
+        borderRadius: '5px',
+        border: '2px solid black',
+        backgroundImage: '-webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent)'
+      }
+    },
+  }
 });
 
 export default styles;

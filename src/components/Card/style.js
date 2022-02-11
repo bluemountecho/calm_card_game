@@ -143,6 +143,7 @@ const styles = createStyles({
         },
 
         '& .cardRow-Cost': {
+            zIndex: '2',
             fontFamily: '"Belwe Bold" !important',
             "position": "absolute",
             "top": "0px",
@@ -163,6 +164,7 @@ const styles = createStyles({
         },
 
         '& .cardRow-Name': {
+            zIndex: '2',
             fontFamily: '"Belwe Bold" !important',
             "textOverflow": "ellipsis",
             "position": "absolute",
@@ -183,10 +185,10 @@ const styles = createStyles({
         },
 
         '& .cardRow-fill': {
+            zIndex: '0',
             "position": "absolute",
             "width": "calc(100% - 50px)",
             "height": "100%",
-            "zIndex": "-2",
             "top": "0px",
             "left": "30px",
             "backgroundColor": "rgb(41, 46, 60)"
@@ -194,7 +196,7 @@ const styles = createStyles({
 
         '& .cardRow-cropImage': {
             "position": "absolute",
-            "zIndex": "-2",
+            "zIndex": "0",
             "top": "0px",
             "right": "30px",
             "width": "150px",
@@ -205,7 +207,7 @@ const styles = createStyles({
 
         '& .cardRow-cropMask': {
             "position": "absolute",
-            "zIndex": "-1",
+            "zIndex": "1",
             "top": "0px",
             "right": "30px",
             "width": "150px",
@@ -220,7 +222,6 @@ const styles = createStyles({
             "right": "0px",
             "width": "50px",
             "textAlign": "right",
-            "zIndex": "-1",
             "background": "url(/images/deck/card_list_right.png) 0% 0% / 50px 44px no-repeat",
             "padding": "0px 13px 0px 0px",
             zIndex: '5',

@@ -237,7 +237,7 @@ const styles = createStyles({
     paddingTop: '35px',
     paddingBottom: '23px',
     paddingLeft: "30px",
-    justifyContent: 'center'
+    paddingRight: "30px"
   },
   
   button: {
@@ -246,9 +246,11 @@ const styles = createStyles({
     height: '100%',
     backgroundImage: 'url("/images/button_startgame.png")',
     backgroundSize: 'cover',
-    display: 'flex',
+    display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
+    margin: '0px auto',
+
     '&:hover': {
       opacity: '0.8',
     },

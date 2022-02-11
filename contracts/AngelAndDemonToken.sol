@@ -28,23 +28,26 @@ contract AngelAndDemonToken is ERC721, ERC721URIStorage, Ownable {
 		_tokenIdCounter.increment();
 	}
 	
-	function safeMintTo(address _to, string memory tokenURI_) public payable {
+	function safeMintTo(address _to, string memory tokenURI_) public payable returns(uint) {
 		//require(isSaleActive, "Sale is currently not active");
 		//require(MAX_TOKENS > _tokenIdCounter.current() + 1, "Not enough tokens left to buy.");
 		//require(msg.value >= FEE, "Value below price");
+		uint current = _tokenIdCounter.current();
 
 		_safeMint(_to, _tokenIdCounter.current());
 		_setTokenURI(_tokenIdCounter.current(), tokenURI_);
-		_tokenIdCounter.increment();		
+		_tokenIdCounter.increment();
+
+		return current;
 	}
 	
-	function safeMintBulk(string memory tokenURI_, uint Noftokens) public payable {
+	function safeMintBulk(string[] memory tokenURI_, uint Noftokens) public payable {
 		//require(isSaleActive, "Sale is currently not active");
 		//require(MAX_TOKENS > _tokenIdCounter.current() + 1, "Not enough tokens left to buy.");
 		require(Noftokens < 250,'Too high number'); //let's try a limit of 250
 		
 		for (uint i = 0; i < Noftokens; i ++) {
-			safeMint(tokenURI_);
+			safeMint(tokenURI_[i]);
 		}
 	}
 	
@@ -124,11 +127,11 @@ contract AngelAndDemonToken is ERC721, ERC721URIStorage, Ownable {
         require(success, "Transfer failed.");
     }
 	
-	function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
-        require(
-            _isApprovedOrOwner(_msgSender(), tokenId),
-            "ERC721: transfer caller is not owner nor approved"
-        );
-        _setTokenURI(tokenId, _tokenURI);
-    }
+	// function setTokenURI(uint256 tokenId, string memory _tokenURI) public {
+    //     require(
+    //         _isApprovedOrOwner(_msgSender(), tokenId),
+    //         "ERC721: transfer caller is not owner nor approved"
+    //     );
+    //     _setTokenURI(tokenId, _tokenURI);
+    // }
 }

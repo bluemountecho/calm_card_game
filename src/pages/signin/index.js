@@ -1,20 +1,54 @@
 
-import React, {useState, useEffect} from 'react';
-import { Router, Link } from "react-router-dom";
+import React, {useState} from 'react';
 import { makeStyles, TextField } from '@material-ui/core';
 import styles from './style';
-import {connect} from '../../components/connector'
+import {connect, getPlayerName, setPlayerName} from '../../components/connector'
+import { useRouter } from 'next/router'
+import $ from "jquery"
 
 const useStyles = makeStyles(styles);
 
 function SigninPage() {
   const classes = useStyles()
-  const [ username, setUsername ] = useState('')
+  const router = useRouter()
+  var originalName = ''
+  var username = ''
+  var flag = true
+
+  connect(async function (account) {
+    username = originalName = await getPlayerName(account)
+    $('#usernameInput').val(originalName)
+  })
 
   function OnLogin() {
+    if (flag == false) return
+
+    flag = false
+    username = $('#usernameInput').val()
+
+    if (username == '') {
+      alert('Please enter your name!')
+      return
+    }
+
+    connect(OnConnected)
   }
 
-  connect()
+  async function OnConnected(account) {
+    if (username != originalName) {
+      setPlayerName(account, username, () => {
+        router.push('/makedeck')
+      })
+      .catch(err => {
+        console.log(err)
+        if (originalName != '') {
+          router.push('/makedeck')
+        }
+      })
+    } else {
+      router.push('/makedeck')
+    }
+  }
 
   return (
     <>
@@ -22,9 +56,8 @@ function SigninPage() {
         <img src="/images/logo.png" alt="" />
         <TextField
           className={classes.textfield}
-          variant="outlined" 
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
+          variant="outlined"
+          id="usernameInput"
           placeholder="Enter Your Name"
         />
         <div className={classes.button} onClick={OnLogin}>

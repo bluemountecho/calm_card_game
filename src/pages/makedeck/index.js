@@ -4,51 +4,17 @@ import { Button, makeStyles } from '@material-ui/core'
 import { useRouter } from 'next/router'
 import styles from './style'
 import Card from '../../components/Card/Card';
-import {connect} from '../../components/connector'
+import {connect, addCardsToPlayer, getCardsOfPlayer, addCardsToDeck, getCardsFromDeck, findBattle} from '../../components/connector'
 
 const useStyles = makeStyles(styles);
-
-var monsterCards = []
-var spellCards = []
-var equipCards = []
-
-for (var i = 1; i <= 38; i ++) {
-  monsterCards.push({
-    Type: "Monster",
-    Card: "card0a",
-    CardName: "Monster" + i,
-    AttackPoint: 20 + i % 10,
-    DefensePoint: 20 - i % 10,
-    ManaCost: Math.floor(i / 10 + 1),
-  })
-}
-
-for (var i = 1; i <= 51; i ++) {
-  spellCards.push({
-    Type: "Spell",
-    Card: "card0b",
-    CardName: "Spell" + i,
-    AttackPoint: 5 + i % 3,
-    DefensePoint: 5 - i % 3,
-    ManaCost: Math.floor(i / 10 + 1),
-  })
-}
-
-for (var i = 1; i <= 33; i ++) {
-  equipCards.push({
-    Type: "Equip",
-    Card: "card8c",
-    CardName: "Equip" + i,
-    AttackPoint: 5 + i % 3,
-    DefensePoint: 5 - i % 3,
-    ManaCost: Math.floor(i / 10 + 1),
-  })
-}
 
 function MakeDeckPage() {
   const classes = useStyles();
   const router = useRouter();
   const [addedCards, setAddedCards] = useState([])
+  const [monsterCards, setMonsterCards] = useState([])
+  const [spellCards, setSpellCards] = useState([])
+  const [equipCards, setEquipCards] = useState([])
 
   function SetAddedCards(cardObj, idx = -1) {
     if (idx == -1) {
@@ -60,12 +26,121 @@ function MakeDeckPage() {
 
   useEffect(() => {
     window.jQuery = require('../../../public/js/jquery.min');
-    connect()
+
+    connect((account) => {
+      getCardsOfPlayer(account)
+      .then(async (res) => {
+        if (res[0].length == 0 || res[2].length == 0 || res[4].length == 0) {
+          addCardsToPlayer(account, () => {
+          })
+        } else {
+          var arr1 = []
+  
+          for (var i = 0; i < res[0].length; i ++) {          
+            arr1.push({
+              Type: "Monster",
+              Card: res[1][i],
+              CardName: "Monster" + (i + 1),
+              AttackPoint: res[0][i][0],
+              DefensePoint: res[0][i][1],
+              ManaCost: res[0][i][2],
+              TokenID: res[2][i]
+            })
+          }
+  
+          await setMonsterCards(arr1)
+
+          var arr2 = []
+  
+          for (var i = 0; i < res[3].length; i ++) {          
+            arr2.push({
+              Type: "Spell",
+              Card: res[4][i],
+              CardName: "Spell" + (i + 1),
+              AttackPoint: res[3][i][0],
+              DefensePoint: res[3][i][1],
+              ManaCost: res[3][i][2],
+              TokenID: res[5][i]
+            })
+          }
+  
+          await setSpellCards(arr2)
+
+          var arr3 = []
+  
+          for (var i = 0; i < res[6].length; i ++) {          
+            arr3.push({
+              Type: "Equip",
+              Card: res[7][i],
+              CardName: "Equip" + (i + 1),
+              AttackPoint: res[6][i][0],
+              DefensePoint: res[6][i][1],
+              ManaCost: res[6][i][2],
+              TokenID: res[8][i]
+            })
+          }
+  
+          await setEquipCards(arr3)
+          getCardsFromDeck(account)
+          .then(res => {
+            var arr = []
+
+            for (var i = 0; i < arr1.length; i ++) {
+              if (res.includes(arr1[i].TokenID)) {
+                arr.push({
+                  Type: arr1[i].Type,
+                  Card: arr1[i].Card,
+                  CardName: arr1[i].CardName,
+                  AttackPoint: arr1[i].AttackPoint,
+                  DefensePoint: arr1[i].DefensePoint,
+                  ManaCost: arr1[i].ManaCost,
+                  IsNew: true,
+                  TokenID: arr1[i].TokenID
+                })
+              }
+            }
+
+            for (var i = 0; i < arr2.length; i ++) {
+              if (res.includes(arr2[i].TokenID)) {
+                arr.push({
+                  Type: arr2[i].Type,
+                  Card: arr2[i].Card,
+                  CardName: arr2[i].CardName,
+                  AttackPoint: arr2[i].AttackPoint,
+                  DefensePoint: arr2[i].DefensePoint,
+                  ManaCost: arr2[i].ManaCost,
+                  IsNew: true,
+                  TokenID: arr2[i].TokenID
+                })
+              }
+            }
+
+            for (var i = 0; i < arr3.length; i ++) {
+              if (res.includes(arr3[i].TokenID)) {
+                arr.push({
+                  Type: arr3[i].Type,
+                  Card: arr3[i].Card,
+                  CardName: arr3[i].CardName,
+                  AttackPoint: arr3[i].AttackPoint,
+                  DefensePoint: arr3[i].DefensePoint,
+                  ManaCost: arr3[i].ManaCost,
+                  IsNew: true,
+                  TokenID: arr3[i].TokenID
+                })
+              }
+            }
+
+            setAddedCards(arr)
+          })
+        }
+      })
+    }).catch(err => {
+      router.push('/signin')
+    })
 
     const maxTilt = 30;
 
-    window.jQuery(".b-game-card")
-      .mousemove(function(evt) {
+    window.jQuery(document).on('mousemove', ".b-game-card", function(evt) {
           let bounding = mouseOverBoundingElem(evt);
 
           let posX = bounding.width / 2 - bounding.x;
@@ -82,7 +157,7 @@ function MakeDeckPage() {
               transform: `translateX(${posX * ratio * 0.75}px) translateY(${posY * ratio}px)` // 0.75 = offset
           });
       })
-      .mouseleave(function() {
+      .on('mouseleave', ".b-game-card", function() {
           let css = {
               transform: "",
               filter: ""
@@ -109,6 +184,9 @@ function MakeDeckPage() {
       <div className={classes.deckContainer}>
         <div className={classes.container}>
           <CardList
+            monsterCards={monsterCards}
+            spellCards={spellCards}
+            equipCards={equipCards}
             addedCards={addedCards}
             SetAddedCards={SetAddedCards}
           />
@@ -131,7 +209,7 @@ function CardList(props) {
       <div className={classes.cardList}>
         <CardListTitle title="Monster Cards" haveTopSpace="false" />
         <div className={classes['l-container']}>
-          { monsterCards.map((card, index) => (<Card
+          { props.monsterCards.map((card, index) => (<Card
             CardShowType="big"
             Type={card.Type}
             Card={card.Card}
@@ -143,11 +221,12 @@ function CardList(props) {
             CardID={'Monster_' + index}
             addedCards={props.addedCards}
             SetAddedCards={props.SetAddedCards}
+            TokenID={card.TokenID}
           />))}
         </div>
         <CardListTitle title="Spell Cards" haveTopSpace="true" />
         <div className={classes['l-container']}>
-          { spellCards.map((card, index) => (<Card
+          { props.spellCards.map((card, index) => (<Card
             CardShowType="big"
             Type={card.Type}
             Card={card.Card}
@@ -159,11 +238,12 @@ function CardList(props) {
             CardID={'Spell_' + index}
             addedCards={props.addedCards}
             SetAddedCards={props.SetAddedCards}
+            TokenID={card.TokenID}
           />))}
         </div>
         <CardListTitle title="Equip Cards" haveTopSpace="true" />
         <div className={classes['l-container']}>
-          { equipCards.map((card, index) => (<Card
+          { props.equipCards.map((card, index) => (<Card
             CardShowType="big"
             Type={card.Type}
             Card={card.Card}
@@ -175,6 +255,7 @@ function CardList(props) {
             CardID={'Equip_' + index}
             addedCards={props.addedCards}
             SetAddedCards={props.SetAddedCards}
+            TokenID={card.TokenID}
           />))}
         </div>
       </div>
@@ -237,7 +318,9 @@ function DeckCardList(props) {
           addedCards={props.addedCards}
           SetAddedCards={props.SetAddedCards}
         />
-        <DeckCardListFooter />
+        <DeckCardListFooter
+          addedCards={props.addedCards}
+        />
       </div>
     </>
   )
@@ -289,15 +372,73 @@ function DeckCardListBody(props) {
   )
 }
 
-function DeckCardListFooter() {
+function DeckCardListFooter(props) {
   const classes = useStyles()
   const router = useRouter()
+  var flag = true
+
+  async function startGame(isStart = true) {
+    if (props.addedCards.length != 40) {
+      alert('Please select 40 cards!')
+    }
+    if (flag == false) return
+
+    connect(async (account) => {
+      var res = await getCardsFromDeck(account)
+
+      for (var i = 0; i < 40; i ++) {
+        if (!res.includes(props.addedCards[i].TokenID)) break
+      }
+
+      if (i < 40) {
+        flag = false
+        var cardIDs = []
+  
+        for (var i = 0; i < props.addedCards.length; i ++) {
+          cardIDs.push(props.addedCards[i].TokenID)
+        }
+
+        addCardsToDeck(account, cardIDs, () => {
+          if (isStart) {
+            findBattle(account, () => {
+              router.push('/gameboard')
+            }, () => {
+              router.push('/gameboard')
+            })
+          }
+          flag = true
+        }, () => {
+          if (isStart) {
+            findBattle(account, () => {
+              router.push('/gameboard')
+            }, () => {
+              router.push('/gameboard')
+            })
+          }
+          flag = true
+        })
+      } else {
+        if (isStart) {
+          findBattle(account, () => {
+            router.push('/gameboard')
+          }, () => {
+            router.push('/gameboard')
+          })
+        }
+      }
+    })
+  }
 
   return (
     <>
       <div className={classes.deckCardListFooter}>
-        <div className={classes.button} onClick={() => router.push('/gameboard')}>
-          <p>Start Game</p>
+        <div style={{display: 'block', width: 'fit-content', margin: '0px auto', height: '50px'}}>
+          <div className={classes.button} onClick={() => startGame(false)}>
+            <p>Save Deck</p>
+          </div>
+          <div className={classes.button} onClick={() => startGame()}>
+            <p>Start Game</p>
+          </div>
         </div>
       </div>
     </>
