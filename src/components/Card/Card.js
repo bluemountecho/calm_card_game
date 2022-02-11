@@ -68,31 +68,32 @@ export default (props) => {
         })
     }
 
-    // function onClickPlaySmall(e) {
-    //     var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
-    //     var tmpArr = []
-    //     var i
+    function onClickPlaySmall(e) {
+        if (props.isSelf == false) return
+        var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
+        var tmpArr = []
+        var i
 
-    //     console.log(tmpInfo)
+        if (tmpInfo[3].length == 8) return
 
-    //     for (i = 0; i < tmpInfo.cardsDeck.length; i ++) {
-    //         if (tmpInfo.cardsDeck[i] == props.TokenID) {
-    //             break;
-    //         }
+        for (i = 0; i < tmpInfo[5].length; i ++) {
+            if (tmpInfo[5][i] == props.TokenID) {
+                break;
+            }
 
-    //         tmpArr.push(tmpInfo.cardsDeck[i])
-    //     }
+            tmpArr.push(tmpInfo[5][i])
+        }
 
-    //     i ++
+        i ++
 
-    //     for (; i < tmpInfo.cardsDeck.length; i ++) {
-    //         tmpArr.push(tmpInfo.cardsDeck[i])
-    //     }
+        for (; i < tmpInfo[5].length; i ++) {
+            tmpArr.push(tmpInfo[5][i])
+        }
 
-    //     tmpInfo.cardsInHand = tmpArr
-
-    //     props.setPlayerInfo(tmpInfo)
-    // }
+        tmpInfo[5] = tmpArr
+        tmpInfo[3].push(props.TokenID)
+        props.setPlayerInfo(tmpInfo)
+    }
 
     if (props.CardShowType == 'big') {
         return (
@@ -154,7 +155,7 @@ export default (props) => {
     } else if (props.CardShowType == 'play_small') {
         return (
             <>
-                <div className={classes.smallCard}>
+                <div className={classes.smallCard} onClick={(e) => onClickPlaySmall(e)}>
                     <div className="CardRow">
                         <span className="overlay" style={{backgroundImage: 'url(' + props.Card + ')'}}></span>
                         <span className="cardRow-Cost">{props.ManaCost}</span>
@@ -167,5 +168,16 @@ export default (props) => {
                 </div>
             </>
         )
+    } else if (props.CardShowType == 'play_big') {
+        return (
+            <>
+                <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '}>
+                    <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
+                        <div className='gloss'></div>
+                        <div className="explore-effect"></div>
+                    </div>
+                </div>
+            </>
+        );
     }
 };

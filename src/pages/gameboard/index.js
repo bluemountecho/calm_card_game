@@ -16,7 +16,7 @@ const PlayerBoard = (props) => {
     <div className={classes.board}>
       {!isSelf && <div>
         <Avatar name={name} avatar={avatar} isSelf={isSelf} />
-        <CardsInHand cards={playerInfo.cardsInHand} setPlayerInfo={setPlayerInfo} />
+        <CardsInHand cards={playerInfo[3]} setPlayerInfo={setPlayerInfo} monsterCards={monsterCards} spellCards={spellCards} equipCards={equipCards} />
         <Life isSelf={isSelf} life={life} mana={mana} />
       </div>}
       <div>
@@ -26,7 +26,7 @@ const PlayerBoard = (props) => {
       </div>
       {isSelf && <div>
         <Life isSelf={isSelf} life={life} mana={mana} />
-        <CardsInHand cards={playerInfo.cardsInHand} setPlayerInfo={setPlayerInfo} />
+        <CardsInHand cards={playerInfo[3]} setPlayerInfo={setPlayerInfo} monsterCards={monsterCards} spellCards={spellCards} equipCards={equipCards} />
         <Avatar name={name} avatar={avatar} isSelf={isSelf} />
       </div>}
     </div>
@@ -75,16 +75,70 @@ const Life = (props) => {
 
 const CardsInHand = (props) => {
   const classes = useStyles();
-  var { cards } = props
+  var { cards, monsterCards, spellCards, equipCards } = props
+  var handCardsData = []
 
   if (!cards) cards = []
+
+  for (var i = 0; i < monsterCards.length; i ++) {
+    if (cards.includes(monsterCards[i].TokenID)) {
+      handCardsData.push({
+        Type: monsterCards[i].Type,
+        Card: monsterCards[i].Card,
+        CardName: monsterCards[i].CardName,
+        AttackPoint: monsterCards[i].AttackPoint,
+        DefensePoint: monsterCards[i].DefensePoint,
+        ManaCost: monsterCards[i].ManaCost,
+        IsNew: true,
+        TokenID: monsterCards[i].TokenID
+      })
+    }
+  }
+
+  for (var i = 0; i < spellCards.length; i ++) {
+    if (cards.includes(spellCards[i].TokenID)) {
+      handCardsData.push({
+        Type: spellCards[i].Type,
+        Card: spellCards[i].Card,
+        CardName: spellCards[i].CardName,
+        AttackPoint: spellCards[i].AttackPoint,
+        DefensePoint: spellCards[i].DefensePoint,
+        ManaCost: spellCards[i].ManaCost,
+        IsNew: true,
+        TokenID: spellCards[i].TokenID
+      })
+    }
+  }
+
+  for (var i = 0; i < equipCards.length; i ++) {
+    if (cards.includes(equipCards[i].TokenID)) {
+      handCardsData.push({
+        Type: equipCards[i].Type,
+        Card: equipCards[i].Card,
+        CardName: equipCards[i].CardName,
+        AttackPoint: equipCards[i].AttackPoint,
+        DefensePoint: equipCards[i].DefensePoint,
+        ManaCost: equipCards[i].ManaCost,
+        IsNew: true,
+        TokenID: equipCards[i].TokenID
+      })
+    }
+  }
 
   return (
     <div className={classes.cards_inhand}>
       <img src="/images/cards5_back.png" alt="" />
-      { cards.map((card, index) => (
-        <img src={`/images/card${card}.png`} alt="" key={index} />
-      ))}
+      { handCardsData.map((card, index) => (<Card
+        CardShowType="play_big"
+        Type={card.Type}
+        Card={card.Card}
+        CardName={card.CardName}
+        AttackPoint={card.AttackPoint}
+        DefensePoint={card.DefensePoint}
+        ManaCost={card.ManaCost}
+        key={index}
+        TokenID={card.TokenID}
+      />))}
     </div>
   )
 }
@@ -105,7 +159,7 @@ const CardsPlay = (props) => {
 const CardsDeck = (props) => {
   const classes = useStyles();
   const { cards, isSelf, playerInfo, monsterCards, spellCards, equipCards, setPlayerInfo } = props;
-  var cardsDeck = playerInfo.cardsDeck
+  var cardsDeck = playerInfo[5]
   var deckCardsData = []
   
   if (!cardsDeck) return(<></>)

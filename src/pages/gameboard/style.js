@@ -115,14 +115,19 @@ const styles = createStyles({
       position: 'absolute',
       zIndex: '1',
     },
-    '& > img:not(:first-child)': {
+    '& > .b-game-card': {
       width: '8.5%',
-      top: '-0.1vw',
+      top: '0.6vw',
       position: "relative",
-      height: 'fit-content',
+      // height: 'fit-content',
       margin: '0 2%',
-      zIndex: '2',
-      transform: 'translateY(15%)',
+      padding: '0px',
+      // zIndex: '2',
+      // transform: 'translateY(15%)',
+
+      '& .cover': {
+        height: '80%'
+      }
     },
   },
   cards_play: {
