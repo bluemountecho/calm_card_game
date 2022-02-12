@@ -5,6 +5,7 @@ import { useRouter } from 'next/router'
 import styles from './style'
 import Card from '../../components/Card/Card';
 import {connect, addCardsToPlayer, getCardsOfPlayer, addCardsToDeck, getCardsFromDeck, findBattle} from '../../components/connector'
+import $ from 'jquery'
 
 const useStyles = makeStyles(styles);
 
@@ -25,8 +26,6 @@ function MakeDeckPage() {
   }
 
   useEffect(() => {
-    window.jQuery = require('../../../public/js/jquery.min');
-
     connect((account) => {
       getCardsOfPlayer(account)
       .then(async (res) => {
@@ -140,7 +139,7 @@ function MakeDeckPage() {
 
     const maxTilt = 30;
 
-    window.jQuery(document).on('mousemove', ".b-game-card", function(evt) {
+    $(document).on('mousemove', ".b-game-card", function(evt) {
           let bounding = mouseOverBoundingElem(evt);
 
           let posX = bounding.width / 2 - bounding.x;
@@ -149,11 +148,11 @@ function MakeDeckPage() {
           let hypotenuseMax = Math.sqrt(Math.pow(bounding.width / 2, 2) + Math.pow(bounding.height / 2, 2));
           let ratio = hypotenuseCursor / hypotenuseMax;
 
-          window.jQuery(".cover", this).css({
+          $(".cover", this).css({
               transform: `rotate3d(${-posY / hypotenuseCursor}, ${+posX / hypotenuseCursor}, 0, ${ratio * maxTilt}deg)`,
               // filter: `brightness(${1.6 - bounding.y / bounding.height})` // 0.6 = offset, brightness will be from 0.6 to 1.6
           });
-          window.jQuery(".gloss", this).css({
+          $(".gloss", this).css({
               transform: `translateX(${posX * ratio * 0.75}px) translateY(${posY * ratio}px)` // 0.75 = offset
           });
       })
@@ -162,7 +161,7 @@ function MakeDeckPage() {
               transform: "",
               filter: ""
           };
-          window.jQuery(".cover, .gloss", this).css(css);
+          $(".cover, .gloss", this).css(css);
       });
 
     function mouseOverBoundingElem(evt) {

@@ -31,7 +31,7 @@ export const connect = async function(onConnected = null) {
         });
 
         if (accounts.length > 0) {
-            $('#signIn').html('Sign In<br/>(' + accounts[0].substring(0, 5) + '...' + accounts[0].substring(accounts[0].length - 4) + ')')
+            window.document.querySelector('#signIn').innerHTML = ('Sign In<br/>(' + accounts[0].substring(0, 5) + '...' + accounts[0].substring(accounts[0].length - 4) + ')')
 
             if (onConnected != null) {
                 onConnected(accounts[0])
@@ -44,7 +44,7 @@ export const connect = async function(onConnected = null) {
         });
 
         if (accounts.length > 0) {
-            $('#signIn').html('Sign In<br/>(' + accounts[0].substring(0, 5) + '...' + accounts[0].substring(accounts[0].length - 4) + ')')
+            window.document.querySelector('#signIn').innerHTML = ('Sign In<br/>(' + accounts[0].substring(0, 5) + '...' + accounts[0].substring(accounts[0].length - 4) + ')')
         
             if (onConnected != null) {
                 onConnected(accounts[0])
@@ -52,9 +52,13 @@ export const connect = async function(onConnected = null) {
             return
         }
 
-        $('#signIn').html('Sign In')
+        window.document.querySelector('#signIn').innerHTML = ('Sign In')
     } catch (err) {
-        $('#signIn').html('Sign In')
+        try {
+            window.document.querySelector('#signIn').innerHTML = ('Sign In')
+        } catch (err) {
+
+        }
     }    
 }
 
