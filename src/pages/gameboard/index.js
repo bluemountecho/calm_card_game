@@ -622,8 +622,8 @@ function GameBoardPage() {
 
       if (res[8] == 1) {
         setTimeout(function () {
-          waitForAttack(account)
-        }, 3000)
+          waitForEndTurn(account)
+        }, 5000)
 
         return
       }
