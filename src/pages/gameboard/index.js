@@ -10,7 +10,7 @@ const useStyles = makeStyles(styles);
 
 const PlayerBoard = (props) => {
   const classes = useStyles();
-  const { name, avatar, isSelf, playerInfo, monsterCards, spellCards, equipCards, setPlayerInfo, battleInfo, setBattleInfo } = props;
+  const { name, avatar, isSelf, playerInfo, monsterCards, spellCards, equipCards, setPlayerInfo, battleInfo, setBattleInfo, setPlayerInfo1, setPlayerInfo2, setAttackOrDefense } = props;
 
   return (
     <div className={classes.board}>
@@ -28,7 +28,11 @@ const PlayerBoard = (props) => {
           playerInfo={playerInfo}
           monsterCards={monsterCards}
           spellCards={spellCards}
-          equipCards={equipCards} />
+          equipCards={equipCards}
+          setPlayerInfo1={setPlayerInfo1}
+          setPlayerInfo2={setPlayerInfo2}
+          setAttackOrDefense={setAttackOrDefense}
+          />
         <Life
           isSelf={isSelf}
           life={playerInfo[1]}
@@ -71,7 +75,10 @@ const PlayerBoard = (props) => {
           setPlayerInfo={setPlayerInfo}
           monsterCards={monsterCards}
           spellCards={spellCards}
-          equipCards={equipCards} />
+          equipCards={equipCards}
+          setPlayerInfo1={setPlayerInfo1}
+          setPlayerInfo2={setPlayerInfo2}
+          setAttackOrDefense={setAttackOrDefense} />
         <Avatar
           name={name}
           avatar={avatar}
@@ -113,8 +120,8 @@ const Life = (props) => {
       {isSelf && <img src="/images/life_mark.png" alt="" />}
       <div>
         <img src="/images/life_back.png" alt="" />
-        {!isSelf && <img src="/images/life_line.png" alt="" style={{width: `${mana * 8.5}%`}} />}
-        {isSelf && <img src="/images/life_line.png" alt="" style={{width: `${mana * 8.5}%`, left: '7%'}} />}
+        {!isSelf && <img src="/images/life_line.png" alt="" style={{width: `${mana * 4.25}%`}} />}
+        {isSelf && <img src="/images/life_line.png" alt="" style={{width: `${mana * 4.25}%`, left: '7%'}} />}
       </div>
       {!isSelf && <img src="/images/life_mark.png" alt="" />}<br/>
     </div>
@@ -123,7 +130,7 @@ const Life = (props) => {
 
 const CardsInHand = (props) => {
   const classes = useStyles();
-  var { cards, isSelf, monsterCards, spellCards, equipCards, playerInfo, setPlayerInfo, battleInfo, setBattleInfo } = props
+  var { cards, isSelf, monsterCards, spellCards, equipCards, playerInfo, setPlayerInfo, battleInfo, setBattleInfo, setPlayerInfo1, setPlayerInfo2, setAttackOrDefense } = props
   var handCardsData = []
 
   if (!cards) cards = []
@@ -179,18 +186,36 @@ const CardsInHand = (props) => {
 
   function onReadyClick() {
     if (playerInfo[3].length != 8) return
+
     function waitForReady(account) {
       console.log('Wait For Ready')
       getBattle(account).then(res => {
-        setBattleInfo(res)
         if (res[1][0] == '0x0000000000000000000000000000000000000000' || res[2][0] == '0x0000000000000000000000000000000000000000') return
+        setBattleInfo(res)
 
-        var opponent = res[1][0].toLowerCase() == account ? res[2] : res[1]
+        var player = res.player1
+        var enemyPlayer = res.player2
 
-        if (opponent[3].length == 0) {
+        if (enemyPlayer.playerAddress.toLowerCase() == account.toLowerCase()) {
+          enemyPlayer = res.player1
+          player = res.player2
+        }
+
+        if (player[3].length != 0 && enemyPlayer[3].length == 0) {
           setTimeout(function () {
             waitForReady(account)
           }, 5000)
+
+          return
+        }
+
+        setPlayerInfo1(enemyPlayer)
+        setPlayerInfo2(player)
+
+        if ((res[1][0] == player[0] && res[6] == 1) || (res[2][0] == player[0] && res[6] == 2)) {
+          setAttackOrDefense('Attack')
+        } else {
+          setAttackOrDefense('Defense')
         }
       })
     }
@@ -721,6 +746,9 @@ function GameBoardPage() {
           setPlayerInfo={setPlayerInfo2}
           battleInfo={battleInfo}
           setBattleInfo={setBattleInfo}
+          setAttackOrDefense={setAttackOrDefense}
+          setPlayerInfo1={setPlayerInfo1}
+          setPlayerInfo2={setPlayerInfo2}
         />
       </div>
     </>

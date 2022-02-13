@@ -39,6 +39,7 @@ function MakeDeckPage() {
       .then(async (res) => {
         if (res[0].length == 0 || res[2].length == 0 || res[4].length == 0) {
           addCardsToPlayer(account, () => {
+            window.location.href = '/makedeck'
           })
         } else {
           var arr1 = []

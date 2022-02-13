@@ -100,7 +100,8 @@ const styles = createStyles({
         position: 'absolute',
         right: '7%',
         height: '45%',
-        top: '0.6vw'
+        top: '0.6vw',
+        width: '0%'
       },
     },
     '& > *:first-child': {

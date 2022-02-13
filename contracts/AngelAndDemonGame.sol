@@ -215,8 +215,8 @@ contract AngelAndDemonGame is Ownable {
                 _curBattleCounter,
                 BattlePlayer(
                     msg.sender,
-                    100,
-                    10,
+                    _lifePoint,
+                    _manaPoint,
                     new uint[](0),
                     new uint[](0),
                     cardsDeck
@@ -242,8 +242,8 @@ contract AngelAndDemonGame is Ownable {
         } else {
             currentBattleList[i].player2 = BattlePlayer(
                 msg.sender,
-                100,
-                10,
+                _lifePoint,
+                _manaPoint,
                 new uint[](0),
                 new uint[](0),
                 cardsDeck
@@ -288,8 +288,22 @@ contract AngelAndDemonGame is Ownable {
         return (monster.attackPoint + attack, monster.defensePoint + defense, monster.manaCost + mana);
     }
 
-    function updateBattle(Battle memory _battle) public {
+    function updateBattle(Battle memory _battle, uint isPlayer1) public {
         require(currentBattles[msg.sender] != 0, 'You have no battle.');
+
+        uint i;
+
+        for (i = 0; i < currentBattleList.length; i ++) {
+            if (currentBattleList[i].battleID == currentBattles[msg.sender]) break;
+        }
+
+        require(i != currentBattleList.length, 'You have no battle.');
+
+        if (isPlayer1 == 1) {
+            _battle.player2 = currentBattleList[i].player2;
+        } else {
+            _battle.player1 = currentBattleList[i].player1;
+        }
 
         if (_battle.player1.cardsInPlay.length != 0 && _battle.player2.cardsInPlay.length != 0) {
             require(_battle.isCalculated == 0, 'Please end your turn.');
@@ -319,14 +333,6 @@ contract AngelAndDemonGame is Ownable {
 
             _battle.isCalculated = 1;
         }
-
-        uint i;
-
-        for (i = 0; i < currentBattleList.length; i ++) {
-            if (currentBattleList[i].battleID == currentBattles[msg.sender]) break;
-        }
-
-        require(i != currentBattleList.length, 'You have no battle.');
 
         currentBattleList[i] = _battle;
     }

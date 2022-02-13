@@ -17,7 +17,7 @@ export const connect = async function(onConnected = null) {
             web3 = new Web3(window.ethereum)
             ANDContract = new web3.eth.Contract(
                 AngelAndDemonGame.abi,
-                "0x76239128f6936b9c952817d818d1D359316D6F48"
+                "0xaa095cB5263554A6db6526445a2d32a138320fB1"
             )
         }
 
@@ -200,7 +200,13 @@ export const getBattle = async function (address) {
 }
 
 export const updateBattle = async function (address, battle, callback = () => {}, reject = () => {}) {
-    ANDContract.methods.updateBattle(battle).send({from: address})
+    var isPlayer1 = 0
+
+    if (address.toLowerCase() == battle[1][0].toLowerCase()) {
+        isPlayer1 = 1
+    }
+
+    ANDContract.methods.updateBattle(battle, isPlayer1).send({from: address})
     .on('confirmation', function (confirmationNumber, receipent) {
         callback()
     })
