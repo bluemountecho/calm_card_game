@@ -17,7 +17,7 @@ export const connect = async function(onConnected = null) {
             web3 = new Web3(window.ethereum)
             ANDContract = new web3.eth.Contract(
                 AngelAndDemonGame.abi,
-                "0xC283e47073C0eD68d601E6Ec856C2601f28D9095"
+                "0x76239128f6936b9c952817d818d1D359316D6F48"
             )
         }
 
@@ -57,7 +57,6 @@ export const connect = async function(onConnected = null) {
         try {
             window.document.querySelector('#signIn').innerHTML = ('Sign In')
         } catch (err) {
-
         }
     }    
 }
@@ -198,4 +197,24 @@ export const getBattle = async function (address) {
     var res = await ANDContract.methods.getBattle(address).call()
 
     return res
+}
+
+export const updateBattle = async function (address, battle, callback = () => {}, reject = () => {}) {
+    ANDContract.methods.updateBattle(battle).send({from: address})
+    .on('confirmation', function (confirmationNumber, receipent) {
+        callback()
+    })
+    .on('error', function (error, receipent) {
+        reject()
+    })
+}
+
+export const endTurn = async function (address, callback = () => {}, reject = () => {}) {
+    ANDContract.methods.endTurn().send({from: address})
+    .on('confirmation', function (confirmationNumber, receipent) {
+        callback()
+    })
+    .on('error', function (error, receipent) {
+        reject()
+    })
 }

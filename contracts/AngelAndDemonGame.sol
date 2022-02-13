@@ -49,6 +49,7 @@ contract AngelAndDemonGame is Ownable {
         uint createdAt;
         uint playerState; //1 -> player1 attack, 2 -> player2 attack
         uint turn;
+        uint isCalculated;
     }
 
     mapping (address => mapping (uint => Monster)) monsters;
@@ -60,14 +61,14 @@ contract AngelAndDemonGame is Ownable {
     mapping (address => uint[]) deckList;
     mapping (address => string) playerNames;
     mapping (address => uint) currentBattles; //Battle.battleID
-    mapping (address => uint[]) endedBattles;
+    mapping (address => uint[]) endedBattles; //Battle Index
     Battle[] currentBattleList;
     Battle[] endedBattleList;
 
     AngelAndDemonToken angelAndDemonToken;
 
     constructor(address andToken) {
-        _manaPoint = 10;
+        _manaPoint = 20;
         _lifePoint = 100;
         _name = "AngelsAndDemonsGame";
         _symbol = "ANGEL_AND_DEMON_GAME";
@@ -232,7 +233,8 @@ contract AngelAndDemonGame is Ownable {
                 address(0),
                 block.timestamp,
                 1,
-                1
+                1,
+                0
             ));
 
             currentBattles[msg.sender] = _curBattleCounter;
@@ -263,5 +265,114 @@ contract AngelAndDemonGame is Ownable {
         require(i != currentBattleList.length, 'You have no battle.');
 
         return currentBattleList[i];
+    }
+
+    function getSumOfCards(address _playerAddresss, uint[] memory _cards) public view returns(uint, uint, uint) {
+        Monster memory monster = monsters[_playerAddresss][_cards[0]];
+        uint attack = 0;
+        uint defense = 0;
+        uint mana = 0;
+
+        if (_cards.length == 2) {
+            if (spells[_playerAddresss][_cards[1]].attackPoint > 0) {
+                attack = spells[_playerAddresss][_cards[1]].attackPoint;
+                defense = spells[_playerAddresss][_cards[1]].defensePoint;
+                mana = spells[_playerAddresss][_cards[1]].manaCost;
+            } else {
+                attack = equips[_playerAddresss][_cards[1]].attackPoint;
+                defense = equips[_playerAddresss][_cards[1]].defensePoint;
+                mana = equips[_playerAddresss][_cards[1]].manaCost;
+            }
+        }
+        
+        return (monster.attackPoint + attack, monster.defensePoint + defense, monster.manaCost + mana);
+    }
+
+    function updateBattle(Battle memory _battle) public {
+        require(currentBattles[msg.sender] != 0, 'You have no battle.');
+
+        if (_battle.player1.cardsInPlay.length != 0 && _battle.player2.cardsInPlay.length != 0) {
+            require(_battle.isCalculated == 0, 'Please end your turn.');
+
+            (uint attack1, uint defense1, uint mana1) = getSumOfCards(_battle.player1.playerAddress, _battle.player1.cardsInPlay);
+            (uint attack2, uint defense2, uint mana2) = getSumOfCards(_battle.player2.playerAddress, _battle.player2.cardsInPlay);
+
+            require(mana1 <= _battle.player1.manaPoint, 'Player1 exceeds mana.');
+            require(mana2 <= _battle.player2.manaPoint, 'Player2 exceeds mana.');
+
+            _battle.player1.manaPoint = _battle.player1.manaPoint - mana1;
+            _battle.player2.manaPoint = _battle.player2.manaPoint - mana2;
+
+            if (_battle.playerState == 1 && attack1 > defense2) {
+                if (_battle.player2.lifePoint <= (attack1 - defense2)) {
+                    _battle.player2.lifePoint = 0;
+                } else {
+                    _battle.player2.lifePoint = _battle.player2.lifePoint - attack1 + defense2;
+                }
+            } else if (_battle.playerState == 2 && attack2 > defense1) {
+                if (_battle.player1.lifePoint <= (attack2 - defense1)) {
+                    _battle.player1.lifePoint = 0;
+                } else {
+                    _battle.player1.lifePoint = _battle.player1.lifePoint - attack2 + defense1;
+                }
+            }
+
+            _battle.isCalculated = 1;
+        }
+
+        uint i;
+
+        for (i = 0; i < currentBattleList.length; i ++) {
+            if (currentBattleList[i].battleID == currentBattles[msg.sender]) break;
+        }
+
+        require(i != currentBattleList.length, 'You have no battle.');
+
+        currentBattleList[i] = _battle;
+    }
+
+    function endTurn() public {
+        require(currentBattles[msg.sender] != 0, 'You have no battle.');
+
+        uint i;
+        Battle storage _battle;
+
+        for (i = 0; i < currentBattleList.length; i ++) {
+            if (currentBattleList[i].battleID == currentBattles[msg.sender]) break;
+        }
+
+        require(i != currentBattleList.length, 'You have no battle.');
+
+        _battle = currentBattleList[i];
+
+        require(_battle.isCalculated == 1, 'Attack and defense is not calculated yet.');
+
+        if (_battle.player1.lifePoint == 0 || _battle.player2.lifePoint == 0 || (_battle.playerState == 2 && _battle.turn == 5)) {
+            currentBattles[_battle.player1.playerAddress] = 0;
+            currentBattles[_battle.player2.playerAddress] = 0;
+            endedBattles[_battle.player1.playerAddress].push(endedBattleList.length);
+            endedBattles[_battle.player2.playerAddress].push(endedBattleList.length);
+            endedBattleList.push(_battle);
+            currentBattleList[i] = currentBattleList[currentBattleList.length - 1];
+            delete currentBattleList[currentBattleList.length - 1];
+            return;
+        }
+
+        _battle.isCalculated = 0;
+        _battle.player1.cardsInPlay = new uint[](0);
+        _battle.player2.cardsInPlay = new uint[](0);
+
+        if (_battle.playerState == 2) {
+            _battle.player1.cardsInHand = new uint[](0);
+            _battle.player2.cardsInHand = new uint[](0);
+            _battle.playerState = 1;
+            _battle.turn = _battle.turn + 1;
+            _battle.player1.manaPoint = _manaPoint;
+            _battle.player2.manaPoint = _manaPoint;
+        } else {
+            _battle.playerState = 2;
+        }
+
+        currentBattleList[i] = _battle;
     }
 }

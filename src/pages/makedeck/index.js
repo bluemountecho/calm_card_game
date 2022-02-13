@@ -4,7 +4,7 @@ import { Button, makeStyles } from '@material-ui/core'
 import { useRouter } from 'next/router'
 import styles from './style'
 import Card from '../../components/Card/Card';
-import {connect, addCardsToPlayer, getCardsOfPlayer, addCardsToDeck, getCardsFromDeck, findBattle} from '../../components/connector'
+import {connect, addCardsToPlayer, getCardsOfPlayer, addCardsToDeck, getCardsFromDeck, findBattle, getBattle} from '../../components/connector'
 import $ from 'jquery'
 
 const useStyles = makeStyles(styles);
@@ -27,6 +27,14 @@ function MakeDeckPage() {
 
   useEffect(() => {
     connect((account) => {
+      getBattle(account)
+      .then(async (res1) => {
+        router.push('/gameboard')
+      })
+      .catch(err => {
+        console.log(err)
+      })
+
       getCardsOfPlayer(account)
       .then(async (res) => {
         if (res[0].length == 0 || res[2].length == 0 || res[4].length == 0) {

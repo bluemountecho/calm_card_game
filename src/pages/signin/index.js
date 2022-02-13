@@ -2,7 +2,7 @@
 import React, {useState} from 'react';
 import { makeStyles, TextField } from '@material-ui/core';
 import styles from './style';
-import {connect, getPlayerName, setPlayerName} from '../../components/connector'
+import {connect, getPlayerName, setPlayerName, getBattle} from '../../components/connector'
 import { useRouter } from 'next/router'
 import $ from "jquery"
 
@@ -35,6 +35,14 @@ function SigninPage() {
   }
 
   async function OnConnected(account) {
+    getBattle(account)
+    .then(async (res1) => {
+      router.push('/gameboard')
+    })
+    .catch(err => {
+      console.log(err)
+    })
+
     if (username != originalName) {
       setPlayerName(account, username, () => {
         router.push('/makedeck')

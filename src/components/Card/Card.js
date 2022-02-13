@@ -1,6 +1,6 @@
 import React, {useState} from 'react';
-import { makeStyles } from '@material-ui/core'
-import styles from './style';
+import { makeStyles, Tooltip } from '@material-ui/core'
+import styles from './style'
 import $ from "jquery"
 
 const useStyles = makeStyles(styles);
@@ -70,6 +70,9 @@ export default (props) => {
 
     function onClickPlaySmall(e) {
         if (props.isSelf == false) return
+        var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
+
+        if (tmp[3].length) return
         var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
         var tmpArr = []
         var i
@@ -94,6 +97,88 @@ export default (props) => {
         tmpInfo[3].push(props.TokenID)
         props.setPlayerInfo(tmpInfo)
     }
+
+    function onClickPlayBig(e) {
+        if (props.isSelf == false) return
+        var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
+
+        if (tmp[3].length == 0) {
+            var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
+            var tmpArr = []
+            var i
+
+            for (i = 0; i < tmpInfo[3].length; i ++) {
+                if (tmpInfo[3][i] == props.TokenID) {
+                    break;
+                }
+
+                tmpArr.push(tmpInfo[3][i])
+            }
+
+            i ++
+
+            for (; i < tmpInfo[3].length; i ++) {
+                tmpArr.push(tmpInfo[3][i])
+            }
+
+            tmpInfo[3] = tmpArr
+            tmpInfo[5].push(props.TokenID)
+            props.setPlayerInfo(tmpInfo)
+        } else {
+            var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
+            var tmpArr = []
+            var i
+
+            if (!((props.playerInfo[4].length == 0 && props.Type == 'Monster') || (props.playerInfo[4].length == 1 && props.Type != 'Monster'))) return
+
+            for (i = 0; i < tmpInfo[3].length; i ++) {
+                if (tmpInfo[3][i] == props.TokenID) {
+                    break;
+                }
+
+                tmpArr.push(tmpInfo[3][i])
+            }
+
+            i ++
+
+            for (; i < tmpInfo[3].length; i ++) {
+                tmpArr.push(tmpInfo[3][i])
+            }
+
+            tmpInfo[3] = tmpArr
+            tmpInfo[4].push(props.TokenID)
+            props.setPlayerInfo(tmpInfo)
+        }
+    }
+
+    function onClickPlayReal(e) {
+        if (props.isSelf == false) return
+        if (!((props.playerInfo[4].length == 2 && props.Type != 'Monster') || (props.playerInfo[4].length == 1 && props.Type == 'Monster'))) return
+
+        var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
+        var tmpArr = []
+        var i
+
+        for (i = 0; i < tmpInfo[4].length; i ++) {
+            if (tmpInfo[4][i] == props.TokenID) {
+                break;
+            }
+
+            tmpArr.push(tmpInfo[4][i])
+        }
+
+        i ++
+
+        for (; i < tmpInfo[4].length; i ++) {
+            tmpArr.push(tmpInfo[4][i])
+        }
+
+        tmpInfo[4] = tmpArr
+        tmpInfo[3].push(props.TokenID)
+        props.setPlayerInfo(tmpInfo)
+    }
+
+    const Description = () => {return (<><h3>{props.CardName}</h3> Type: <jvalue>{props.Type}</jvalue><br/> Attack: <jvalue>{props.AttackPoint}</jvalue><br/> Defense: <jvalue>{props.DefensePoint}</jvalue><br/> Mana: <jvalue>{props.ManaCost}</jvalue><br/></>)}
 
     if (props.CardShowType == 'big') {
         return (
@@ -128,6 +213,7 @@ export default (props) => {
 
         return (
             <>
+                <Tooltip title={Description()} placement="left">
                 <div id={"small_" + props.CardName} className={classes.smallCard}>
                     <div className="CardRow">
                         <span className="overlay" style={{backgroundImage: 'url(' + props.Card + ')'}}></span>
@@ -150,11 +236,13 @@ export default (props) => {
                         </div>
                     </div>
                 </div>
+                </Tooltip>
             </>
         )
     } else if (props.CardShowType == 'play_small') {
         return (
             <>
+                <Tooltip title={Description()} placement="left">
                 <div className={classes.smallCard} onClick={(e) => onClickPlaySmall(e)}>
                     <div className="CardRow">
                         <span className="overlay" style={{backgroundImage: 'url(' + props.Card + ')'}}></span>
@@ -166,17 +254,33 @@ export default (props) => {
                         <span className="cardRow-Count "></span>
                     </div>
                 </div>
+                </Tooltip>
             </>
         )
     } else if (props.CardShowType == 'play_big') {
         return (
             <>
-                <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '}>
+                <Tooltip title={Description()} placement="top">
+                <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => onClickPlayBig(e)}>
                     <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="explore-effect"></div>
                     </div>
                 </div>
+                </Tooltip>
+            </>
+        );
+    } else if (props.CardShowType == 'play_real') {
+        return (
+            <>
+                <Tooltip title={Description()} placement="top">
+                <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => onClickPlayReal(e)}>
+                    <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
+                        <div className='gloss'></div>
+                        <div className="explore-effect"></div>
+                    </div>
+                </div>
+                </Tooltip>
             </>
         );
     }

@@ -17,7 +17,7 @@ const styles = createStyles({
       flexDirection: 'column',
       padding: '100px 0 20px',
     },
-    '& > button': {
+    '& button': {
       backgroundImage: 'url("/images/attack.png")',
       backgroundSize: 'contain',
       backgroundRepeat: 'no-repeat',
@@ -32,6 +32,9 @@ const styles = createStyles({
         color: 'white',
       },
     },
+    '& .endTurn': {
+      float: 'right'
+    }
   },
   board: {
     width: '100%',
@@ -110,7 +113,7 @@ const styles = createStyles({
     display: 'flex',
     height: '8vw',
     justifyContent: 'left',
-    '& > img:first-child': {
+    '& > img': {
       width: '100%',
       position: 'absolute',
       zIndex: '1',
@@ -131,7 +134,15 @@ const styles = createStyles({
     },
   },
   cards_play: {
-    width: '60%'
+    width: '60%',
+    justifyContent: 'center',
+
+    '& .b-game-card': {
+      width: "7vw",
+      padding: "0px",
+      height: "9.9vw",
+      margin: "0px 20px"
+    }
   },
   cards_deck: {
     width: '20%',
@@ -188,6 +199,44 @@ const styles = createStyles({
         backgroundImage: '-webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent)'
       }
     },
+  },
+
+  button: {
+    cursor: 'pointer',
+    width: '160px',
+    height: '100%',
+    backgroundImage: 'url("/images/button_startgame.png")',
+    backgroundSize: 'cover',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    margin: '0px auto',
+
+    '&:hover': {
+      opacity: '0.8',
+    },
+    '& > p': {
+      margin: '0',
+      fontFamily: 'RajdhaniBold',
+      fontSize: '20px',
+      textTransform: 'uppercase',
+    },
+    [theme.breakpoints.down('930')]: {
+      width: '75vw',
+      height: '24vw',
+      '& > p': {
+        fontSize: '10vw',
+      },
+    },
+  },
+
+  readyButton: {
+    position: 'absolute',
+    width: '120px',
+    height: '36px',
+    left: '-60px',
+    top: '-20px',
+    zIndex: '10'
   }
 });
 

@@ -33,3 +33,23 @@ body * {
   font-family: 'Rajdhani';
   color: black;
 }
+
+.MuiTooltip-tooltip h3 {
+  font-size: 20px !important;
+  color: white;
+  margin-top: 0px;
+}
+
+.MuiTooltip-tooltip {
+  background: black !important;
+  opacity: 0.7 !important;
+  padding: 20px !important;
+  font-size: 14px !important;
+}
+
+.MuiTooltip-tooltip jvalue {
+  font-size: 14px;
+  color: white;
+  float: right;
+  margin-left: 10px;
+}
