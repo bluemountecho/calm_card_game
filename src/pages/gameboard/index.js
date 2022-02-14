@@ -132,6 +132,7 @@ const CardsInHand = (props) => {
   const classes = useStyles();
   var { cards, isSelf, monsterCards, spellCards, equipCards, playerInfo, setPlayerInfo, battleInfo, setBattleInfo, setPlayerInfo1, setPlayerInfo2, setAttackOrDefense } = props
   var handCardsData = []
+  var flag = true
 
   if (!cards) cards = []
 
@@ -186,6 +187,12 @@ const CardsInHand = (props) => {
 
   function onReadyClick() {
     if (playerInfo[3].length != 8) return
+    if (flag == false) {
+      alert('Please wait. Server is saving your cards in hand!')
+      return
+    }
+
+    flag = false
 
     function waitForReady(account) {
       console.log('Wait For Ready')
@@ -230,7 +237,10 @@ const CardsInHand = (props) => {
       }
       
       updateBattle(account, tmpBattleInfo, () => {
+        flag = true
         waitForReady(account)
+      }, () => {
+        flag = true
       })
     })
   }
@@ -451,6 +461,7 @@ function GameBoardPage() {
   const [playerName2, setPlayerName2] = useState('Player2')
   const [attackOrDefense, setAttackOrDefense] = useState('Attack')
   var battleHistory = []
+  var flag = true
 
   async function updatePlayerCards(account, res, flag) {
     var res = await getCardsOfPlayer(account)
@@ -620,7 +631,7 @@ function GameBoardPage() {
     getBattle(account).then(res => {
       if (res[1][0] == '0x0000000000000000000000000000000000000000' || res[2][0] == '0x0000000000000000000000000000000000000000') return
 
-      if (res[8] == 1) {
+      if (res[8] == 1 || playerInfo2[4].length) {
         setTimeout(function () {
           waitForEndTurn(account)
         }, 5000)
@@ -674,7 +685,31 @@ function GameBoardPage() {
   if (playerInfo1 == []) return(<></>)
 
   function onAttack(e) {
-    if (playerInfo2[4].length == 0) return
+    if (playerInfo2[4].length == 0) {
+      alert('Please select cards to attack!')
+      return
+    }
+    if (playerInfo2[3].length == 0) {
+      alert('You are not ready yet!')
+      return
+    }
+    if (playerInfo1[3].length == 0) {
+      alert('Opponent is not ready yet!')
+      return
+    }
+    if (flag == false) {
+      alert('Please wait. Server is saving attack info!')
+      return
+    }
+
+    var tmp = battleInfo[1][0] == playerInfo2[0] ? battleInfo[1] : battleInfo[2]
+
+    if (tmp[4].length) {
+      alert('You can not attack. Please wait!')
+      return
+    }
+
+    flag = false
 
     connect((account) => {
       var tmpBattleInfo = JSON.parse(JSON.stringify(battleInfo))
@@ -686,14 +721,23 @@ function GameBoardPage() {
       }
       
       updateBattle(account, tmpBattleInfo, () => {
+        flag = true
         waitForAttack(account)
         waitForEndTurn(account)
+      }, () => {
+        flag = true
       })
     })
   }
 
   function onEndTurn(e) {
     if (battleInfo[8] == 0) return
+    if (flag == false) {
+      alert('Please wait. Server is ending turn!')
+      return
+    }
+
+    flag = false
 
     connect((account) => {
       var tmpBattleInfo = JSON.parse(JSON.stringify(battleInfo))
@@ -705,7 +749,10 @@ function GameBoardPage() {
       }
 
       endTurn(account, () => {
+        flag = true
         waitForEndTurn(account)
+      }, () => {
+        flag = true
       })
     })
   }

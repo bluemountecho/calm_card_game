@@ -38,6 +38,7 @@ function MakeDeckPage() {
       getCardsOfPlayer(account)
       .then(async (res) => {
         if (res[0].length == 0 || res[2].length == 0 || res[4].length == 0) {
+          alert('Server is adding your cards. Please wait.')
           addCardsToPlayer(account, () => {
             window.location.href = '/makedeck'
           })
@@ -383,23 +384,47 @@ function DeckCardListBody(props) {
 function DeckCardListFooter(props) {
   const classes = useStyles()
   const router = useRouter()
-  var flag = true
+  var flag = 0
 
   async function startGame(isStart = true) {
     if (props.addedCards.length != 40) {
       alert('Please select 40 cards!')
     }
-    if (flag == false) return
+    if (flag != 0) {
+      if (flag == 1) {
+        alert('Please wait. Server is adding your cards to deck!')
+      }
+
+      if (flag == 2) {
+        alert('Please wait. Server is finding battle!')
+      }
+      return
+    }
 
     connect(async (account) => {
       var res = await getCardsFromDeck(account)
 
-      for (var i = 0; i < 40; i ++) {
-        if (!res.includes(props.addedCards[i].TokenID)) break
+      if (res.length < 40 && isStart) {
+        alert('Please save deck first!')
+        return
       }
 
+      var i
+
+      if (res.length == 0) {
+        i = 0;
+      } else {
+        for (i = 0; i < 40; i ++) {
+          if (!res.includes(props.addedCards[i].TokenID)) break
+        }
+      }      
+
       if (i < 40) {
-        flag = false
+        if (isStart) {
+          alert('Please save deck first!')
+          return
+        }
+        flag = 1
         var cardIDs = []
   
         for (var i = 0; i < props.addedCards.length; i ++) {
@@ -414,7 +439,7 @@ function DeckCardListFooter(props) {
               router.push('/gameboard')
             })
           }
-          flag = true
+          flag = 0
         }, () => {
           if (isStart) {
             findBattle(account, () => {
@@ -423,14 +448,16 @@ function DeckCardListFooter(props) {
               router.push('/gameboard')
             })
           }
-          flag = true
+          flag = 0
         })
       } else {
         if (isStart) {
+          flag = 2
           findBattle(account, () => {
+            flag = 0
             router.push('/gameboard')
           }, () => {
-            router.push('/gameboard')
+            flag = 0
           })
         }
       }

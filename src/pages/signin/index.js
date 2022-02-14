@@ -21,7 +21,10 @@ function SigninPage() {
   })
 
   function OnLogin() {
-    if (flag == false) return
+    if (flag == false) {
+      alert('Please wait. Server is updating your username.')
+      return
+    }
 
     flag = false
     username = $('#usernameInput').val()
@@ -45,9 +48,13 @@ function SigninPage() {
 
     if (username != originalName) {
       setPlayerName(account, username, () => {
+        flag = true
         router.push('/makedeck')
+      }, () => {
+        flag = true
       })
       .catch(err => {
+        flag = true
         console.log(err)
         if (originalName != '') {
           router.push('/makedeck')
