@@ -202,6 +202,7 @@ function MakeDeckPage() {
           <DeckCardList
             addedCards={addedCards}
             SetAddedCards={SetAddedCards}
+            setAddedCards={setAddedCards}
           />
         </div>
       </div>
@@ -326,6 +327,7 @@ function DeckCardList(props) {
         <DeckCardListBody
           addedCards={props.addedCards}
           SetAddedCards={props.SetAddedCards}
+          setAddedCards={props.setAddedCards}
         />
         <DeckCardListFooter
           addedCards={props.addedCards}
@@ -375,6 +377,8 @@ function DeckCardListBody(props) {
             IsNew={card.IsNew}
             SetAddedCards={props.SetAddedCards}
             addedCards={props.addedCards}
+            setAddedCards={props.setAddedCards}
+            TokenID={card.TokenID}
           />))}
         </div>
       </div>

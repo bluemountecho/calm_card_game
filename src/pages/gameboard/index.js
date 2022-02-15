@@ -364,7 +364,10 @@ const CardsDeck = (props) => {
 }
 
 const LastHistory = (props) => {
-
+  return (
+    <>
+    </>
+  )
 }
 
 function GameBoardPage() {

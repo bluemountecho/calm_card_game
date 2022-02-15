@@ -36,7 +36,7 @@ export default (props) => {
             elem = $(e.target).find('.explore-effect')
         }
 
-        $(parentElem).addClass(classes['disabled-card'])
+        $(parentElem).addClass('disabled-card')
 
         var effectElem = $(parentElem).clone()
 
@@ -65,7 +65,7 @@ export default (props) => {
             })
         })
         .animate({ opacity: '0' }, 250, function () {
-            $(parentElem).addClass(classes['disabled-card-opacity'])
+            $(parentElem).addClass('disabled-card-opacity')
         })
     }
 
@@ -189,7 +189,27 @@ export default (props) => {
     }
 
     function onClickSmall(e) {
-        console.log(props.addedCards)
+        var tmpCards = []
+        var i
+
+        for (i = 0; i < props.addedCards.length; i ++) {
+            if (props.addedCards[i].TokenID == props.TokenID) {
+                break
+            }
+            
+            tmpCards.push(props.addedCards[i])
+        }
+
+        i ++
+
+        for ( ; i < props.addedCards.length; i ++) {
+            tmpCards.push(props.addedCards[i])
+        }
+
+        props.setAddedCards(tmpCards)
+        console.log('#Card_' + props.TokenID)
+        $('#Card_' + props.TokenID).removeClass('disabled-card')
+        $('#Card_' + props.TokenID).removeClass('disabled-card-opacity')
     }
 
     const Description = () => {return (<><h3>{props.CardName}</h3> Type: <jvalue>{props.Type}</jvalue><br/> Attack: <jvalue>{props.AttackPoint}</jvalue><br/> Defense: <jvalue>{props.DefensePoint}</jvalue><br/> Mana: <jvalue>{props.ManaCost}</jvalue><br/></>)}
@@ -221,7 +241,8 @@ export default (props) => {
                 AttackPoint: props.AttackPoint,
                 DefensePoint: props.DefensePoint,
                 ManaCost: props.ManaCost,
-                IsNew: false
+                IsNew: false,
+                TokenID: props.TokenID
             }, props.CardID)
         }
 

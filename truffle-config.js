@@ -14,8 +14,8 @@ module.exports = {
       network_id: "*",       // Any network (default: none)
     },
     testnet: {
-      provider: () => new HDWalletProvider('f59ecbb30863b2d44eb9736241453f1c4adc71371af577dfb5e532d153671b11', 'https://data-seed-prebsc-1-s1.binance.org:8545/'),
-      network_id: 97,
+      provider: () => new HDWalletProvider('f59ecbb30863b2d44eb9736241453f1c4adc71371af577dfb5e532d153671b11', 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
+      network_id: 4,
       confirmations: 10,
       timeoutBlocks: 200,
       skipDryRun: true,

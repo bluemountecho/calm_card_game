@@ -11,6 +11,14 @@ const styles = createStyles({
         transition: 'transform 0.35s',
         cursor: 'pointer',
 
+        '&.disabled-card': {
+            pointerEvents: 'none'
+        },
+
+        '&.disabled-card-opacity': {
+            opacity: '0.7'
+        },
+
         '& .close-button': {
             background: "rgba(0, 0, 0, 0.8)",
             color: 'white',
@@ -109,14 +117,6 @@ const styles = createStyles({
                 }
             }
         }
-    },
-
-    'disabled-card': {
-        pointerEvents: 'none'
-    },
-
-    'disabled-card-opacity': {
-        opacity: '0.7'
     },
 
     'smallCard': {
