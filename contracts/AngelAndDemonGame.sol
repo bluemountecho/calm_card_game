@@ -366,9 +366,19 @@ contract AngelAndDemonGame is Ownable {
         }
 
         _battle.player1MonsterCards.push(_battle.player1.cardsInPlay[0]);
-        _battle.player1SpellCards.push(_battle.player1.cardsInPlay.length == 2 ? _battle.player1.cardsInPlay[1] : 0);
+        if (_battle.player1.cardsInPlay.length == 2) {
+            _battle.player1SpellCards.push(_battle.player1.cardsInPlay[1]);
+        } else {
+            _battle.player1SpellCards.push(0);
+        }
+        
         _battle.player2MonsterCards.push(_battle.player2.cardsInPlay[0]);
-        _battle.player2SpellCards.push(_battle.player2.cardsInPlay.length == 2 ? _battle.player2.cardsInPlay[1] : 0);
+        if (_battle.player2.cardsInPlay.length == 2) {
+            _battle.player2SpellCards.push(_battle.player2.cardsInPlay[1]);
+        } else {
+            _battle.player2SpellCards.push(0);
+        }
+
         _battle.player1.cardsInPlay = new uint[](0);
         _battle.player2.cardsInPlay = new uint[](0);
 

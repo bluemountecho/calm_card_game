@@ -39,6 +39,7 @@ const PlayerBoard = (props) => {
           mana={playerInfo[2]} />
       </div>}
       <div>
+        <div className={classes.battle_history}></div>
         <CardsPlay
           battleInfo={battleInfo}
           setBattleInfo={setBattleInfo}
