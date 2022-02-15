@@ -132,11 +132,13 @@ export default (props) => {
             var tmpArr = []
             var i
 
+            var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
+
             if (!((props.playerInfo[4].length == 0 && props.Type == 'Monster') || (props.playerInfo[4].length == 1 && props.Type != 'Monster'))) {
                 alert('Please select monster card first and then select spell or equip cards!')
                 return
             }
-            if (props.playerInfo[3].length + props.playerInfo[4].length != 8) {
+            if (props.playerInfo[3].length + props.playerInfo[4].length != 8 && tmp[3].length == 0) {
                 alert('Please select 8 cards to play!')
                 return
             }
@@ -287,6 +289,8 @@ export default (props) => {
             </>
         )
     } else if (props.CardShowType == 'play_big') {
+        var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
+        
         return (
             <>
                 <Tooltip title={Description()} placement="top">
@@ -294,7 +298,7 @@ export default (props) => {
                     <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="explore-effect"></div>
-                        {props.playerInfo[4].length == 0 &&
+                        {props.playerInfo[4].length == 0 && props.isSelf == true && !tmp[3].length &&
                         <div className="close-button" onClick={(e) => onClickPlayBig(e)}>X</div>}
                     </div>
                 </div>
