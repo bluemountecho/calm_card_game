@@ -622,6 +622,7 @@ function GameBoardPage() {
         setPlayer2SpellCards(res[9])
       }
 
+      $('#last_history_div').show()
       setPlayerInfo1(enemyPlayer)
       setPlayerInfo2(player)
 
@@ -666,6 +667,8 @@ function GameBoardPage() {
         setPlayer2MonsterCards(res1[8])
         setPlayer2SpellCards(res1[9])
       }
+
+      $('#last_history_div').show()
 
       updatePlayerCards(enemyPlayer.playerAddress, res, true).then(res => {})
       getPlayerName(enemyPlayer.playerAddress).then(res => {
