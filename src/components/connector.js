@@ -17,7 +17,7 @@ export const connect = async function(onConnected = null) {
             web3 = new Web3(window.ethereum)
             ANDContract = new web3.eth.Contract(
                 AngelAndDemonGame.abi,
-                "0x284f0828Fc98F7fA7D810E039Cb4a72C58a60898"
+                "0x2B3DBB104CB132beb30Ba5e571802EAeCB648Eb6"
             )
         }
 

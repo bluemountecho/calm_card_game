@@ -386,6 +386,10 @@ function GameBoardPage() {
   const [playerName1, setPlayerName1] = useState('Player1')
   const [playerName2, setPlayerName2] = useState('Player2')
   const [attackOrDefense, setAttackOrDefense] = useState('Attack')
+  const [player1MonsterCards, setPlayer1MonsterCards] = useState([])
+  const [player1SpellCards, setPlayer1SpellCards] = useState([])
+  const [player2MonsterCards, setPlayer2MonsterCards] = useState([])
+  const [player2SpellCards, setPlayer2SpellCards] = useState([])
   var flag = true
 
   async function updatePlayerCards(account, res, flag) {
@@ -472,6 +476,18 @@ function GameBoardPage() {
         return
       }
 
+      if (enemyPlayer.playerAddress.toLowerCase() == res[1][0].toLowerCase()) {
+        setPlayer1MonsterCards(res1[8])
+        setPlayer1SpellCards(res1[9])
+        setPlayer2MonsterCards(res1[10])
+        setPlayer2SpellCards(res1[11])
+      } else {
+        setPlayer1MonsterCards(res1[10])
+        setPlayer1SpellCards(res1[11])
+        setPlayer2MonsterCards(res1[8])
+        setPlayer2SpellCards(res1[9])
+      }
+
       setPlayerInfo1(enemyPlayer)
       setPlayerInfo2(player)
 
@@ -503,6 +519,18 @@ function GameBoardPage() {
       if (enemyPlayer.playerAddress.toLowerCase() == account.toLowerCase()) {
         enemyPlayer = res1.player1
         player = res1.player2
+      }
+
+      if (enemyPlayer.playerAddress.toLowerCase() == res[1][0].toLowerCase()) {
+        setPlayer1MonsterCards(res1[8])
+        setPlayer1SpellCards(res1[9])
+        setPlayer2MonsterCards(res1[10])
+        setPlayer2SpellCards(res1[11])
+      } else {
+        setPlayer1MonsterCards(res1[10])
+        setPlayer1SpellCards(res1[11])
+        setPlayer2MonsterCards(res1[8])
+        setPlayer2SpellCards(res1[9])
       }
 
       updatePlayerCards(enemyPlayer.playerAddress, res, true).then(res => {})
@@ -624,6 +652,10 @@ function GameBoardPage() {
           setPlayerInfo2={setPlayerInfo2}
         />
         <LastHistory
+          player1MonsterCards={player1MonsterCards}
+          player1SpellCards={player1SpellCards}
+          player2MonsterCards={player2MonsterCards}
+          player2SpellCards={player2SpellCards}
         />
       </div>
     </>
