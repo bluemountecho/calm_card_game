@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import { makeStyles, Tooltip } from '@material-ui/core'
 import styles from './style'
 import $ from "jquery"
+import { LocalConvenienceStoreOutlined } from '@material-ui/icons';
 
 const useStyles = makeStyles(styles);
 
@@ -73,6 +74,7 @@ export default (props) => {
         var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
 
         if (tmp[3].length) return
+        if (props.playerInfo[4].length) return
         var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
         var tmpArr = []
         var i
@@ -99,10 +101,11 @@ export default (props) => {
     }
 
     function onClickPlayBig(e) {
+        var flag = true
+        if ($(e.target).hasClass('close-button')) flag = false
         if (props.isSelf == false) return
-        var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
 
-        if (tmp[3].length == 0) {
+        if (flag == false) {
             var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
             var tmpArr = []
             var i
@@ -129,7 +132,14 @@ export default (props) => {
             var tmpArr = []
             var i
 
-            if (!((props.playerInfo[4].length == 0 && props.Type == 'Monster') || (props.playerInfo[4].length == 1 && props.Type != 'Monster'))) return
+            if (!((props.playerInfo[4].length == 0 && props.Type == 'Monster') || (props.playerInfo[4].length == 1 && props.Type != 'Monster'))) {
+                alert('Please select monster card first and then select spell or equip cards!')
+                return
+            }
+            if (props.playerInfo[3].length + props.playerInfo[4].length != 8) {
+                alert('Please select 8 cards to play!')
+                return
+            }
 
             for (i = 0; i < tmpInfo[3].length; i ++) {
                 if (tmpInfo[3][i] == props.TokenID) {
@@ -178,6 +188,10 @@ export default (props) => {
         props.setPlayerInfo(tmpInfo)
     }
 
+    function onClickSmall(e) {
+        console.log(props.addedCards)
+    }
+
     const Description = () => {return (<><h3>{props.CardName}</h3> Type: <jvalue>{props.Type}</jvalue><br/> Attack: <jvalue>{props.AttackPoint}</jvalue><br/> Defense: <jvalue>{props.DefensePoint}</jvalue><br/> Mana: <jvalue>{props.ManaCost}</jvalue><br/></>)}
 
     if (props.CardShowType == 'big') {
@@ -224,13 +238,7 @@ export default (props) => {
                         <div className="cardRow-cropMask"></div>
                         <span className="cardRow-Count "></span>
                         <div className="CardControls">
-                            <div className="CardControlItem">
-                                <svg viewBox="0 0 100 100"><path fill="rgb(252, 209, 68)" d="M59.86,30.23h.77q-.27,3.58-.41,5.88c-.1,1.53-.14,2.81-.14,3.84V80.32H64v7H36v-7h3.92V42.43L36,43.1V36.8ZM52,12.67a10.39,10.39,0,0,1,6.48,1.87A5.81,5.81,0,0,1,61,19.35q0,4-4.06,6.79A16.62,16.62,0,0,1,47.16,29a8.37,8.37,0,0,1-5.58-1.77,5.82,5.82,0,0,1-2.1-4.69c0-2.54,1.27-4.82,3.81-6.82A13.67,13.67,0,0,1,52,12.67Z"></path></svg>
-                            </div>
-                            <div className="CardControlItem">
-                                <svg viewBox="0 0 100 100"><path fill="rgb(252, 209, 68)" d="M42.34,13H57.66V42.94h31v14h-31V87H42.34V56.94h-31v-14h31Z"></path></svg>
-                            </div>
-                            <div className="CardControlItem">
+                            <div className="CardControlItem" onClick={(e) => onClickSmall(e)}>
                                 <svg viewBox="0 0 100 100"><rect x="13.37" y="43" width="73.27" height="14" fill="rgb(252, 209, 68)"></rect></svg>
                             </div>
                         </div>
@@ -265,6 +273,8 @@ export default (props) => {
                     <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="explore-effect"></div>
+                        {props.playerInfo[4].length == 0 &&
+                        <div className="close-button" onClick={(e) => onClickPlayBig(e)}>X</div>}
                     </div>
                 </div>
                 </Tooltip>
@@ -275,6 +285,19 @@ export default (props) => {
             <>
                 <Tooltip title={Description()} placement="top">
                 <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => onClickPlayReal(e)}>
+                    <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
+                        <div className='gloss'></div>
+                        <div className="explore-effect"></div>
+                    </div>
+                </div>
+                </Tooltip>
+            </>
+        );
+    } else if (props.CardShowType == 'history_card') {
+        return (
+            <>
+                <Tooltip title={Description()} placement="top">
+                <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '}>
                     <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="explore-effect"></div>

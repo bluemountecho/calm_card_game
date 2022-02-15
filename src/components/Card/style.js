@@ -11,6 +11,18 @@ const styles = createStyles({
         transition: 'transform 0.35s',
         cursor: 'pointer',
 
+        '& .close-button': {
+            background: "rgba(0, 0, 0, 0.8)",
+            color: 'white',
+            fontWeight: 'bolder',
+            padding: '5px 10px',
+            borderRadius: '30px',
+            width: 'fit-content',
+            zIndex: '4',
+            position: 'absolute',
+            right: '0px'
+        },
+
         '& > .cover': {
             position: 'absolute',
             zIndex: '1',
@@ -27,6 +39,8 @@ const styles = createStyles({
             transformOrigin: 'center',
             willChange: 'transform',
             transition: 'transform 0.5s, filter 0.35s',
+            backgroundPosition: "center",
+            borderRadius: "5%",
 
             '& > .explore-effect': {
                 background: 'white',

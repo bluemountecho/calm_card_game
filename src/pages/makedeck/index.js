@@ -374,6 +374,7 @@ function DeckCardListBody(props) {
             CardID={card.Type + '_' + index}
             IsNew={card.IsNew}
             SetAddedCards={props.SetAddedCards}
+            addedCards={props.addedCards}
           />))}
         </div>
       </div>
@@ -389,6 +390,7 @@ function DeckCardListFooter(props) {
   async function startGame(isStart = true) {
     if (props.addedCards.length != 40) {
       alert('Please select 40 cards!')
+      return
     }
     if (flag != 0) {
       if (flag == 1) {

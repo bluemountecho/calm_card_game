@@ -39,7 +39,6 @@ const PlayerBoard = (props) => {
           mana={playerInfo[2]} />
       </div>}
       <div>
-        <BattleHistory />
         <CardsPlay
           battleInfo={battleInfo}
           setBattleInfo={setBattleInfo}
@@ -183,76 +182,9 @@ const CardsInHand = (props) => {
 
   if (battleInfo.length == 0) return (<></>)
 
-  var tmp = playerInfo[0] == battleInfo[1][0] ? battleInfo[1] : battleInfo[2]
-
-  function onReadyClick() {
-    if (playerInfo[3].length != 8) return
-    if (flag == false) {
-      alert('Please wait. Server is saving your cards in hand!')
-      return
-    }
-
-    flag = false
-
-    function waitForReady(account) {
-      console.log('Wait For Ready')
-      getBattle(account).then(res => {
-        if (res[1][0] == '0x0000000000000000000000000000000000000000' || res[2][0] == '0x0000000000000000000000000000000000000000') return
-        setBattleInfo(res)
-
-        var player = res.player1
-        var enemyPlayer = res.player2
-
-        if (enemyPlayer.playerAddress.toLowerCase() == account.toLowerCase()) {
-          enemyPlayer = res.player1
-          player = res.player2
-        }
-
-        if (player[3].length != 0 && enemyPlayer[3].length == 0) {
-          setTimeout(function () {
-            waitForReady(account)
-          }, 5000)
-
-          return
-        }
-
-        setPlayerInfo1(enemyPlayer)
-        setPlayerInfo2(player)
-
-        if ((res[1][0] == player[0] && res[6] == 1) || (res[2][0] == player[0] && res[6] == 2)) {
-          setAttackOrDefense('Attack')
-        } else {
-          setAttackOrDefense('Defense')
-        }
-      })
-    }
-
-    connect((account) => {
-      var tmpBattleInfo = JSON.parse(JSON.stringify(battleInfo))
-      
-      if (playerInfo[0] == battleInfo[1][0]) {
-        tmpBattleInfo[1] = playerInfo
-      } else {
-        tmpBattleInfo[2] = playerInfo
-      }
-      
-      updateBattle(account, tmpBattleInfo, () => {
-        flag = true
-        waitForReady(account)
-      }, () => {
-        flag = true
-      })
-    })
-  }
-
   return (
     <>
       <div className={classes.cards_inhand}>
-        {isSelf && cards.length == 8 && !tmp[3].length &&
-        <div className={classes.button + ' ' + classes.readyButton} onClick={() => onReadyClick()}>
-          <p>Ready</p>
-        </div>
-        }
         <img src="/images/cards5_back.png" alt="" />
         { handCardsData.map((card, index) => (<Card
           CardShowType="play_big"
@@ -431,18 +363,8 @@ const CardsDeck = (props) => {
   )
 }
 
-const BattleHistory = (props) => {
-  const classes = useStyles();
-  const { cards, isSelf } = props;
+const LastHistory = (props) => {
 
-  return (
-    <>
-      <div className={classes.battle_history}>
-        <div>
-        </div>
-      </div>
-    </>
-  )
 }
 
 function GameBoardPage() {
@@ -460,7 +382,6 @@ function GameBoardPage() {
   const [playerName1, setPlayerName1] = useState('Player1')
   const [playerName2, setPlayerName2] = useState('Player2')
   const [attackOrDefense, setAttackOrDefense] = useState('Attack')
-  var battleHistory = []
   var flag = true
 
   async function updatePlayerCards(account, res, flag) {
@@ -525,7 +446,10 @@ function GameBoardPage() {
   function waitForReady(account) {
     console.log('Wait For Ready')
     getBattle(account).then(res => {
-      if (res[1][0] == '0x0000000000000000000000000000000000000000' || res[2][0] == '0x0000000000000000000000000000000000000000') return
+      console.log(res)
+      if (res[1][0] == '0x0000000000000000000000000000000000000000' || res[2][0] == '0x0000000000000000000000000000000000000000') {
+        return
+      }
       setBattleInfo(res)
 
       var player = res.player1
@@ -536,7 +460,7 @@ function GameBoardPage() {
         player = res.player2
       }
 
-      if (player[3].length != 0 && enemyPlayer[3].length == 0) {
+      if (player[4].length != 0) {
         setTimeout(function () {
           waitForReady(account)
         }, 5000)
@@ -593,72 +517,6 @@ function GameBoardPage() {
     })
   }
 
-  function waitForAttack(account) {
-    console.log('Wait For Attack')
-    getBattle(account).then(res => {
-      if (res[1][0] == '0x0000000000000000000000000000000000000000' || res[2][0] == '0x0000000000000000000000000000000000000000') return
-      
-      var player = res.player1
-      var enemyPlayer = res.player2
-
-      if (enemyPlayer.playerAddress.toLowerCase() == account.toLowerCase()) {
-        enemyPlayer = res.player1
-        player = res.player2
-      }
-
-      if (player[4].length && enemyPlayer[4].length == 0) {
-        setTimeout(function () {
-          waitForAttack(account)
-        }, 3000)
-
-        return
-      }
-
-      setBattleInfo(res)
-      setPlayerInfo1(enemyPlayer)
-      setPlayerInfo2(player)
-
-      if ((res[1][0] == player[0] && res[6] == 1) || (res[2][0] == player[0] && res[6] == 2)) {
-        setAttackOrDefense('Attack')
-      } else {
-        setAttackOrDefense('Defense')
-      }
-    })
-  }
-
-  function waitForEndTurn(account) {
-    console.log('Wait For EndTurn')
-    getBattle(account).then(res => {
-      if (res[1][0] == '0x0000000000000000000000000000000000000000' || res[2][0] == '0x0000000000000000000000000000000000000000') return
-
-      if (res[8] == 1 || playerInfo2[4].length) {
-        setTimeout(function () {
-          waitForEndTurn(account)
-        }, 5000)
-
-        return
-      }
-
-      var player = res.player1
-      var enemyPlayer = res.player2
-
-      if (enemyPlayer.playerAddress.toLowerCase() == account.toLowerCase()) {
-        enemyPlayer = res.player1
-        player = res.player2
-      }
-
-      setBattleInfo(res)
-      setPlayerInfo1(enemyPlayer)
-      setPlayerInfo2(player)
-
-      if ((res[1][0] == player[0] && res[6] == 1) || (res[2][0] == player[0] && res[6] == 2)) {
-        setAttackOrDefense('Attack')
-      } else {
-        setAttackOrDefense('Defense')
-      }
-    })
-  }
-
   useEffect(() => {
 
     connect(async (account) => {
@@ -674,8 +532,6 @@ function GameBoardPage() {
           getBattle(account).then(res1 => {
             waitForJoin(account, res)
             waitForReady(account)
-            waitForAttack(account)
-            waitForEndTurn(account)
           })
         }
       })
@@ -690,22 +546,18 @@ function GameBoardPage() {
       return
     }
     if (playerInfo2[3].length == 0) {
-      alert('You are not ready yet!')
-      return
-    }
-    if (playerInfo1[3].length == 0) {
-      alert('Opponent is not ready yet!')
+      alert('Please select cards in hand')
       return
     }
     if (flag == false) {
-      alert('Please wait. Server is saving attack info!')
+      alert('Please wait. Server is saving info!')
       return
     }
 
     var tmp = battleInfo[1][0] == playerInfo2[0] ? battleInfo[1] : battleInfo[2]
 
     if (tmp[4].length) {
-      alert('You can not attack. Please wait!')
+      alert('You can not attack. Please wait for opponet is ready!')
       return
     }
 
@@ -722,35 +574,7 @@ function GameBoardPage() {
       
       updateBattle(account, tmpBattleInfo, () => {
         flag = true
-        waitForAttack(account)
-        waitForEndTurn(account)
-      }, () => {
-        flag = true
-      })
-    })
-  }
-
-  function onEndTurn(e) {
-    if (battleInfo[8] == 0) return
-    if (flag == false) {
-      alert('Please wait. Server is ending turn!')
-      return
-    }
-
-    flag = false
-
-    connect((account) => {
-      var tmpBattleInfo = JSON.parse(JSON.stringify(battleInfo))
-      
-      if (playerInfo2[0] == battleInfo[1][0]) {
-        tmpBattleInfo[1] = playerInfo2
-      } else {
-        tmpBattleInfo[2] = playerInfo2
-      }
-
-      endTurn(account, () => {
-        flag = true
-        waitForEndTurn(account)
+        waitForReady(account)
       }, () => {
         flag = true
       })
@@ -779,8 +603,6 @@ function GameBoardPage() {
         /> }
         <div>
           <Button onClick={(e) => onAttack(e)}>{attackOrDefense}</Button>
-          {battleInfo[8] == 1 && tmp &&
-          <Button onClick={(e) => onEndTurn(e)} className="endTurn">End Turn</Button> }
         </div>
         <PlayerBoard
           name={playerName2}
@@ -796,6 +618,8 @@ function GameBoardPage() {
           setAttackOrDefense={setAttackOrDefense}
           setPlayerInfo1={setPlayerInfo1}
           setPlayerInfo2={setPlayerInfo2}
+        />
+        <LastHistory
         />
       </div>
     </>

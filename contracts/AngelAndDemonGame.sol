@@ -49,7 +49,10 @@ contract AngelAndDemonGame is Ownable {
         uint createdAt;
         uint playerState; //1 -> player1 attack, 2 -> player2 attack
         uint turn;
-        uint isCalculated;
+        uint[] player1MonsterCards;
+        uint[] player1SpellCards;
+        uint[] player2MonsterCards;
+        uint[] player2SpellCards;
     }
 
     mapping (address => mapping (uint => Monster)) monsters;
@@ -234,7 +237,10 @@ contract AngelAndDemonGame is Ownable {
                 block.timestamp,
                 1,
                 1,
-                0
+                new uint[](0),
+                new uint[](0),
+                new uint[](0),
+                new uint[](0)
             ));
 
             currentBattles[msg.sender] = _curBattleCounter;
@@ -306,8 +312,6 @@ contract AngelAndDemonGame is Ownable {
         }
 
         if (_battle.player1.cardsInPlay.length != 0 && _battle.player2.cardsInPlay.length != 0) {
-            require(_battle.isCalculated == 0, 'Please end your turn.');
-
             (uint attack1, uint defense1, uint mana1) = getSumOfCards(_battle.player1.playerAddress, _battle.player1.cardsInPlay);
             (uint attack2, uint defense2, uint mana2) = getSumOfCards(_battle.player2.playerAddress, _battle.player2.cardsInPlay);
 
@@ -330,14 +334,13 @@ contract AngelAndDemonGame is Ownable {
                     _battle.player1.lifePoint = _battle.player1.lifePoint - attack2 + defense1;
                 }
             }
-
-            _battle.isCalculated = 1;
         }
 
+        endTurn();
         currentBattleList[i] = _battle;
     }
 
-    function endTurn() public {
+    function endTurn() private {
         require(currentBattles[msg.sender] != 0, 'You have no battle.');
 
         uint i;
@@ -351,8 +354,6 @@ contract AngelAndDemonGame is Ownable {
 
         _battle = currentBattleList[i];
 
-        require(_battle.isCalculated == 1, 'Attack and defense is not calculated yet.');
-
         if (_battle.player1.lifePoint == 0 || _battle.player2.lifePoint == 0 || (_battle.playerState == 2 && _battle.turn == 5)) {
             currentBattles[_battle.player1.playerAddress] = 0;
             currentBattles[_battle.player2.playerAddress] = 0;
@@ -364,7 +365,10 @@ contract AngelAndDemonGame is Ownable {
             return;
         }
 
-        _battle.isCalculated = 0;
+        _battle.player1MonsterCards.push(_battle.player1.cardsInPlay[0]);
+        _battle.player1SpellCards.push(_battle.player1.cardsInPlay.length == 2 ? _battle.player1.cardsInPlay[1] : 0);
+        _battle.player2MonsterCards.push(_battle.player2.cardsInPlay[0]);
+        _battle.player2SpellCards.push(_battle.player2.cardsInPlay.length == 2 ? _battle.player2.cardsInPlay[1] : 0);
         _battle.player1.cardsInPlay = new uint[](0);
         _battle.player2.cardsInPlay = new uint[](0);
 
