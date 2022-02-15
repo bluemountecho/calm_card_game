@@ -16,7 +16,7 @@ module.exports = {
     testnet: {
       provider: () => new HDWalletProvider('f59ecbb30863b2d44eb9736241453f1c4adc71371af577dfb5e532d153671b11', 'https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161'),
       network_id: 4,
-      confirmations: 10,
+      confirmations: 3,
       timeoutBlocks: 200,
       skipDryRun: true,
       from: '0xbf96178161586b8C9c5096E35Ac2EA2Ad1fAd2A7',

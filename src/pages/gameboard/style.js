@@ -238,6 +238,38 @@ const styles = createStyles({
     left: '-60px',
     top: '-20px',
     zIndex: '10'
+  },
+
+  last_history: {
+    background: 'rgba(0, 0, 0, 0.9)',
+    position: 'fixed',
+    top: '10vh',
+    left: '20vw',
+    width: '60vw',
+    height: 'fit-content',
+    zIndex: '100',
+    borderRadius: '20px',
+
+    '& .b-game-card': {
+      padding: '0px',
+      width: '10vw',
+      height: '15vw',
+      display: 'inline-block',
+      margin: '20px',
+    },
+
+    '& > div': {
+      display: 'block',
+      textAlign: 'center'
+    },
+
+    '& .close-button': {
+      color: 'white',
+      fontWeight: 'bolder',
+      float: 'right',
+      cursor: 'pointer',
+      padding: '10px 20px'
+    }
   }
 });
 

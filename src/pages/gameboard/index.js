@@ -5,6 +5,7 @@ import { useRouter } from 'next/router';
 import styles from './style';
 import {connect, getBattle, getCardsOfPlayer, getPlayerName, updateBattle, endTurn} from '../../components/connector'
 import Card from '../../components/Card/Card';
+import $ from 'jquery'
 
 const useStyles = makeStyles(styles);
 
@@ -365,8 +366,141 @@ const CardsDeck = (props) => {
 }
 
 const LastHistory = (props) => {
+  const classes = useStyles();
+  var { player1MonsterCards, player1SpellCards, player2MonsterCards, player2SpellCards, monsterCards1, spellCards1, equipCards1, monsterCards2, spellCards2, equipCards2 } = props;
+  var player1CardsData = []
+  var player2CardsData = []
+
+  if (player1MonsterCards.length == 0) return (<></>)
+
+  for (var i = 0; i < monsterCards1.length; i ++) {
+    if (player1MonsterCards[player1MonsterCards.length - 1] == monsterCards1[i].TokenID) {
+      player1CardsData.push({
+        Type: monsterCards1[i].Type,
+        Card: monsterCards1[i].Card,
+        CardName: monsterCards1[i].CardName,
+        AttackPoint: monsterCards1[i].AttackPoint,
+        DefensePoint: monsterCards1[i].DefensePoint,
+        ManaCost: monsterCards1[i].ManaCost,
+        IsNew: true,
+        TokenID: monsterCards1[i].TokenID
+      })
+    }
+  }
+
+  for (var i = 0; i < monsterCards2.length; i ++) {
+    if (player2MonsterCards[player2MonsterCards.length - 1] == monsterCards2[i].TokenID) {
+      player2CardsData.push({
+        Type: monsterCards2[i].Type,
+        Card: monsterCards2[i].Card,
+        CardName: monsterCards2[i].CardName,
+        AttackPoint: monsterCards2[i].AttackPoint,
+        DefensePoint: monsterCards2[i].DefensePoint,
+        ManaCost: monsterCards2[i].ManaCost,
+        IsNew: true,
+        TokenID: monsterCards2[i].TokenID
+      })
+    }
+  }
+
+  for (var i = 0; i < spellCards1.length; i ++) {
+    if (player1SpellCards[player1SpellCards.length - 1] == spellCards1[i].TokenID) {
+      player1CardsData.push({
+        Type: spellCards1[i].Type,
+        Card: spellCards1[i].Card,
+        CardName: spellCards1[i].CardName,
+        AttackPoint: spellCards1[i].AttackPoint,
+        DefensePoint: spellCards1[i].DefensePoint,
+        ManaCost: spellCards1[i].ManaCost,
+        IsNew: true,
+        TokenID: spellCards1[i].TokenID
+      })
+    }
+  }
+
+  for (var i = 0; i < spellCards2.length; i ++) {
+    if (player2SpellCards[player2SpellCards.length - 1] == spellCards2[i].TokenID) {
+      player2CardsData.push({
+        Type: spellCards2[i].Type,
+        Card: spellCards2[i].Card,
+        CardName: spellCards2[i].CardName,
+        AttackPoint: spellCards2[i].AttackPoint,
+        DefensePoint: spellCards2[i].DefensePoint,
+        ManaCost: spellCards2[i].ManaCost,
+        IsNew: true,
+        TokenID: spellCards2[i].TokenID
+      })
+    }
+  }
+
+  for (var i = 0; i < equipCards1.length; i ++) {
+    if (player1SpellCards[player1SpellCards.length - 1] == equipCards1[i].TokenID) {
+      player1CardsData.push({
+        Type: equipCards1[i].Type,
+        Card: equipCards1[i].Card,
+        CardName: equipCards1[i].CardName,
+        AttackPoint: equipCards1[i].AttackPoint,
+        DefensePoint: equipCards1[i].DefensePoint,
+        ManaCost: equipCards1[i].ManaCost,
+        IsNew: true,
+        TokenID: equipCards1[i].TokenID
+      })
+    }
+  }
+
+  for (var i = 0; i < equipCards2.length; i ++) {
+    if (player2SpellCards[player2SpellCards.length - 1] == equipCards2[i].TokenID) {
+      player2CardsData.push({
+        Type: equipCards2[i].Type,
+        Card: equipCards2[i].Card,
+        CardName: equipCards2[i].CardName,
+        AttackPoint: equipCards2[i].AttackPoint,
+        DefensePoint: equipCards2[i].DefensePoint,
+        ManaCost: equipCards2[i].ManaCost,
+        IsNew: true,
+        TokenID: equipCards2[i].TokenID
+      })
+    }
+  }
+
+  function onClose() {
+    $('#last_history_div').hide()
+  }
+
   return (
     <>
+      <div className={classes.last_history} id="last_history_div" style={{display: 'block'}}>
+        <div>
+          <div className="close-button" onClick={(e) => onClose()}>X</div>
+        </div>
+        <div>
+          { player1CardsData.map((card, index) => (<Card
+            CardShowType="history_card"
+            Type={card.Type}
+            Card={card.Card}
+            CardName={card.CardName}
+            AttackPoint={card.AttackPoint}
+            DefensePoint={card.DefensePoint}
+            ManaCost={card.ManaCost}
+            key={index}
+            TokenID={card.TokenID}
+          />))}
+        </div>
+        <div><h1 style={{color: 'white'}}>VS</h1></div>
+        <div>
+          { player2CardsData.map((card, index) => (<Card
+            CardShowType="history_card"
+            Type={card.Type}
+            Card={card.Card}
+            CardName={card.CardName}
+            AttackPoint={card.AttackPoint}
+            DefensePoint={card.DefensePoint}
+            ManaCost={card.ManaCost}
+            key={index}
+            TokenID={card.TokenID}
+          />))}
+        </div>
+      </div>
     </>
   )
 }
@@ -477,15 +611,15 @@ function GameBoardPage() {
       }
 
       if (enemyPlayer.playerAddress.toLowerCase() == res[1][0].toLowerCase()) {
-        setPlayer1MonsterCards(res1[8])
-        setPlayer1SpellCards(res1[9])
-        setPlayer2MonsterCards(res1[10])
-        setPlayer2SpellCards(res1[11])
+        setPlayer1MonsterCards(res[8])
+        setPlayer1SpellCards(res[9])
+        setPlayer2MonsterCards(res[10])
+        setPlayer2SpellCards(res[11])
       } else {
-        setPlayer1MonsterCards(res1[10])
-        setPlayer1SpellCards(res1[11])
-        setPlayer2MonsterCards(res1[8])
-        setPlayer2SpellCards(res1[9])
+        setPlayer1MonsterCards(res[10])
+        setPlayer1SpellCards(res[11])
+        setPlayer2MonsterCards(res[8])
+        setPlayer2SpellCards(res[9])
       }
 
       setPlayerInfo1(enemyPlayer)
@@ -521,7 +655,7 @@ function GameBoardPage() {
         player = res1.player2
       }
 
-      if (enemyPlayer.playerAddress.toLowerCase() == res[1][0].toLowerCase()) {
+      if (enemyPlayer.playerAddress.toLowerCase() == res1[1][0].toLowerCase()) {
         setPlayer1MonsterCards(res1[8])
         setPlayer1SpellCards(res1[9])
         setPlayer2MonsterCards(res1[10])
@@ -654,8 +788,14 @@ function GameBoardPage() {
         <LastHistory
           player1MonsterCards={player1MonsterCards}
           player1SpellCards={player1SpellCards}
+          monsterCards1={monsterCards1}
+          spellCards1={spellCards1}
+          equipCards1={equipCards1}
           player2MonsterCards={player2MonsterCards}
           player2SpellCards={player2SpellCards}
+          monsterCards2={monsterCards2}
+          spellCards2={spellCards2}
+          equipCards2={equipCards2}
         />
       </div>
     </>

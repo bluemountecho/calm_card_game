@@ -334,9 +334,12 @@ contract AngelAndDemonGame is Ownable {
                     _battle.player1.lifePoint = _battle.player1.lifePoint - attack2 + defense1;
                 }
             }
+
+            currentBattleList[i] = _battle;
+            endTurn();
+            return;
         }
 
-        endTurn();
         currentBattleList[i] = _battle;
     }
 
