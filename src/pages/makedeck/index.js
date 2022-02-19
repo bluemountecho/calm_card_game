@@ -1,12 +1,16 @@
-
 import React, {useEffect, useState} from 'react'
-import { Button, makeStyles } from '@material-ui/core'
+import { makeStyles } from '@material-ui/core'
 import { useRouter } from 'next/router'
 import styles from './style'
 import Card from '../../components/Card/Card';
 import {connect, addCardsToPlayer, getCardsOfPlayer, addCardsToDeck, getCardsFromDeck, findBattle, getBattle} from '../../components/connector'
 import $ from 'jquery'
+import axios from 'axios'
+import socketIOClient from "socket.io-client"
+import toastr from "toastr"
 
+const ENDPOINT = "http://127.0.0.1:5000";
+const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
 function MakeDeckPage() {
@@ -26,153 +30,151 @@ function MakeDeckPage() {
   }
 
   useEffect(() => {
-    connect((account) => {
-      getBattle(account)
-      .then(async (res1) => {
-        router.push('/gameboard')
-      })
-      .catch(err => {
-        console.log(err)
-      })
+    socket.on('deck-list-saved', async (res) => {
+      toastr.success(res)
+    })
 
-      getCardsOfPlayer(account)
-      .then(async (res) => {
-        if (res[0].length == 0 || res[2].length == 0 || res[4].length == 0) {
-          alert('Server is adding your cards. Please wait.')
-          addCardsToPlayer(account, () => {
-            window.location.href = '/makedeck'
-          })
-        } else {
-          var arr1 = []
-  
-          for (var i = 0; i < res[0].length; i ++) {          
-            arr1.push({
-              Type: "Monster",
-              Card: res[1][i],
-              CardName: "Monster" + (i + 1),
-              AttackPoint: res[0][i][0],
-              DefensePoint: res[0][i][1],
-              ManaCost: res[0][i][2],
-              TokenID: res[2][i]
-            })
-          }
-  
-          await setMonsterCards(arr1)
+    connect(async (account) => {
+      var username = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
 
-          var arr2 = []
-  
-          for (var i = 0; i < res[3].length; i ++) {          
-            arr2.push({
-              Type: "Spell",
-              Card: res[4][i],
-              CardName: "Spell" + (i + 1),
-              AttackPoint: res[3][i][0],
-              DefensePoint: res[3][i][1],
-              ManaCost: res[3][i][2],
-              TokenID: res[5][i]
-            })
-          }
-  
-          await setSpellCards(arr2)
+      if (username == '') {
+        toastr.error('Sign in first!')
+        router.push('/signin')
+        return
+      }
 
-          var arr3 = []
-  
-          for (var i = 0; i < res[6].length; i ++) {          
-            arr3.push({
-              Type: "Equip",
-              Card: res[7][i],
-              CardName: "Equip" + (i + 1),
-              AttackPoint: res[6][i][0],
-              DefensePoint: res[6][i][1],
-              ManaCost: res[6][i][2],
-              TokenID: res[8][i]
-            })
-          }
-  
-          await setEquipCards(arr3)
-          getCardsFromDeck(account)
-          .then(res => {
-            var arr = []
+      var res = (await axios.get('http://localhost:5000/getDefaultCards')).data
+      var arr1 = []
 
-            for (var i = 0; i < arr1.length; i ++) {
-              if (res.includes(arr1[i].TokenID)) {
-                arr.push({
-                  Type: arr1[i].Type,
-                  Card: arr1[i].Card,
-                  CardName: arr1[i].CardName,
-                  AttackPoint: arr1[i].AttackPoint,
-                  DefensePoint: arr1[i].DefensePoint,
-                  ManaCost: arr1[i].ManaCost,
-                  IsNew: true,
-                  TokenID: arr1[i].TokenID
-                })
-              }
-            }
+      for (var i = 0; i < res[0].length; i ++) {
+        arr1.push({
+          Type: "Monster",
+          Card: res[0][i].card_image,
+          CardName: res[0][i].card_name,
+          AttackPoint: res[0][i].attack_point,
+          DefensePoint: res[0][i].defense_point,
+          ManaCost: res[0][i].mana_point,
+          TokenID: res[0][i].card_id
+        })
+      }
 
-            for (var i = 0; i < arr2.length; i ++) {
-              if (res.includes(arr2[i].TokenID)) {
-                arr.push({
-                  Type: arr2[i].Type,
-                  Card: arr2[i].Card,
-                  CardName: arr2[i].CardName,
-                  AttackPoint: arr2[i].AttackPoint,
-                  DefensePoint: arr2[i].DefensePoint,
-                  ManaCost: arr2[i].ManaCost,
-                  IsNew: true,
-                  TokenID: arr2[i].TokenID
-                })
-              }
-            }
+      await setMonsterCards(arr1)
 
-            for (var i = 0; i < arr3.length; i ++) {
-              if (res.includes(arr3[i].TokenID)) {
-                arr.push({
-                  Type: arr3[i].Type,
-                  Card: arr3[i].Card,
-                  CardName: arr3[i].CardName,
-                  AttackPoint: arr3[i].AttackPoint,
-                  DefensePoint: arr3[i].DefensePoint,
-                  ManaCost: arr3[i].ManaCost,
-                  IsNew: true,
-                  TokenID: arr3[i].TokenID
-                })
-              }
-            }
+      var arr2 = []
 
-            setAddedCards(arr)
+      for (var i = 0; i < res[1].length; i ++) {
+        arr2.push({
+          Type: "Spell",
+          Card: res[1][i].card_image,
+          CardName: res[1][i].card_name,
+          AttackPoint: res[1][i].attack_point,
+          DefensePoint: res[1][i].defense_point,
+          ManaCost: res[1][i].mana_point,
+          TokenID: res[1][i].card_id
+        })
+      }
+
+      await setSpellCards(arr2)
+
+      var arr3 = []
+
+      for (var i = 0; i < res[2].length; i ++) {
+        arr3.push({
+          Type: "Equip",
+          Card: res[2][i].card_image,
+          CardName: res[2][i].card_name,
+          AttackPoint: res[2][i].attack_point,
+          DefensePoint: res[2][i].defense_point,
+          ManaCost: res[2][i].mana_point,
+          TokenID: res[2][i].card_id
+        })
+      }
+
+      await setEquipCards(arr3)
+
+      res = (await axios.get('http://localhost:5000/getCardsFromDeck/' + account)).data
+      
+      var arr = []
+
+      for (var i = 0; i < arr1.length; i ++) {
+        if (res.includes(arr1[i].TokenID)) {
+          arr.push({
+            Type: arr1[i].Type,
+            Card: arr1[i].Card,
+            CardName: arr1[i].CardName,
+            AttackPoint: arr1[i].AttackPoint,
+            DefensePoint: arr1[i].DefensePoint,
+            ManaCost: arr1[i].ManaCost,
+            IsNew: true,
+            TokenID: arr1[i].TokenID
           })
         }
-      })
-    }).catch(err => {
-      router.push('/signin')
+      }
+
+      for (var i = 0; i < arr2.length; i ++) {
+        if (res.includes(arr2[i].TokenID)) {
+          arr.push({
+            Type: arr2[i].Type,
+            Card: arr2[i].Card,
+            CardName: arr2[i].CardName,
+            AttackPoint: arr2[i].AttackPoint,
+            DefensePoint: arr2[i].DefensePoint,
+            ManaCost: arr2[i].ManaCost,
+            IsNew: true,
+            TokenID: arr2[i].TokenID
+          })
+        }
+      }
+
+      for (var i = 0; i < arr3.length; i ++) {
+        if (res.includes(arr3[i].TokenID)) {
+          arr.push({
+            Type: arr3[i].Type,
+            Card: arr3[i].Card,
+            CardName: arr3[i].CardName,
+            AttackPoint: arr3[i].AttackPoint,
+            DefensePoint: arr3[i].DefensePoint,
+            ManaCost: arr3[i].ManaCost,
+            IsNew: true,
+            TokenID: arr3[i].TokenID
+          })
+        }
+      }
+
+      for (var i = 0; i < arr.length; i ++) {
+        $('#Card_' + arr[i].TokenID).addClass('disabled-card')
+        $('#Card_' + arr[i].TokenID).addClass('disabled-card-opacity')
+      }
+
+      setAddedCards(arr)
     })
 
     const maxTilt = 30;
 
     $(document).on('mousemove', ".b-game-card", function(evt) {
-          let bounding = mouseOverBoundingElem(evt);
+      let bounding = mouseOverBoundingElem(evt);
 
-          let posX = bounding.width / 2 - bounding.x;
-          let posY = bounding.height / 2 - bounding.y;
-          let hypotenuseCursor = Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2));
-          let hypotenuseMax = Math.sqrt(Math.pow(bounding.width / 2, 2) + Math.pow(bounding.height / 2, 2));
-          let ratio = hypotenuseCursor / hypotenuseMax;
+      let posX = bounding.width / 2 - bounding.x;
+      let posY = bounding.height / 2 - bounding.y;
+      let hypotenuseCursor = Math.sqrt(Math.pow(posX, 2) + Math.pow(posY, 2));
+      let hypotenuseMax = Math.sqrt(Math.pow(bounding.width / 2, 2) + Math.pow(bounding.height / 2, 2));
+      let ratio = hypotenuseCursor / hypotenuseMax;
 
-          $(".cover", this).css({
-              transform: `rotate3d(${-posY / hypotenuseCursor}, ${+posX / hypotenuseCursor}, 0, ${ratio * maxTilt}deg)`,
-              // filter: `brightness(${1.6 - bounding.y / bounding.height})` // 0.6 = offset, brightness will be from 0.6 to 1.6
-          });
-          $(".gloss", this).css({
-              transform: `translateX(${posX * ratio * 0.75}px) translateY(${posY * ratio}px)` // 0.75 = offset
-          });
-      })
-      .on('mouseleave', ".b-game-card", function() {
-          let css = {
-              transform: "",
-              filter: ""
-          };
-          $(".cover, .gloss", this).css(css);
+      $(".cover", this).css({
+          transform: `rotate3d(${-posY / hypotenuseCursor}, ${+posX / hypotenuseCursor}, 0, ${ratio * maxTilt}deg)`,
+          // filter: `brightness(${1.6 - bounding.y / bounding.height})` // 0.6 = offset, brightness will be from 0.6 to 1.6
       });
+      $(".gloss", this).css({
+          transform: `translateX(${posX * ratio * 0.75}px) translateY(${posY * ratio}px)` // 0.75 = offset
+      });
+    })
+    .on('mouseleave', ".b-game-card", function() {
+      let css = {
+          transform: "",
+          filter: ""
+      };
+      $(".cover, .gloss", this).css(css);
+    });
 
     function mouseOverBoundingElem(evt) {
         let bounding = evt.target.getBoundingClientRect();
@@ -389,84 +391,38 @@ function DeckCardListBody(props) {
 function DeckCardListFooter(props) {
   const classes = useStyles()
   const router = useRouter()
-  var flag = 0
 
-  async function startGame(isStart = true) {
+  async function startGame() {
     if (props.addedCards.length != 40) {
-      alert('Please select 40 cards!')
-      return
-    }
-    if (flag != 0) {
-      if (flag == 1) {
-        alert('Please wait. Server is adding your cards to deck!')
-      }
-
-      if (flag == 2) {
-        alert('Please wait. Server is finding battle!')
-      }
+      toastr.error('Please select 40 cards!')
       return
     }
 
     connect(async (account) => {
-      var res = await getCardsFromDeck(account)
+      var username = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
 
-      if (res.length < 40 && isStart) {
-        alert('Please save deck first!')
+      if (username == '') {
+        toastr.error('Sign in first!')
+        router.push('/signin')
         return
       }
 
-      var i
+      var cardIDs = []
 
-      if (res.length == 0) {
-        i = 0;
-      } else {
-        for (i = 0; i < 40; i ++) {
-          if (!res.includes(props.addedCards[i].TokenID)) break
-        }
-      }      
-
-      if (i < 40) {
-        if (isStart) {
-          alert('Please save deck first!')
-          return
-        }
-        flag = 1
-        var cardIDs = []
-  
-        for (var i = 0; i < props.addedCards.length; i ++) {
-          cardIDs.push(props.addedCards[i].TokenID)
-        }
-
-        addCardsToDeck(account, cardIDs, () => {
-          if (isStart) {
-            findBattle(account, () => {
-              router.push('/gameboard')
-            }, () => {
-              router.push('/gameboard')
-            })
-          }
-          flag = 0
-        }, () => {
-          if (isStart) {
-            findBattle(account, () => {
-              router.push('/gameboard')
-            }, () => {
-              router.push('/gameboard')
-            })
-          }
-          flag = 0
-        })
-      } else {
-        if (isStart) {
-          flag = 2
-          findBattle(account, () => {
-            flag = 0
-            router.push('/gameboard')
-          }, () => {
-            flag = 0
-          })
-        }
+      for (var i = 0; i < props.addedCards.length; i ++) {
+        cardIDs.push(props.addedCards[i].TokenID)
       }
+
+      socket.emit('save-deck-list', {
+        address: account,
+        data: cardIDs
+      })
+
+      socket.emit('find-battle', {
+        address: account
+      })
+
+      router.push('/gameboard')
     })
   }
 
@@ -474,9 +430,6 @@ function DeckCardListFooter(props) {
     <>
       <div className={classes.deckCardListFooter}>
         <div style={{display: 'block', width: 'fit-content', margin: '0px auto', height: '50px'}}>
-          <div className={classes.button} onClick={() => startGame(false)}>
-            <p>Save Deck</p>
-          </div>
           <div className={classes.button} onClick={() => startGame()}>
             <p>Start Game</p>
           </div>

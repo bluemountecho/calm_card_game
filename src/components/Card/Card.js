@@ -3,6 +3,7 @@ import { makeStyles, Tooltip } from '@material-ui/core'
 import styles from './style'
 import $ from "jquery"
 import { LocalConvenienceStoreOutlined } from '@material-ui/icons';
+import toastr from "toastr"
 
 const useStyles = makeStyles(styles);
 
@@ -105,6 +106,10 @@ export default (props) => {
         if ($(e.target).hasClass('close-button')) flag = false
         if (props.isSelf == false) return
 
+        var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
+
+        if (tmp[4].length) return
+
         if (flag == false) {
             var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
             var tmpArr = []
@@ -132,14 +137,12 @@ export default (props) => {
             var tmpArr = []
             var i
 
-            var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
-
             if (!((props.playerInfo[4].length == 0 && props.Type == 'Monster') || (props.playerInfo[4].length == 1 && props.Type != 'Monster'))) {
-                alert('Please select monster card first and then select spell or equip cards!')
+                toastr.error('Please select one monster card first and then select one spell or equip card!')
                 return
             }
             if (props.playerInfo[3].length + props.playerInfo[4].length != 8 && tmp[3].length == 0) {
-                alert('Please select 8 cards to play!')
+                toastr.error('Please select 8 cards to play!')
                 return
             }
 
@@ -166,6 +169,10 @@ export default (props) => {
     function onClickPlayReal(e) {
         if (props.isSelf == false) return
         if (!((props.playerInfo[4].length == 2 && props.Type != 'Monster') || (props.playerInfo[4].length == 1 && props.Type == 'Monster'))) return
+        
+        var tmp = props.battleInfo[1][0] == props.playerInfo[0] ? props.battleInfo[1] : props.battleInfo[2]
+
+        if (tmp[4].length) return
 
         var tmpInfo = JSON.parse(JSON.stringify(props.playerInfo))
         var tmpArr = []
@@ -220,7 +227,7 @@ export default (props) => {
         return (
             <>
                 <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => {onClick(e)}}>
-                    <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
+                    <div className='cover' style={{backgroundImage: 'url(/images/' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="description">
                             <h3>{props.CardName}</h3>
@@ -253,11 +260,11 @@ export default (props) => {
                 <Tooltip title={Description()} placement="left">
                 <div id={"small_" + props.CardName} className={classes.smallCard}>
                     <div className="CardRow">
-                        <span className="overlay" style={{backgroundImage: 'url(' + props.Card + ')'}}></span>
+                        <span className="overlay" style={{backgroundImage: 'url(/images/' + props.Card + ')'}}></span>
                         <span className="cardRow-Cost">{props.ManaCost}</span>
                         <span className="cardRow-Name">{props.CardName}</span>
                         <div className="cardRow-fill"></div>
-                        <div className="cardRow-cropImage" style={{backgroundImage: 'url(' + props.Card + ')'}}></div>
+                        <div className="cardRow-cropImage" style={{backgroundImage: 'url(/images/' + props.Card + ')'}}></div>
                         <div className="cardRow-cropMask"></div>
                         <span className="cardRow-Count "></span>
                         <div className="CardControls">
@@ -276,11 +283,11 @@ export default (props) => {
                 <Tooltip title={Description()} placement="left">
                 <div className={classes.smallCard} onClick={(e) => onClickPlaySmall(e)}>
                     <div className="CardRow">
-                        <span className="overlay" style={{backgroundImage: 'url(' + props.Card + ')'}}></span>
+                        <span className="overlay" style={{backgroundImage: 'url(/images/' + props.Card + ')'}}></span>
                         <span className="cardRow-Cost">{props.ManaCost}</span>
                         <span className="cardRow-Name">{props.CardName}</span>
                         <div className="cardRow-fill"></div>
-                        <div className="cardRow-cropImage" style={{backgroundImage: 'url(' + props.Card + ')'}}></div>
+                        <div className="cardRow-cropImage" style={{backgroundImage: 'url(/images/' + props.Card + ')'}}></div>
                         <div className="cardRow-cropMask"></div>
                         <span className="cardRow-Count "></span>
                     </div>
@@ -295,7 +302,7 @@ export default (props) => {
             <>
                 <Tooltip title={Description()} placement="top">
                 <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => onClickPlayBig(e)}>
-                    <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
+                    <div className='cover' style={{backgroundImage: 'url(/images/' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="explore-effect"></div>
                         {props.playerInfo[4].length == 0 && props.isSelf == true && !tmp[3].length &&
@@ -310,7 +317,7 @@ export default (props) => {
             <>
                 <Tooltip title={Description()} placement="top">
                 <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => onClickPlayReal(e)}>
-                    <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
+                    <div className='cover' style={{backgroundImage: 'url(/images/' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="explore-effect"></div>
                     </div>
@@ -323,7 +330,7 @@ export default (props) => {
             <>
                 <Tooltip title={Description()} placement="top">
                 <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '}>
-                    <div className='cover' style={{backgroundImage: 'url(' + props.Card + ')'}}>
+                    <div className='cover' style={{backgroundImage: 'url(/images/' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="explore-effect"></div>
                     </div>

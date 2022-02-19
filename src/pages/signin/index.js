@@ -1,36 +1,35 @@
 
-import React, {useState} from 'react';
+import React, {useEffect} from 'react';
 import { makeStyles, TextField } from '@material-ui/core';
 import styles from './style';
-import {connect, getPlayerName, setPlayerName, getBattle} from '../../components/connector'
+import {connect} from '../../components/connector'
 import { useRouter } from 'next/router'
 import $ from "jquery"
+import socketIOClient from "socket.io-client"
+import toastr from "toastr"
+import axios from 'axios'
 
+const ENDPOINT = "http://127.0.0.1:5000";
+const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
 function SigninPage() {
   const classes = useStyles()
   const router = useRouter()
-  var originalName = ''
   var username = ''
-  var flag = true
 
-  connect(async function (account) {
-    username = originalName = await getPlayerName(account)
-    $('#usernameInput').val(originalName)
-  })
+  useEffect(() => {
+    connect(async function (account) {
+      var name = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
+      $('#usernameInput').val(name)
+    })
+  },[])
 
   function OnLogin() {
-    if (flag == false) {
-      alert('Please wait. Server is updating your username.')
-      return
-    }
-
-    flag = false
     username = $('#usernameInput').val()
 
     if (username == '') {
-      alert('Please enter your name!')
+      toastr.error('Please enter your name!')
       return
     }
 
@@ -38,31 +37,12 @@ function SigninPage() {
   }
 
   async function OnConnected(account) {
-    getBattle(account)
-    .then(async (res1) => {
-      router.push('/gameboard')
-    })
-    .catch(err => {
-      console.log(err)
+    socket.emit('set-player-name', {
+      address: account,
+      username: username
     })
 
-    if (username != originalName) {
-      setPlayerName(account, username, () => {
-        flag = true
-        router.push('/makedeck')
-      }, () => {
-        flag = true
-      })
-      .catch(err => {
-        flag = true
-        console.log(err)
-        if (originalName != '') {
-          router.push('/makedeck')
-        }
-      })
-    } else {
-      router.push('/makedeck')
-    }
+    router.push('/makedeck')
   }
 
   return (

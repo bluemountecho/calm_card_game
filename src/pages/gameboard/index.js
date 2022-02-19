@@ -3,10 +3,15 @@ import React, {useEffect, useState} from 'react';
 import { Button, makeStyles } from '@material-ui/core';
 import { useRouter } from 'next/router';
 import styles from './style';
-import {connect, getBattle, getCardsOfPlayer, getPlayerName, updateBattle, endTurn} from '../../components/connector'
+import {connect} from '../../components/connector'
 import Card from '../../components/Card/Card';
 import $ from 'jquery'
+import axios from 'axios'
+import socketIOClient from "socket.io-client"
+import toastr from "toastr"
 
+const ENDPOINT = "http://127.0.0.1:5000";
+const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
 const PlayerBoard = (props) => {
@@ -365,103 +370,22 @@ const CardsDeck = (props) => {
   )
 }
 
-const LastHistory = (props) => {
+const GameFinish = (props) => {
   const classes = useStyles();
-  var { player1MonsterCards, player1SpellCards, player2MonsterCards, player2SpellCards, monsterCards1, spellCards1, equipCards1, monsterCards2, spellCards2, equipCards2 } = props;
-  var player1CardsData = []
-  var player2CardsData = []
+  const [message, setMessage] = useState('')
+  var { battleInfo } = props;
 
-  if (player1MonsterCards.length == 0) return (<></>)
+  if (!battleInfo[1]) return (<></>)
+  if (battleInfo.isFinished == 0) return (<></>)
+  var address = battleInfo.player1.playerAddress
 
-  for (var i = 0; i < monsterCards1.length; i ++) {
-    if (player1MonsterCards[player1MonsterCards.length - 1] == monsterCards1[i].TokenID) {
-      player1CardsData.push({
-        Type: monsterCards1[i].Type,
-        Card: monsterCards1[i].Card,
-        CardName: monsterCards1[i].CardName,
-        AttackPoint: monsterCards1[i].AttackPoint,
-        DefensePoint: monsterCards1[i].DefensePoint,
-        ManaCost: monsterCards1[i].ManaCost,
-        IsNew: true,
-        TokenID: monsterCards1[i].TokenID
-      })
-    }
+  if (battleInfo.player1.lifePoint < battleInfo.player2.lifePoint) {
+    address = battleInfo.player2.playerAddress
   }
 
-  for (var i = 0; i < monsterCards2.length; i ++) {
-    if (player2MonsterCards[player2MonsterCards.length - 1] == monsterCards2[i].TokenID) {
-      player2CardsData.push({
-        Type: monsterCards2[i].Type,
-        Card: monsterCards2[i].Card,
-        CardName: monsterCards2[i].CardName,
-        AttackPoint: monsterCards2[i].AttackPoint,
-        DefensePoint: monsterCards2[i].DefensePoint,
-        ManaCost: monsterCards2[i].ManaCost,
-        IsNew: true,
-        TokenID: monsterCards2[i].TokenID
-      })
-    }
-  }
-
-  for (var i = 0; i < spellCards1.length; i ++) {
-    if (player1SpellCards[player1SpellCards.length - 1] == spellCards1[i].TokenID) {
-      player1CardsData.push({
-        Type: spellCards1[i].Type,
-        Card: spellCards1[i].Card,
-        CardName: spellCards1[i].CardName,
-        AttackPoint: spellCards1[i].AttackPoint,
-        DefensePoint: spellCards1[i].DefensePoint,
-        ManaCost: spellCards1[i].ManaCost,
-        IsNew: true,
-        TokenID: spellCards1[i].TokenID
-      })
-    }
-  }
-
-  for (var i = 0; i < spellCards2.length; i ++) {
-    if (player2SpellCards[player2SpellCards.length - 1] == spellCards2[i].TokenID) {
-      player2CardsData.push({
-        Type: spellCards2[i].Type,
-        Card: spellCards2[i].Card,
-        CardName: spellCards2[i].CardName,
-        AttackPoint: spellCards2[i].AttackPoint,
-        DefensePoint: spellCards2[i].DefensePoint,
-        ManaCost: spellCards2[i].ManaCost,
-        IsNew: true,
-        TokenID: spellCards2[i].TokenID
-      })
-    }
-  }
-
-  for (var i = 0; i < equipCards1.length; i ++) {
-    if (player1SpellCards[player1SpellCards.length - 1] == equipCards1[i].TokenID) {
-      player1CardsData.push({
-        Type: equipCards1[i].Type,
-        Card: equipCards1[i].Card,
-        CardName: equipCards1[i].CardName,
-        AttackPoint: equipCards1[i].AttackPoint,
-        DefensePoint: equipCards1[i].DefensePoint,
-        ManaCost: equipCards1[i].ManaCost,
-        IsNew: true,
-        TokenID: equipCards1[i].TokenID
-      })
-    }
-  }
-
-  for (var i = 0; i < equipCards2.length; i ++) {
-    if (player2SpellCards[player2SpellCards.length - 1] == equipCards2[i].TokenID) {
-      player2CardsData.push({
-        Type: equipCards2[i].Type,
-        Card: equipCards2[i].Card,
-        CardName: equipCards2[i].CardName,
-        AttackPoint: equipCards2[i].AttackPoint,
-        DefensePoint: equipCards2[i].DefensePoint,
-        ManaCost: equipCards2[i].ManaCost,
-        IsNew: true,
-        TokenID: equipCards2[i].TokenID
-      })
-    }
-  }
+  axios.get('http://localhost:5000/getPlayerName/' + address).then(res => {
+    setMessage(res.data + ' won the game!')
+  })
 
   function onClose() {
     $('#last_history_div').hide()
@@ -469,38 +393,13 @@ const LastHistory = (props) => {
 
   return (
     <>
+      {!battleInfo.isFinished && message != '' && 
       <div className={classes.last_history} id="last_history_div" style={{display: 'block'}}>
         <div>
           <div className="close-button" onClick={(e) => onClose()}>X</div>
         </div>
-        <div>
-          { player1CardsData.map((card, index) => (<Card
-            CardShowType="history_card"
-            Type={card.Type}
-            Card={card.Card}
-            CardName={card.CardName}
-            AttackPoint={card.AttackPoint}
-            DefensePoint={card.DefensePoint}
-            ManaCost={card.ManaCost}
-            key={index}
-            TokenID={card.TokenID}
-          />))}
-        </div>
-        <div><h1 style={{color: 'white'}}>VS</h1></div>
-        <div>
-          { player2CardsData.map((card, index) => (<Card
-            CardShowType="history_card"
-            Type={card.Type}
-            Card={card.Card}
-            CardName={card.CardName}
-            AttackPoint={card.AttackPoint}
-            DefensePoint={card.DefensePoint}
-            ManaCost={card.ManaCost}
-            key={index}
-            TokenID={card.TokenID}
-          />))}
-        </div>
-      </div>
+        <div><h1 style={{color: 'white'}}>{message}</h1></div>
+      </div>}
     </>
   )
 }
@@ -520,189 +419,121 @@ function GameBoardPage() {
   const [playerName1, setPlayerName1] = useState('Player1')
   const [playerName2, setPlayerName2] = useState('Player2')
   const [attackOrDefense, setAttackOrDefense] = useState('Attack')
-  const [player1MonsterCards, setPlayer1MonsterCards] = useState([])
-  const [player1SpellCards, setPlayer1SpellCards] = useState([])
-  const [player2MonsterCards, setPlayer2MonsterCards] = useState([])
-  const [player2SpellCards, setPlayer2SpellCards] = useState([])
-  var flag = true
 
-  async function updatePlayerCards(account, res, flag) {
-    var res = await getCardsOfPlayer(account)
+  async function updatePlayerCards() {
+    var res = (await axios.get('http://localhost:5000/getDefaultCards')).data
+    var arr1 = []
 
-    if (res[0].length == 0 || res[2].length == 0 || res[4].length == 0) {
-      router.push('/signin')
+    for (var i = 0; i < res[0].length; i ++) {
+      arr1.push({
+        Type: "Monster",
+        Card: res[0][i].card_image,
+        CardName: res[0][i].card_name,
+        AttackPoint: res[0][i].attack_point,
+        DefensePoint: res[0][i].defense_point,
+        ManaCost: res[0][i].mana_point,
+        TokenID: res[0][i].card_id
+      })
+    }
+
+    var arr2 = []
+
+    for (var i = 0; i < res[1].length; i ++) {
+      arr2.push({
+        Type: "Spell",
+        Card: res[1][i].card_image,
+        CardName: res[1][i].card_name,
+        AttackPoint: res[1][i].attack_point,
+        DefensePoint: res[1][i].defense_point,
+        ManaCost: res[1][i].mana_point,
+        TokenID: res[1][i].card_id
+      })
+    }
+
+    var arr3 = []
+
+    for (var i = 0; i < res[2].length; i ++) {
+      arr3.push({
+        Type: "Equip",
+        Card: res[2][i].card_image,
+        CardName: res[2][i].card_name,
+        AttackPoint: res[2][i].attack_point,
+        DefensePoint: res[2][i].defense_point,
+        ManaCost: res[2][i].mana_point,
+        TokenID: res[2][i].card_id
+      })
+    }
+    
+    setMonsterCards1(arr1)
+    setSpellCards1(arr2)
+    setEquipCards1(arr3)
+    setMonsterCards2(arr1)
+    setSpellCards2(arr2)
+    setEquipCards2(arr3)
+  }
+
+  async function updateBattleInfo(account) {
+    var res1 = (await axios.get('http://localhost:5000/getBattleInfo/' + account)).data
+
+    if (res1 == '') {
+      router.push('/makedeck')
+      return
+    }
+    
+    if (res1.player1Address == '0x0000000000000000000000000000000000000000' || res1.player2Address == '0x0000000000000000000000000000000000000000') {
+      toastr.error('Please wait for opponent join!')
+      return
+    }
+
+    setBattleInfo(res1)
+
+    var player = res1.player1
+    var enemyPlayer = res1.player2
+
+    if (enemyPlayer[0].toLowerCase() == account.toLowerCase()) {
+      enemyPlayer = res1.player1
+      player = res1.player2
+    }
+
+    var username = (await axios.get('http://localhost:5000/getPlayerName/' + enemyPlayer[0])).data
+    
+    setPlayerName1(username)
+    setPlayerInfo1(enemyPlayer)
+    setPlayerInfo2(player)
+
+    if ((res1[1][0] == player[0] && res1.playerState == 1) || (res1[2][0] == player[0] && res1.playerState == 2)) {
+      setAttackOrDefense('Attack')
     } else {
-      var arr1 = []
-      var arr2 = []
-      var arr3 = []
-
-      for (var i = 0; i < res[0].length; i ++) {          
-        arr1.push({
-          Type: "Monster",
-          Card: res[1][i],
-          CardName: "Monster" + (i + 1),
-          AttackPoint: res[0][i][0],
-          DefensePoint: res[0][i][1],
-          ManaCost: res[0][i][2],
-          TokenID: res[2][i]
-        })
-      }
-
-      for (var i = 0; i < res[3].length; i ++) {          
-        arr2.push({
-          Type: "Spell",
-          Card: res[4][i],
-          CardName: "Spell" + (i + 1),
-          AttackPoint: res[3][i][0],
-          DefensePoint: res[3][i][1],
-          ManaCost: res[3][i][2],
-          TokenID: res[5][i]
-        })
-      }
-      
-      for (var i = 0; i < res[6].length; i ++) {          
-        arr3.push({
-          Type: "Equip",
-          Card: res[7][i],
-          CardName: "Equip" + (i + 1),
-          AttackPoint: res[6][i][0],
-          DefensePoint: res[6][i][1],
-          ManaCost: res[6][i][2],
-          TokenID: res[8][i]
-        })
-      }
-
-      if (flag == true) {
-        setMonsterCards1(arr1)
-        setSpellCards1(arr2)
-        setEquipCards1(arr3)
-      } else {
-        setMonsterCards2(arr1)
-        setSpellCards2(arr2)
-        setEquipCards2(arr3)
-      }
+      setAttackOrDefense('Defense')
     }
   }
 
-  
-  function waitForReady(account) {
-    console.log('Wait For Ready')
-    getBattle(account).then(res => {
-      console.log(res)
-      if (res[1][0] == '0x0000000000000000000000000000000000000000' || res[2][0] == '0x0000000000000000000000000000000000000000') {
-        return
-      }
-      setBattleInfo(res)
-
-      var player = res.player1
-      var enemyPlayer = res.player2
-
-      if (enemyPlayer.playerAddress.toLowerCase() == account.toLowerCase()) {
-        enemyPlayer = res.player1
-        player = res.player2
-      }
-
-      if (player[4].length != 0) {
-        setTimeout(function () {
-          waitForReady(account)
-        }, 5000)
-
-        return
-      }
-
-      if (enemyPlayer.playerAddress.toLowerCase() == res[1][0].toLowerCase()) {
-        setPlayer1MonsterCards(res[8])
-        setPlayer1SpellCards(res[9])
-        setPlayer2MonsterCards(res[10])
-        setPlayer2SpellCards(res[11])
-      } else {
-        setPlayer1MonsterCards(res[10])
-        setPlayer1SpellCards(res[11])
-        setPlayer2MonsterCards(res[8])
-        setPlayer2SpellCards(res[9])
-      }
-
-      $('#last_history_div').show()
-      setPlayerInfo1(enemyPlayer)
-      setPlayerInfo2(player)
-
-      if ((res[1][0] == player[0] && res[6] == 1) || (res[2][0] == player[0] && res[6] == 2)) {
-        setAttackOrDefense('Attack')
-      } else {
-        setAttackOrDefense('Defense')
-      }
-    })
-  }
-
-  function waitForJoin(account, res) {
-    console.log('Wait For Join')
-    getBattle(account)
-    .then(async (res1) => {
-      if (res1[1][0] == '0x0000000000000000000000000000000000000000' || res1[2][0] == '0x0000000000000000000000000000000000000000') {
-        setTimeout(function () {
-          waitForJoin(account)
-        },5000)
-
-        return
-      }
-
-      setBattleInfo(res1)
-
-      var player = res1.player1
-      var enemyPlayer = res1.player2
-
-      if (enemyPlayer.playerAddress.toLowerCase() == account.toLowerCase()) {
-        enemyPlayer = res1.player1
-        player = res1.player2
-      }
-
-      if (enemyPlayer.playerAddress.toLowerCase() == res1[1][0].toLowerCase()) {
-        setPlayer1MonsterCards(res1[8])
-        setPlayer1SpellCards(res1[9])
-        setPlayer2MonsterCards(res1[10])
-        setPlayer2SpellCards(res1[11])
-      } else {
-        setPlayer1MonsterCards(res1[10])
-        setPlayer1SpellCards(res1[11])
-        setPlayer2MonsterCards(res1[8])
-        setPlayer2SpellCards(res1[9])
-      }
-
-      $('#last_history_div').show()
-
-      updatePlayerCards(enemyPlayer.playerAddress, res, true).then(res => {})
-      getPlayerName(enemyPlayer.playerAddress).then(res => {
-        setPlayerName1(res)
-      })
-
-      setPlayerInfo1(enemyPlayer)
-      setPlayerInfo2(player)
-
-      if ((res1[1][0] == player[0] && res1[6] == 1) || (res1[2][0] == player[0] && res1[6] == 2)) {
-        setAttackOrDefense('Attack')
-      } else {
-        setAttackOrDefense('Defense')
-      }
-    })
-  }
-
   useEffect(() => {
+    socket.on('battle-info-updated', (res) => {
+      connect((account) => {
+        updateBattleInfo(account)
+      })
+    })
 
     connect(async (account) => {
-      getPlayerName(account).then(res => {
-        setPlayerName2(res)
-      })
-      getCardsOfPlayer(account)
-      .then(async (res) => {
-        if (res[0].length == 0 || res[2].length == 0 || res[4].length == 0) {
-          router.push('/signin')
-        } else {
-          updatePlayerCards(account, res, false).then(res => {})
-          getBattle(account).then(res1 => {
-            waitForJoin(account, res)
-            waitForReady(account)
-          })
-        }
+      var username = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://localhost:5000/getBattleInfo/' + account)).data
+
+      if (username == '') {
+        toastr.error('Sign in first!')
+        router.push('/signin')
+        return
+      }
+
+      if (battleInfo == '') {
+        toastr.error('Start game first!')
+        router.push('/makedeck')
+        return
+      }
+
+      setPlayerName2(username)
+      updatePlayerCards().then((res) => {
+        updateBattleInfo(account)
       })
     })
   }, [])
@@ -711,48 +542,83 @@ function GameBoardPage() {
 
   function onAttack(e) {
     if (playerInfo2[4].length == 0) {
-      alert('Please select cards to attack!')
+      toastr.error('Please select cards to attack!')
       return
     }
+    
     if (playerInfo2[3].length == 0) {
-      alert('Please select cards in hand')
-      return
-    }
-    if (flag == false) {
-      alert('Please wait. Server is saving info!')
+      toastr.error('Please select cards in hand')
       return
     }
 
     var tmp = battleInfo[1][0] == playerInfo2[0] ? battleInfo[1] : battleInfo[2]
 
     if (tmp[4].length) {
-      alert('You can not attack. Please wait for opponet is ready!')
+      toastr.error('You can not attack. Please wait for opponet is ready!')
       return
     }
 
-    flag = false
+    connect(async (account) => {
+      var username = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://localhost:5000/getBattleInfo/' + account)).data
 
-    connect((account) => {
+      if (username == '') {
+        toastr.error('Sign in first!')
+        router.push('/signin')
+        return
+      }
+
+      if (battleInfo == '') {
+        toastr.error('Start game first!')
+        router.push('/makedeck')
+        return
+      }
+
       var tmpBattleInfo = JSON.parse(JSON.stringify(battleInfo))
+      var isPlayer1 = true
       
       if (playerInfo2[0] == battleInfo[1][0]) {
         tmpBattleInfo[1] = playerInfo2
       } else {
         tmpBattleInfo[2] = playerInfo2
+        isPlayer1 = false
       }
-      
-      updateBattle(account, tmpBattleInfo, () => {
-        flag = true
-        waitForReady(account)
-      }, () => {
-        flag = true
+
+      socket.emit('update-battle-info', {
+        address: account,
+        battleInfo: tmpBattleInfo,
+        isPlayer1: isPlayer1
       })
+
+      toastr.success('Your action is saved!')
     })
   }
 
-  var tmp = false
-  
-  if (battleInfo.length) tmp = playerInfo2[0] == battleInfo[1][0] ? battleInfo[6] == 1 : battleInfo[6] == 2
+  function onEndTurn(e) {
+    connect(async (account) => {
+      var username = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://localhost:5000/getBattleInfo/' + account)).data
+
+      if (username == '') {
+        toastr.error('Sign in first!')
+        router.push('/signin')
+        return
+      }
+
+      if (battleInfo == '') {
+        toastr.error('Start game first!')
+        router.push('/makedeck')
+        return
+      }
+
+      socket.emit('end-turn', {
+        address: account,
+        value: (playerInfo2[0] == battleInfo[1][0]) ? 1 : 2
+      })
+
+      toastr.success('You ended this turn!')
+    })
+  }
 
   return (
     <>
@@ -771,7 +637,10 @@ function GameBoardPage() {
           setBattleInfo={setBattleInfo}
         /> }
         <div>
-          <Button onClick={(e) => onAttack(e)}>{attackOrDefense}</Button>
+          {!battleInfo.isFinished && 
+          <Button onClick={(e) => onAttack(e)}>{attackOrDefense}</Button>}
+          {battleInfo[1] && battleInfo[1][4].length && battleInfo[2][4].length && ((playerInfo2[0] == battleInfo[1][0]) ? (battleInfo.isEndTurn & 1) == 0 : (battleInfo.isEndTurn & 2) == 0) &&
+          <Button onClick={(e) => onEndTurn(e)}>End Turn</Button>}
         </div>
         <PlayerBoard
           name={playerName2}
@@ -788,17 +657,8 @@ function GameBoardPage() {
           setPlayerInfo1={setPlayerInfo1}
           setPlayerInfo2={setPlayerInfo2}
         />
-        <LastHistory
-          player1MonsterCards={player1MonsterCards}
-          player1SpellCards={player1SpellCards}
-          monsterCards1={monsterCards1}
-          spellCards1={spellCards1}
-          equipCards1={equipCards1}
-          player2MonsterCards={player2MonsterCards}
-          player2SpellCards={player2SpellCards}
-          monsterCards2={monsterCards2}
-          spellCards2={spellCards2}
-          equipCards2={equipCards2}
+        <GameFinish
+          battleInfo={battleInfo}
         />
       </div>
     </>

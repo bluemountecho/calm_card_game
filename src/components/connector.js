@@ -17,13 +17,13 @@ export const connect = async function(onConnected = null) {
             web3 = new Web3(window.ethereum)
             ANDContract = new web3.eth.Contract(
                 AngelAndDemonGame.abi,
-                "0xdA84c58bE1E550a6cC08a288fd1B6918FdF5FD12"
+                "0x98293b56b5EBb651A37832521ec2e94611f1b76f"
             )
         }
 
         var res = await window.ethereum.request({
             method: "wallet_switchEthereumChain",
-            params: [{ chainId: "0x4" }]
+            params: [{ chainId: "0x61" }]
         });
 
         var accounts = await window.ethereum.request({
