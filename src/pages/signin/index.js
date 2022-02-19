@@ -9,7 +9,7 @@ import socketIOClient from "socket.io-client"
 import toastr from "toastr"
 import axios from 'axios'
 
-const ENDPOINT = "http://127.0.0.1:5000";
+const ENDPOINT = "http://167.86.120.197:5000";
 const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
