@@ -383,7 +383,7 @@ const GameFinish = (props) => {
     address = battleInfo.player2.playerAddress
   }
 
-  axios.get('http://localhost:5000/getPlayerName/' + address).then(res => {
+  axios.get('http://167.86.120.197:5000/getPlayerName/' + address).then(res => {
     setMessage(res.data + ' won the game!')
   })
 
@@ -421,7 +421,7 @@ function GameBoardPage() {
   const [attackOrDefense, setAttackOrDefense] = useState('Attack')
 
   async function updatePlayerCards() {
-    var res = (await axios.get('http://localhost:5000/getDefaultCards')).data
+    var res = (await axios.get('http://167.86.120.197:5000/getDefaultCards')).data
     var arr1 = []
 
     for (var i = 0; i < res[0].length; i ++) {
@@ -473,7 +473,7 @@ function GameBoardPage() {
   }
 
   async function updateBattleInfo(account) {
-    var res1 = (await axios.get('http://localhost:5000/getBattleInfo/' + account)).data
+    var res1 = (await axios.get('http://167.86.120.197:5000/getBattleInfo/' + account)).data
 
     if (res1 == '') {
       router.push('/makedeck')
@@ -495,7 +495,7 @@ function GameBoardPage() {
       player = res1.player2
     }
 
-    var username = (await axios.get('http://localhost:5000/getPlayerName/' + enemyPlayer[0])).data
+    var username = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + enemyPlayer[0])).data
     
     setPlayerName1(username)
     setPlayerInfo1(enemyPlayer)
@@ -516,8 +516,8 @@ function GameBoardPage() {
     })
 
     connect(async (account) => {
-      var username = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://localhost:5000/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://167.86.120.197:5000/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -559,8 +559,8 @@ function GameBoardPage() {
     }
 
     connect(async (account) => {
-      var username = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://localhost:5000/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://167.86.120.197:5000/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -596,8 +596,8 @@ function GameBoardPage() {
 
   function onEndTurn(e) {
     connect(async (account) => {
-      var username = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://localhost:5000/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://167.86.120.197:5000/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')

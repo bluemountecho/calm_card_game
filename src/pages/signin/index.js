@@ -20,7 +20,7 @@ function SigninPage() {
 
   useEffect(() => {
     connect(async function (account) {
-      var name = (await axios.get('http://localhost:5000/getPlayerName/' + account)).data
+      var name = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + account)).data
       $('#usernameInput').val(name)
     })
   },[])
