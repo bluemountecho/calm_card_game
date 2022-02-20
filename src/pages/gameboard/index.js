@@ -376,7 +376,8 @@ const GameFinish = (props) => {
   var { battleInfo } = props;
 
   if (!battleInfo[1]) return (<></>)
-  if (battleInfo.isFinished == 0) return (<></>)
+  if (!(battleInfo.player1.lifePoint == 0 || battleInfo.player2.lifePoint == 0 || battleInfo.turn == 6)) return (<></>)
+  $('#last_history_div').show()
   var address = battleInfo.player1.playerAddress
 
   if (battleInfo.player1.lifePoint < battleInfo.player2.lifePoint) {
@@ -393,7 +394,7 @@ const GameFinish = (props) => {
 
   return (
     <>
-      {!battleInfo.isFinished && message != '' && 
+      {(battleInfo.player1.lifePoint == 0 || battleInfo.player2.lifePoint == 0 || battleInfo.turn == 6) && message != '' && 
       <div className={classes.last_history} id="last_history_div" style={{display: 'block'}}>
         <div>
           <div className="close-button" onClick={(e) => onClose()}>X</div>
@@ -419,6 +420,7 @@ function GameBoardPage() {
   const [playerName1, setPlayerName1] = useState('Player1')
   const [playerName2, setPlayerName2] = useState('Player2')
   const [attackOrDefense, setAttackOrDefense] = useState('Attack')
+  var flag = true
 
   async function updatePlayerCards() {
     var res = (await axios.get('http://167.86.120.197:5000/getDefaultCards')).data
@@ -513,7 +515,7 @@ function GameBoardPage() {
   useEffect(() => {
     socket.on('battle-info-updated', (res) => {
       connect((account) => {
-        updateBattleInfo(account, false)
+        updateBattleInfo(account, res)
       })
     })
 
@@ -555,10 +557,12 @@ function GameBoardPage() {
 
     var tmp = battleInfo[1][0] == playerInfo2[0] ? battleInfo[1] : battleInfo[2]
 
-    if (tmp[4].length) {
+    if (tmp[4].length || flag == false) {
       toastr.error('You can not attack. Please wait for opponet is ready!')
       return
     }
+
+    flag = false
 
     connect(async (account) => {
       var username = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + account)).data
@@ -586,7 +590,8 @@ function GameBoardPage() {
         isPlayer1 = false
       }
 
-      setBattleInfo(tmpBattleInfo)
+      await setBattleInfo(tmpBattleInfo)
+      flag = true
 
       socket.emit('update-battle-info', {
         address: account,

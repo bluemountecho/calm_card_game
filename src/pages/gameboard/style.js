@@ -243,12 +243,12 @@ const styles = createStyles({
   last_history: {
     background: 'rgba(0, 0, 0, 0.9)',
     position: 'fixed',
-    top: '10vh',
-    left: '20vw',
-    width: '60vw',
-    height: 'fit-content',
-    zIndex: '100',
-    borderRadius: '20px',
+    top: '0',
+    left: '0',
+    width: '100vw',
+    height: '100vh',
+    zIndex: '100000',
+    borderRadius: '0px',
 
     '& .b-game-card': {
       padding: '0px',
@@ -268,7 +268,7 @@ const styles = createStyles({
       fontWeight: 'bolder',
       float: 'right',
       cursor: 'pointer',
-      padding: '10px 20px'
+      padding: '10px 30px'
     }
   }
 });
