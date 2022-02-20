@@ -112,8 +112,8 @@ io.on('connection', function (socket) {
             })
         }
         
-        socket.broadcast.emit('battle-info-updated', rows[0])
-        socket.emit('battle-info-updated', rows[0])
+        socket.broadcast.emit('battle-info-updated', true)
+        socket.emit('battle-info-updated', true)
     })
 
     socket.on('update-battle-info', async (data) => {
@@ -154,6 +154,8 @@ io.on('connection', function (socket) {
             }
         }
 
+        var flag = false
+
         if (rows[0].player1.cardsInPlay.length && rows[0].player2.cardsInPlay.length) {
             var attack1 = 0, defense1 = 0, mana1 = 0, attack2 = 0, defense2 = 0, mana2 = 0
 
@@ -182,13 +184,15 @@ io.on('connection', function (socket) {
 
             if (rows[0].player1.lifePoint < 0) rows[0].player1.lifePoint = 0
             if (rows[0].player2.lifePoint < 0) rows[0].player2.lifePoint = 0
+
+            flag = true
         }
 
         rows[0].player1 = JSON.stringify(rows[0].player1)
         rows[0].player2 = JSON.stringify(rows[0].player2)
         await knex('tbl_battles').where('battle_id', rows[0].battle_id).update(rows[0])        
-        socket.broadcast.emit('battle-info-updated', rows[0])
-        socket.emit('battle-info-updated', rows[0])
+        socket.broadcast.emit('battle-info-updated', flag)
+        socket.emit('battle-info-updated', flag)
     })
 
     socket.on('end-turn', async (data) => {
@@ -228,8 +232,8 @@ io.on('connection', function (socket) {
         rows[0].player1 = JSON.stringify(rows[0].player1)
         rows[0].player2 = JSON.stringify(rows[0].player2)
         await knex('tbl_battles').where('battle_id', rows[0].battle_id).update(rows[0])        
-        socket.broadcast.emit('battle-info-updated', rows[0])
-        socket.emit('battle-info-updated', rows[0])
+        socket.broadcast.emit('battle-info-updated', true)
+        socket.emit('battle-info-updated', true)
     })
 })
 

@@ -472,7 +472,7 @@ function GameBoardPage() {
     setEquipCards2(arr3)
   }
 
-  async function updateBattleInfo(account) {
+  async function updateBattleInfo(account, flg = true) {
     var res1 = (await axios.get('http://167.86.120.197:5000/getBattleInfo/' + account)).data
 
     if (res1 == '') {
@@ -499,7 +499,9 @@ function GameBoardPage() {
     
     setPlayerName1(username)
     setPlayerInfo1(enemyPlayer)
-    setPlayerInfo2(player)
+
+    if (flg)
+      setPlayerInfo2(player)
 
     if ((res1[1][0] == player[0] && res1.playerState == 1) || (res1[2][0] == player[0] && res1.playerState == 2)) {
       setAttackOrDefense('Attack')
@@ -511,7 +513,7 @@ function GameBoardPage() {
   useEffect(() => {
     socket.on('battle-info-updated', (res) => {
       connect((account) => {
-        updateBattleInfo(account)
+        updateBattleInfo(account, false)
       })
     })
 
@@ -583,6 +585,8 @@ function GameBoardPage() {
         tmpBattleInfo[2] = playerInfo2
         isPlayer1 = false
       }
+
+      setBattleInfo(tmpBattleInfo)
 
       socket.emit('update-battle-info', {
         address: account,
