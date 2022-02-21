@@ -3,11 +3,11 @@ import React from 'react';
 import SigninPage from '../../src/pages/signin';
 import Layout from '../../src/layouts';
 
-function Home() {
+function Home(props) {
 
   return (
     <Layout>
-      <SigninPage />
+      <SigninPage socket={props.socket} />
     </Layout>
   );
 }

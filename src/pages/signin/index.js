@@ -5,22 +5,20 @@ import styles from './style';
 import {connect} from '../../components/connector'
 import { useRouter } from 'next/router'
 import $ from "jquery"
-import socketIOClient from "socket.io-client"
 import toastr from "toastr"
 import axios from 'axios'
 
-const ENDPOINT = "http://167.86.120.197";
-const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
-function SigninPage() {
+function SigninPage(props) {
   const classes = useStyles()
   const router = useRouter()
   var username = ''
+  const {socket} = props
 
   useEffect(() => {
     connect(async function (account) {
-      var name = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var name = (await axios.get('http://localhost/getPlayerName/' + account)).data
       $('#usernameInput').val(name)
     })
   },[])

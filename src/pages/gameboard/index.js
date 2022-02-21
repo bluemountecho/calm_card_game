@@ -10,7 +10,7 @@ import axios from 'axios'
 import socketIOClient from "socket.io-client"
 import toastr from "toastr"
 
-const ENDPOINT = "http://167.86.120.197";
+const ENDPOINT = "http://localhost";
 const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
@@ -384,7 +384,7 @@ const GameMessage = (props) => {
   //   address = battleInfo.player2.playerAddress
   // }
 
-  // axios.get('http://167.86.120.197/getPlayerName/' + address).then(res => {
+  // axios.get('http://localhost/getPlayerName/' + address).then(res => {
   //   setMessage(res.data + ' won the game!')
   // })
 
@@ -405,7 +405,7 @@ const GameMessage = (props) => {
   )
 }
 
-function GameBoardPage() {
+function GameBoardPage(props) {
   const classes = useStyles();
   const router = useRouter();
   const [battleInfo, setBattleInfo] = useState([])
@@ -421,9 +421,10 @@ function GameBoardPage() {
   const [playerName2, setPlayerName2] = useState('Player2')
   const [attackOrDefense, setAttackOrDefense] = useState('Attack')
   var flag = true
+  const {socket} = props
 
   async function updatePlayerCards() {
-    var res = (await axios.get('http://167.86.120.197/getDefaultCards')).data
+    var res = (await axios.get('http://localhost/getDefaultCards')).data
     var arr1 = []
 
     for (var i = 0; i < res[0].length; i ++) {
@@ -475,7 +476,7 @@ function GameBoardPage() {
   }
 
   async function updateBattleInfo(account, flg = true) {
-    var res1 = (await axios.get('http://167.86.120.197/getBattleInfo/' + account)).data
+    var res1 = (await axios.get('http://localhost/getBattleInfo/' + account)).data
 
     if (res1 == '') {
       router.push('/makedeck')
@@ -500,7 +501,7 @@ function GameBoardPage() {
       player = res1.player2
     }
 
-    var username = (await axios.get('http://167.86.120.197/getPlayerName/' + enemyPlayer[0])).data
+    var username = (await axios.get('http://localhost/getPlayerName/' + enemyPlayer[0])).data
     
     setPlayerName1(username)
     setPlayerInfo1(enemyPlayer)
@@ -514,30 +515,34 @@ function GameBoardPage() {
       setAttackOrDefense('Defense')
     }
 
-    if (battleInfo[1] && (battleInfo.player1.lifePoint == 0 || battleInfo.player2.lifePoint == 0 || (battleInfo.turn == 5 && battleInfo.playerState == 2))) {
-      $('#game_message_div').show()
-      var address = battleInfo.player1.playerAddress
+    console.log(res1)
 
-      if (battleInfo.player1.lifePoint < battleInfo.player2.lifePoint) {
-        address = battleInfo.player2.playerAddress
+    if (res1[1] && (res1.player1.lifePoint == 0 || res1.player2.lifePoint == 0 || (res1.turn == 5 && res1.playerState == 2))) {
+      $('#game_message_div').show()
+      var address = res1.player1.playerAddress
+
+      if (res1.player1.lifePoint < res1.player2.lifePoint) {
+        address = res1.player2.playerAddress
       }
 
-      axios.get('http://167.86.120.197/getPlayerName/' + address).then(res => {
+      axios.get('http://localhost/getPlayerName/' + address).then(res => {
         $('#game_message').text(res.data + ' won the game!')
       })
     }
   }
 
   useEffect(() => {
-    socket.on('battle-info-updated', (res) => {
-      connect((account) => {
-        updateBattleInfo(account, res)
+    if (!socket._callbacks || !socket._callbacks['$battle-info-updated'] || socket._callbacks['$battle-info-updated'].length == 0) {
+      socket.on('battle-info-updated', (res) => {
+        connect((account) => {
+          updateBattleInfo(account, res)
+        })
       })
-    })
+    }
 
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://167.86.120.197/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://localhost/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -579,10 +584,11 @@ function GameBoardPage() {
     }
 
     flag = false
+    $('#attackButton .MuiButton-label').text('Wait...')
 
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://167.86.120.197/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://localhost/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -620,9 +626,11 @@ function GameBoardPage() {
   }
 
   function onEndTurn(e) {
+    $('#endTurnButton .MuiButton-label').text('Wait...')
+
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://167.86.120.197/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://localhost/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -663,9 +671,9 @@ function GameBoardPage() {
         /> }
         <div>
           {!battleInfo.isFinished && 
-          <Button onClick={(e) => onAttack(e)}>{attackOrDefense}</Button>}
+          <Button id="attackButton" onClick={(e) => onAttack(e)}>{attackOrDefense}</Button>}
           {battleInfo[1] && battleInfo[1][4].length && battleInfo[2][4].length && ((playerInfo2[0] == battleInfo[1][0]) ? (battleInfo.isEndTurn & 1) == 0 : (battleInfo.isEndTurn & 2) == 0) &&
-          <Button onClick={(e) => onEndTurn(e)}>End Turn</Button>}
+          <Button id="endTurnButton" onClick={(e) => onEndTurn(e)}>End Turn</Button>}
         </div>
         <PlayerBoard
           name={playerName2}

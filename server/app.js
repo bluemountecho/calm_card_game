@@ -16,7 +16,7 @@ const knex = require('knex')({
 })
 
 server = app.listen(80, () => {
-    console.log('Server started at http://167.86.120.197')
+    console.log('Server started at http://localhost')
 })
 
 io = socketIO(server, {
@@ -114,6 +114,7 @@ io.on('connection', function (socket) {
         
         socket.broadcast.emit('battle-info-updated', true)
         socket.emit('battle-info-updated', true)
+        socket.emit('found-battle', null)
     })
 
     socket.on('update-battle-info', async (data) => {
@@ -235,6 +236,10 @@ io.on('connection', function (socket) {
         socket.broadcast.emit('battle-info-updated', true)
         socket.emit('battle-info-updated', true)
     })
+})
+
+io.on('disconnect', function (socket) {
+    console.log(socket.address)
 })
 
 app.use((req, res, next) => {

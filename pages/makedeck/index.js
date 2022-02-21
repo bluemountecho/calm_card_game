@@ -3,11 +3,11 @@ import React from 'react';
 import MakeDeckPage from '../../src/pages/makedeck';
 import Layout from '../../src/layouts';
 
-function MakeDeck() {
+function MakeDeck(props) {
 
   return (
     <Layout>
-      <MakeDeckPage />
+      <MakeDeckPage socket={props.socket}/>
     </Layout>
   );
 }

@@ -6,6 +6,10 @@ import CssBaseline from '@material-ui/core/CssBaseline';
 import theme from '../src/theme';
 import './app.css';
 import './toastr.css'
+import socketIOClient from "socket.io-client"
+
+const ENDPOINT = "http://localhost";
+const socket = socketIOClient(ENDPOINT)
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
@@ -27,7 +31,7 @@ export default function MyApp(props) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <Component {...pageProps} />
+        <Component {...pageProps} socket={socket} />
       </ThemeProvider>
     </React.Fragment>
   );

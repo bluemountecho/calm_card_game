@@ -6,20 +6,19 @@ import Card from '../../components/Card/Card';
 import {connect, addCardsToPlayer, getCardsOfPlayer, addCardsToDeck, getCardsFromDeck, findBattle, getBattle} from '../../components/connector'
 import $ from 'jquery'
 import axios from 'axios'
-import socketIOClient from "socket.io-client"
 import toastr from "toastr"
 
-const ENDPOINT = "http://167.86.120.197";
-const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
+var socket
 
-function MakeDeckPage() {
+function MakeDeckPage(props) {
   const classes = useStyles();
   const router = useRouter();
   const [addedCards, setAddedCards] = useState([])
   const [monsterCards, setMonsterCards] = useState([])
   const [spellCards, setSpellCards] = useState([])
   const [equipCards, setEquipCards] = useState([])
+  socket = props.socket
 
   function SetAddedCards(cardObj, idx = -1) {
     if (idx == -1) {
@@ -30,18 +29,26 @@ function MakeDeckPage() {
   }
 
   useEffect(() => {
-    socket.on('deck-list-saved', async (res) => {
-      toastr.success(res)
-      
-      connect((account) => {
-        socket.emit('find-battle', {
-          address: account
+    if (!socket._callbacks || !socket._callbacks['$deck-list-saved'] || socket._callbacks['$deck-list-saved'].length == 0) {
+      socket.on('deck-list-saved', async (res) => {
+        toastr.success(res)
+        
+        connect((account) => {
+          socket.emit('find-battle', {
+            address: account
+          })
         })
       })
-    })
+    }
+
+    if (!socket._callbacks || !socket._callbacks['$found-battle'] || socket._callbacks['$found-battle'].length == 0) {
+      socket.on('found-battle', (res) => {
+        router.push('/gameboard')
+      })
+    }
 
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -49,7 +56,7 @@ function MakeDeckPage() {
         return
       }
 
-      var res = (await axios.get('http://167.86.120.197/getDefaultCards')).data
+      var res = (await axios.get('http://localhost/getDefaultCards')).data
       var arr1 = []
 
       for (var i = 0; i < res[0].length; i ++) {
@@ -98,7 +105,7 @@ function MakeDeckPage() {
 
       await setEquipCards(arr3)
 
-      res = (await axios.get('http://167.86.120.197/getCardsFromDeck/' + account)).data
+      res = (await axios.get('http://localhost/getCardsFromDeck/' + account)).data
       
       var arr = []
 
@@ -398,14 +405,18 @@ function DeckCardListFooter(props) {
   const classes = useStyles()
   const router = useRouter()
 
-  async function startGame() {
+  async function startGame(e) {
     if (props.addedCards.length != 40) {
       toastr.error('Please select 40 cards!')
       return
     }
 
+    console.log($(e.target).find('p'))
+
+    $('#startButton p').text('Wait...')
+
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -423,8 +434,6 @@ function DeckCardListFooter(props) {
         address: account,
         data: cardIDs
       })
-
-      router.push('/gameboard')
     })
   }
 
@@ -432,7 +441,7 @@ function DeckCardListFooter(props) {
     <>
       <div className={classes.deckCardListFooter}>
         <div style={{display: 'block', width: 'fit-content', margin: '0px auto', height: '50px'}}>
-          <div className={classes.button} onClick={() => startGame()}>
+          <div id="startButton" className={classes.button} onClick={(e) => startGame(e)}>
             <p>Start Game</p>
           </div>
         </div>
