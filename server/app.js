@@ -15,8 +15,8 @@ const knex = require('knex')({
     }
 })
 
-server = app.listen(5000, () => {
-    console.log('Server started at http://167.86.120.197:5000')
+server = app.listen(80, () => {
+    console.log('Server started at http://167.86.120.197')
 })
 
 io = socketIO(server, {

@@ -9,7 +9,7 @@ import axios from 'axios'
 import socketIOClient from "socket.io-client"
 import toastr from "toastr"
 
-const ENDPOINT = "http://167.86.120.197:5000";
+const ENDPOINT = "http://167.86.120.197";
 const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
@@ -35,7 +35,7 @@ function MakeDeckPage() {
     })
 
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + account)).data
+      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -43,7 +43,7 @@ function MakeDeckPage() {
         return
       }
 
-      var res = (await axios.get('http://167.86.120.197:5000/getDefaultCards')).data
+      var res = (await axios.get('http://167.86.120.197/getDefaultCards')).data
       var arr1 = []
 
       for (var i = 0; i < res[0].length; i ++) {
@@ -92,7 +92,7 @@ function MakeDeckPage() {
 
       await setEquipCards(arr3)
 
-      res = (await axios.get('http://167.86.120.197:5000/getCardsFromDeck/' + account)).data
+      res = (await axios.get('http://167.86.120.197/getCardsFromDeck/' + account)).data
       
       var arr = []
 
@@ -399,7 +399,7 @@ function DeckCardListFooter(props) {
     }
 
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + account)).data
+      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')

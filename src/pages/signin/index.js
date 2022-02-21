@@ -9,7 +9,7 @@ import socketIOClient from "socket.io-client"
 import toastr from "toastr"
 import axios from 'axios'
 
-const ENDPOINT = "http://167.86.120.197:5000";
+const ENDPOINT = "http://167.86.120.197";
 const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
@@ -20,7 +20,7 @@ function SigninPage() {
 
   useEffect(() => {
     connect(async function (account) {
-      var name = (await axios.get('http://167.86.120.197:5000/getPlayerName/' + account)).data
+      var name = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
       $('#usernameInput').val(name)
     })
   },[])
