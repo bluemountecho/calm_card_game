@@ -515,7 +515,7 @@ function GameBoardPage(props) {
       setAttackOrDefense('Defense')
     }
 
-    if (res1[1] && (res1.player1.lifePoint == 0 || res1.player2.lifePoint == 0 || res1.turn == 6)) {
+    if (res1[1] && (res1.player1.lifePoint == 0 || res1.player2.lifePoint == 0 || (res1.turn == 5 && res1.playerState == 2 && res1.player1.cardsInPlay.length && res1.player2.cardsInPlay.length))) {
       $('#game_message_div').show()
       var address = res1.player1.playerAddress
 
