@@ -60,13 +60,9 @@ io.on('connection', function (socket) {
         var deckRows = await knex('tbl_users').where('address', data.address).select('*')
         var decks = []
 
-        console.log(deckRows)
-
         if (deckRows[0].decks != '') {
             decks = JSON.parse(deckRows[0].decks)
         }
-
-        console.log(decks)
         
         var rows = await knex('tbl_battles').where('isAccepted', 0).orderBy('createdAt', 'asc').select('*')
         var rows1 = await knex('tbl_battles').whereRaw([
