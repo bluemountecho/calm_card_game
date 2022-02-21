@@ -18,7 +18,7 @@ function SigninPage(props) {
 
   useEffect(() => {
     connect(async function (account) {
-      var name = (await axios.get('http://localhost/getPlayerName/' + account)).data
+      var name = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
       $('#usernameInput').val(name)
     })
   },[])

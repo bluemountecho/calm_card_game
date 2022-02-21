@@ -48,7 +48,7 @@ function MakeDeckPage(props) {
     }
 
     connect(async (account) => {
-      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
+      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -56,7 +56,7 @@ function MakeDeckPage(props) {
         return
       }
 
-      var res = (await axios.get('http://localhost/getDefaultCards')).data
+      var res = (await axios.get('http://167.86.120.197/getDefaultCards')).data
       var arr1 = []
 
       for (var i = 0; i < res[0].length; i ++) {
@@ -105,7 +105,7 @@ function MakeDeckPage(props) {
 
       await setEquipCards(arr3)
 
-      res = (await axios.get('http://localhost/getCardsFromDeck/' + account)).data
+      res = (await axios.get('http://167.86.120.197/getCardsFromDeck/' + account)).data
       
       var arr = []
 
@@ -414,7 +414,7 @@ function DeckCardListFooter(props) {
     $('#startButton p').text('Wait...')
 
     connect(async (account) => {
-      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
+      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')

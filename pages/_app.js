@@ -8,7 +8,7 @@ import './app.css';
 import './toastr.css'
 import socketIOClient from "socket.io-client"
 
-const ENDPOINT = "http://localhost";
+const ENDPOINT = "http://167.86.120.197";
 const socket = socketIOClient(ENDPOINT)
 
 export default function MyApp(props) {

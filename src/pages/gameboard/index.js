@@ -10,7 +10,7 @@ import axios from 'axios'
 import socketIOClient from "socket.io-client"
 import toastr from "toastr"
 
-const ENDPOINT = "http://localhost";
+const ENDPOINT = "http://167.86.120.197";
 const socket = socketIOClient(ENDPOINT)
 const useStyles = makeStyles(styles);
 
@@ -384,7 +384,7 @@ const GameMessage = (props) => {
   //   address = battleInfo.player2.playerAddress
   // }
 
-  // axios.get('http://localhost/getPlayerName/' + address).then(res => {
+  // axios.get('http://167.86.120.197/getPlayerName/' + address).then(res => {
   //   setMessage(res.data + ' won the game!')
   // })
 
@@ -424,7 +424,7 @@ function GameBoardPage(props) {
   const {socket} = props
 
   async function updatePlayerCards() {
-    var res = (await axios.get('http://localhost/getDefaultCards')).data
+    var res = (await axios.get('http://167.86.120.197/getDefaultCards')).data
     var arr1 = []
 
     for (var i = 0; i < res[0].length; i ++) {
@@ -476,7 +476,7 @@ function GameBoardPage(props) {
   }
 
   async function updateBattleInfo(account, flg = true) {
-    var res1 = (await axios.get('http://localhost/getBattleInfo/' + account)).data
+    var res1 = (await axios.get('http://167.86.120.197/getBattleInfo/' + account)).data
 
     if (res1 == '') {
       router.push('/makedeck')
@@ -501,7 +501,7 @@ function GameBoardPage(props) {
       player = res1.player2
     }
 
-    var username = (await axios.get('http://localhost/getPlayerName/' + enemyPlayer[0])).data
+    var username = (await axios.get('http://167.86.120.197/getPlayerName/' + enemyPlayer[0])).data
     
     setPlayerName1(username)
     setPlayerInfo1(enemyPlayer)
@@ -523,7 +523,7 @@ function GameBoardPage(props) {
         address = res1.player2.playerAddress
       }
 
-      axios.get('http://localhost/getPlayerName/' + address).then(res => {
+      axios.get('http://167.86.120.197/getPlayerName/' + address).then(res => {
         $('#game_message').text(res.data + ' won the game!')
       })
     }
@@ -539,8 +539,8 @@ function GameBoardPage(props) {
     }
 
     connect(async (account) => {
-      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://localhost/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://167.86.120.197/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -585,8 +585,8 @@ function GameBoardPage(props) {
     $('#attackButton .MuiButton-label').text('Wait...')
 
     connect(async (account) => {
-      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://localhost/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://167.86.120.197/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -627,8 +627,8 @@ function GameBoardPage(props) {
     $('#endTurnButton .MuiButton-label').text('Wait...')
 
     connect(async (account) => {
-      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
-      var battleInfo = (await axios.get('http://localhost/getBattleInfo/' + account)).data
+      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://167.86.120.197/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
