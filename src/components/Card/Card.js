@@ -216,7 +216,6 @@ export default (props) => {
         }
 
         props.setAddedCards(tmpCards)
-        console.log('#Card_' + props.TokenID)
         $('#Card_' + props.TokenID).removeClass('disabled-card')
         $('#Card_' + props.TokenID).removeClass('disabled-card-opacity')
     }

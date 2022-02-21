@@ -411,8 +411,6 @@ function DeckCardListFooter(props) {
       return
     }
 
-    console.log($(e.target).find('p'))
-
     $('#startButton p').text('Wait...')
 
     connect(async (account) => {
