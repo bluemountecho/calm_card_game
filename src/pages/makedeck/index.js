@@ -32,6 +32,12 @@ function MakeDeckPage() {
   useEffect(() => {
     socket.on('deck-list-saved', async (res) => {
       toastr.success(res)
+      
+      connect((account) => {
+        socket.emit('find-battle', {
+          address: account
+        })
+      })
     })
 
     connect(async (account) => {
@@ -416,10 +422,6 @@ function DeckCardListFooter(props) {
       socket.emit('save-deck-list', {
         address: account,
         data: cardIDs
-      })
-
-      socket.emit('find-battle', {
-        address: account
       })
 
       router.push('/gameboard')
