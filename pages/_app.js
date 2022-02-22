@@ -15,7 +15,7 @@ toastr.options = {
 }
 
 
-const ENDPOINT = "http://localhost";
+const ENDPOINT = "http://167.86.120.197";
 const socket = socketIOClient(ENDPOINT)
 
 socket.on('send-to-winner', (res) => {
