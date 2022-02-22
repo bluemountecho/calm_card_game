@@ -82,6 +82,21 @@ export default (props) => {
 
         if (tmpInfo[3].length == 8) return
 
+        if (props.battleInfo.playerState == 1 && props.Type == "Monster") {
+            var monsterCnt = 0
+
+            for (var i = 0; i < props.playerInfo[5].length; i ++) {
+                if ($('#DeckCard_' + props.playerInfo[5][i]).attr('card-type') == 'Monster') {
+                    monsterCnt ++
+                }
+            }
+
+            if (monsterCnt <= (5 - props.battleInfo.turn) * 2) {
+                toastr.error('Please leave at least ' + ((5 - props.battleInfo.turn) * 2) + ' monster cards to deck!')
+                return
+            }
+        }
+
         for (i = 0; i < tmpInfo[5].length; i ++) {
             if (tmpInfo[5][i] == props.TokenID) {
                 break;
@@ -137,12 +152,30 @@ export default (props) => {
             var tmpArr = []
             var i
 
-            if (!((props.playerInfo[4].length == 0 && props.Type == 'Monster') || (props.playerInfo[4].length == 1 && props.Type != 'Monster'))) {
-                toastr.error('Please select one monster card first and then select one spell or equip card!')
-                return
-            }
             if (props.playerInfo[3].length + props.playerInfo[4].length != 8 && tmp[3].length == 0) {
                 toastr.error('Please select 8 cards to play!')
+                return
+            }
+
+            if (props.battleInfo.playerState == 1) {
+                var monsterCnt = 0
+
+                for (var i = 0; i < props.playerInfo[3].length; i ++) {
+                    if ($('#Card_' + props.playerInfo[3][i]).attr('card-type') == 'Monster') {
+                        monsterCnt ++
+                    }
+                }
+
+                monsterCnt += props.playerInfo[4].length
+
+                if (monsterCnt < 2) {
+                    toastr.error('Please select at least 2 monster cards to play!')
+                    return
+                }
+            }
+
+            if (!((props.playerInfo[4].length == 0 && props.Type == 'Monster') || (props.playerInfo[4].length == 1 && props.Type != 'Monster'))) {
+                toastr.error('Please select one monster card first and then select one spell or equip card!')
                 return
             }
 
@@ -280,7 +313,7 @@ export default (props) => {
         return (
             <>
                 <Tooltip title={Description()} placement="left">
-                <div className={classes.smallCard} onClick={(e) => onClickPlaySmall(e)}>
+                <div id={"DeckCard_" + props.TokenID} card-type={props.Type} className={classes.smallCard} onClick={(e) => onClickPlaySmall(e)}>
                     <div className="CardRow">
                         <span className="overlay" style={{backgroundImage: 'url(/images/' + props.Card + ')'}}></span>
                         <span className="cardRow-Cost">{props.ManaCost}</span>
@@ -300,7 +333,7 @@ export default (props) => {
         return (
             <>
                 <Tooltip title={Description()} placement="top">
-                <div id={"Card_" + props.TokenID} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => onClickPlayBig(e)}>
+                <div id={"Card_" + props.TokenID} card-type={props.Type} className={classes['b-game-card'] + ' b-game-card '} onClick={(e) => onClickPlayBig(e)}>
                     <div className='cover' style={{backgroundImage: 'url(/images/' + props.Card + ')'}}>
                         <div className='gloss'></div>
                         <div className="explore-effect"></div>

@@ -7,9 +7,28 @@ import theme from '../src/theme';
 import './app.css';
 import './toastr.css'
 import socketIOClient from "socket.io-client"
+import {connect} from '../src/components/connector'
+import toastr from "toastr"
 
-const ENDPOINT = "http://167.86.120.197";
+toastr.options = {
+  positionClass: 'toast-top-left'
+}
+
+
+const ENDPOINT = "http://localhost";
 const socket = socketIOClient(ENDPOINT)
+
+socket.on('send-to-winner', (res) => {
+  connect((account) => {
+    if (res.address == account) {
+      if (res.status == false) {
+        toastr.success('You will recieve GNLR prize soon!')
+      } else {
+        toastr.success('You recieved GNLR prize. Please check your wallet!')
+      }
+    }
+  })
+})
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;

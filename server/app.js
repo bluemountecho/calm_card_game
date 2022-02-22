@@ -1,6 +1,5 @@
 var express = require('express'),
     app = express(),
-    http = require('http'),
     socketIO = require('socket.io'),
     server, io
 
@@ -14,6 +13,23 @@ const knex = require('knex')({
         database : 'db_angel_and_demon'
     }
 })
+
+const Web3 = require('web3')
+const GNLRABI = require('../build/contracts/GodsNLegends.json').abi
+const GNLRAddress = '0xf118D4F62781F8c7CE024D66e037D9a843aa928d'
+const targetAddress = '0x37Fb35101173f5cc996503FF9ad859A396920a3d'
+const sendAmount = '188000000000000000000'
+const privateKey = 'e484a2e260b454de81ff258f46b1809d0a923b301e8914d686d4e0009d6ce0fc'
+const Provider = require('@truffle/hdwallet-provider');
+
+async function TransferToWinner(address) {
+    var web3 = new Web3(new Provider(privateKey, 'https://data-seed-prebsc-1-s1.binance.org:8545/'))
+    var myContract = new web3.eth.Contract(GNLRABI, GNLRAddress)
+
+    var receipt = await myContract.methods.transfer(address, sendAmount).send({ from: targetAddress });
+
+    return true
+}
 
 server = app.listen(80, () => {
     console.log('Server started at http://localhost')
@@ -45,13 +61,37 @@ io.on('connection', function (socket) {
             if (Number.parseInt(a) > Number.parseInt(b)) return 1
             if (Number.parseInt(a) < Number.parseInt(b)) return -1
 
-            return 0
+            return
         })
+
+        var monsterRows = await knex('tbl_default_cards').where('card_type', 0).select('card_id')
+        var monsters = []
+        var cnt = 0
+
+        for (var i = 0; i < monsterRows.length; i ++) {
+            monsters.push(monsterRows[i].card_id)
+        }
+
+        for (var i = 0; i < data.data.length; i ++) {
+            if (monsters.includes(data.data[i])) cnt ++
+        }
+
+        if (cnt < 10) {
+            socket.emit('deck-list-saved', {
+                status: 'Error',
+                message: 'Please select more than 10 monster cards!'
+            })
+            return
+        }
+
         await knex('tbl_users').where('address', data.address).update({
             decks: JSON.stringify(data.data)
         })
 
-        socket.emit('deck-list-saved', 'Deck list is saved successfully!')
+        socket.emit('deck-list-saved', {
+            status: 'Success',
+            message: 'Deck list is saved successfully!'
+        })
     })
 
     socket.on('find-battle', async (data) => {
@@ -191,7 +231,7 @@ io.on('connection', function (socket) {
 
         rows[0].player1 = JSON.stringify(rows[0].player1)
         rows[0].player2 = JSON.stringify(rows[0].player2)
-        await knex('tbl_battles').where('battle_id', rows[0].battle_id).update(rows[0])        
+        await knex('tbl_battles').where('battle_id', rows[0].battle_id).update(rows[0])
         socket.broadcast.emit('battle-info-updated', flag)
         socket.emit('battle-info-updated', flag)
     })
@@ -226,20 +266,58 @@ io.on('connection', function (socket) {
             rows[0].isEndTurn = 0
             
             if (rows[0].turn == 6 || rows[0].player1.lifePoint == 0 || rows[0].player2.lifePoint == 0) {
+                var winner = rows[0].player1.playerAddress
                 rows[0].isFinished = 1
+
+                if (rows[0].player1.lifePoint == 0) winner = rows[0].player2.player1Address
+
+                rows[0].winner = winner
+                socket.emit('send-to-winner', {
+                    address: winner,
+                    status: false
+                })
+                socket.broadcast.emit('send-to-winner', {
+                    address: winner,
+                    status: false
+                })
+                
+                await TransferToWinner(winner)
+
+                socket.emit('send-to-winner', {
+                    address: winner,
+                    status: true
+                })
+                socket.broadcast.emit('send-to-winner', {
+                    address: winner,
+                    status: true
+                })
             }
         }
 
         rows[0].player1 = JSON.stringify(rows[0].player1)
         rows[0].player2 = JSON.stringify(rows[0].player2)
-        await knex('tbl_battles').where('battle_id', rows[0].battle_id).update(rows[0])        
+        await knex('tbl_battles').where('battle_id', rows[0].battle_id).update(rows[0])
         socket.broadcast.emit('battle-info-updated', true)
         socket.emit('battle-info-updated', true)
     })
-})
 
-io.on('disconnect', function (socket) {
-    console.log(socket.address)
+    socket.on('payment-accepted', async (data) => {
+        var rows = await knex('tbl_battles').whereRaw([
+            '(player1Address="',
+            data.address,
+            '" or player2Address="',
+            data.address,
+            '") and isFinished=0'
+        ].join('')).select('*')
+
+        if (rows[0].player1Address == data.address) rows[0].isPaid = rows[0].isPaid | 1
+        if (rows[0].player2Address == data.address) rows[0].isPaid = rows[0].isPaid | 2
+
+        await knex('tbl_battles').where('battle_id', rows[0].battle_id).update(rows[0])
+
+        socket.broadcast.emit('battle-info-updated', true)
+        socket.emit('battle-info-updated', true)
+    })
 })
 
 app.use((req, res, next) => {

@@ -269,6 +269,11 @@ const styles = createStyles({
       float: 'right',
       cursor: 'pointer',
       padding: '10px 30px'
+    },
+
+    '& h1': {
+      top: '40vh',
+      position: 'relative'
     }
   }
 });

@@ -11,6 +11,10 @@ import toastr from "toastr"
 const useStyles = makeStyles(styles);
 var socket
 
+toastr.options = {
+  positionClass: 'toast-top-left'
+}
+
 function MakeDeckPage(props) {
   const classes = useStyles();
   const router = useRouter();
@@ -31,7 +35,13 @@ function MakeDeckPage(props) {
   useEffect(() => {
     if (!socket._callbacks || !socket._callbacks['$deck-list-saved'] || socket._callbacks['$deck-list-saved'].length == 0) {
       socket.on('deck-list-saved', async (res) => {
-        toastr.success(res)
+        if (res.status == 'Success') {
+          toastr.success(res.message)
+        } else {
+          toastr.error(res.message)
+          $('#startButton p').text('Start Game')
+          return
+        }
         
         connect((account) => {
           socket.emit('find-battle', {
@@ -48,7 +58,8 @@ function MakeDeckPage(props) {
     }
 
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
+      var battleInfo = (await axios.get('http://localhost/getBattleInfo/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')
@@ -56,7 +67,13 @@ function MakeDeckPage(props) {
         return
       }
 
-      var res = (await axios.get('http://167.86.120.197/getDefaultCards')).data
+      if (battleInfo != '') {
+        toastr.error('You already have a playing game')
+        router.push('/gameboard')
+        return
+      }
+
+      var res = (await axios.get('http://localhost/getDefaultCards')).data
       var arr1 = []
 
       for (var i = 0; i < res[0].length; i ++) {
@@ -105,7 +122,7 @@ function MakeDeckPage(props) {
 
       await setEquipCards(arr3)
 
-      res = (await axios.get('http://167.86.120.197/getCardsFromDeck/' + account)).data
+      res = (await axios.get('http://localhost/getCardsFromDeck/' + account)).data
       
       var arr = []
 
@@ -406,6 +423,11 @@ function DeckCardListFooter(props) {
   const router = useRouter()
 
   async function startGame(e) {
+    if ($('#startButton p').text() == 'Wait...') {
+      toastr.error('Please wait...')
+      return
+    }
+
     if (props.addedCards.length != 40) {
       toastr.error('Please select 40 cards!')
       return
@@ -414,7 +436,7 @@ function DeckCardListFooter(props) {
     $('#startButton p').text('Wait...')
 
     connect(async (account) => {
-      var username = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var username = (await axios.get('http://localhost/getPlayerName/' + account)).data
 
       if (username == '') {
         toastr.error('Sign in first!')

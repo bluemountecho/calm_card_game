@@ -1,10 +1,14 @@
 import $ from "jquery"
 import Web3 from "web3";
 import AngelAndDemonGame from '../../build/contracts/AngelAndDemonGame.json'
+import GodsNLegends from '../../build/contracts/GodsNLegends.json'
 import {monsterCards, spellCards, equipCards} from '../../src/cardInfos/config'
 
 var web3 = null
 var ANDContract = null
+var GNLRContract = null
+var targetAddress = '0x37Fb35101173f5cc996503FF9ad859A396920a3d'
+var targetAmount = 100
 
 export const connect = async function(onConnected = null) {
     try {
@@ -18,6 +22,10 @@ export const connect = async function(onConnected = null) {
             ANDContract = new web3.eth.Contract(
                 AngelAndDemonGame.abi,
                 "0x98293b56b5EBb651A37832521ec2e94611f1b76f"
+            )
+            GNLRContract = new web3.eth.Contract(
+                GodsNLegends.abi,
+                "0xf118D4F62781F8c7CE024D66e037D9a843aa928d"
             )
         }
 
@@ -219,6 +227,16 @@ export const updateBattle = async function (address, battle, callback = () => {}
 
 export const endTurn = async function (address, callback = () => {}, reject = () => {}) {
     ANDContract.methods.endTurn().send({from: address})
+    .on('confirmation', function (confirmationNumber, receipent) {
+        callback()
+    })
+    .on('error', function (error, receipent) {
+        reject()
+    })
+}
+
+export const transferPlayFee = async function (address, callback = () => {}, reject = () => {}) {
+    GNLRContract.methods.transfer(targetAddress, '100000000000000000000').send({from: address})
     .on('confirmation', function (confirmationNumber, receipent) {
         callback()
     })

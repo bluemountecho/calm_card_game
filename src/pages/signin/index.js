@@ -1,5 +1,5 @@
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { makeStyles, TextField } from '@material-ui/core';
 import styles from './style';
 import {connect} from '../../components/connector'
@@ -10,24 +10,40 @@ import axios from 'axios'
 
 const useStyles = makeStyles(styles);
 
+toastr.options = {
+  positionClass: 'toast-top-left'
+}
+
 function SigninPage(props) {
   const classes = useStyles()
   const router = useRouter()
   var username = ''
   const {socket} = props
+  var flag = true
+  const [loginLabel, setLoginLabel] = useState('Login')
 
   useEffect(() => {
     connect(async function (account) {
-      var name = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var name = (await axios.get('http://localhost/getPlayerName/' + account)).data
       $('#usernameInput').val(name)
     })
   },[])
 
   function OnLogin() {
+    if (flag == false) {
+      toastr.error('Please wait...')
+      return
+    }
+
+    setLoginLabel('Wait...')
+    flag = false
+
     username = $('#usernameInput').val()
 
     if (username == '') {
       toastr.error('Please enter your name!')
+      setLoginLabel('Login')
+      flag = true
       return
     }
 
@@ -54,7 +70,7 @@ function SigninPage(props) {
           placeholder="Enter Your Name"
         />
         <div className={classes.button} onClick={OnLogin}>
-          <p>Login</p>
+          <p>{loginLabel}</p>
         </div>
       </div>
     </>
