@@ -500,6 +500,8 @@ function GameBoardPage(props) {
       router.push('/makedeck')
       return
     }
+
+    setEndTurn('End Turn')
     
     if (res1.player1Address == '0x0000000000000000000000000000000000000000' || res1.player2Address == '0x0000000000000000000000000000000000000000') {
       toastr.error('Please wait for opponent join!')
