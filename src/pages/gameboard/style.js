@@ -12,7 +12,7 @@ const styles = createStyles({
     minHeight: '100vh',
     backgroundImage: 'url("/images/game_back.png")',
     backgroundSize: 'cover',
-    padding: '120px 0 40px',
+    padding: '5vh 0px',
     [theme.breakpoints.down('930')]: {
       flexDirection: 'column',
       padding: '100px 0 20px',
@@ -34,247 +34,98 @@ const styles = createStyles({
     },
     '& .endTurn': {
       float: 'right'
-    }
-  },
-  board: {
-    width: '100%',
-    '& > div': {
-      width: '90%',
-      margin: '0 auto',
-      paddingBottom: '2vh',
-      display: 'flex',
-      justifyContent: 'space-between',
-      flexWrap: 'wrap',
-      '& > div:last-child': {
-        justifyContent: 'end',
-      },
+    },
 
-      '& > div': {
-        display: 'flex'
-      }
-    },
-  },
-  avatar: {
-    width: '20%',
-    display: 'flex',
-    alignItems: 'center',
-    '& > div': {
-      position: 'relative',
+    '& > .cards-row': {
       display: 'flex',
-      alignItems: 'center',
-      '& > img:first-child': {
-        width: '6vw',
-      },
-      '& > img:last-child': {
-        width: '4.5vw',
-        margin: '0.75vw',
-        position: 'absolute',
-      },
-    },
-    '& > p': {
-      fontFamily: 'RajdhaniBold',
-      fontSize: '1.5vw',
-      fontWeight: '600',
-      color: 'white',
-    },
-  },
-  life: {
-    paddingTop: '1.5vw',
-    display: 'block !important',
-    alignItems: 'center',
-    width: '20%',
-    '& > img': {
-      width: '14%',
-      zIndex: '1',
-      display: 'inline-block',
-    },
-    '& > div': {
-      position: 'relative',
-      display: 'inline-block',
-      alignItems: 'center',
-      width: '40%',
-      '& > img:first-child': {
-        width: '100%',
-      },
-      '& > img:last-child': {
-        position: 'absolute',
-        right: '7%',
-        height: '45%',
-        top: '0.6vw',
-        width: '0%'
-      },
-    },
-    '& > *:first-child': {
-      transform: 'translateX(3px)',
-    },
-  },
-  cards_inhand: {
-    position: 'relative',
-    width: '60%',
-    display: 'flex',
-    height: '8vw',
-    justifyContent: 'left',
-    '& > img': {
       width: '100%',
-      position: 'absolute',
-      zIndex: '1',
-    },
-    '& > .b-game-card': {
-      width: '8.5%',
-      top: '0.7vw',
-      position: "relative",
-      // height: 'fit-content',
-      margin: '0 2%',
-      padding: '0px',
-      // zIndex: '2',
-      // transform: 'translateY(15%)',
+      height: '30vh',
 
-      '& .cover': {
-        height: '80%'
+      '& > .cards-side': {
+        display: 'inline-flex',
+        width: '20%',
+        textAlign: 'center',
+        position: 'relative',
+
+        '& > label': {
+          fontSize: '40px',
+          position: 'absolute',
+          width: '100%',
+          textAlign: 'center',
+        },
+      },
+
+      '& > .cards-pos': {
+        display: 'inline-flex',
+        width: '60%',
+        textAlign: 'center',
+        position: 'relative',
       }
-    },
-  },
-  cards_play: {
-    width: '60%',
-    justifyContent: 'center',
-
-    '& .b-game-card': {
-      width: "7vw",
-      padding: "0px",
-      height: "9.9vw",
-      margin: "0px 20px"
     }
   },
-  cards_deck: {
-    width: '20%',
-
-    '& > div': {
-      width: '80%',
-      overflow: 'auto',
-      maxHeight: '10vw',
-
-      '&::-webkit-scrollbar-track': {
-        WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.3)',
-        backgroundColor: 'rgba(255, 153, 1, 0.4)',
-        borderRadius: '5px'
-      },
-
-      '&::-webkit-scrollbar': {
-        width: '10px',
-        backgroundColor: 'rgba(255, 153, 1, 0.4)',
-        borderRadius: '5px'
-      },
-
-      '&::-webkit-scrollbar-thumb': {
-        backgroundColor: '#F90',
-        borderRadius: '5px',
-        border: '2px solid black',
-        backgroundImage: '-webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent)'
-      }
-    },
-  },
-  battle_history: {
-    width: '20%',
-
-    '& > div': {
-      width: '80%',
-      overflow: 'auto',
-      maxHeight: '10vw',
-
-      '&::-webkit-scrollbar-track': {
-        WebkitBoxShadow: 'inset 0 0 6px rgba(0,0,0,0.3)',
-        backgroundColor: 'rgba(255, 153, 1, 0.4)',
-        borderRadius: '5px'
-      },
-
-      '&::-webkit-scrollbar': {
-        width: '10px',
-        backgroundColor: 'rgba(255, 153, 1, 0.4)',
-        borderRadius: '5px'
-      },
-
-      '&::-webkit-scrollbar-thumb': {
-        backgroundColor: '#F90',
-        borderRadius: '5px',
-        border: '2px solid black',
-        backgroundImage: '-webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%, transparent 75%, transparent)'
-      }
-    },
-  },
-
-  button: {
-    cursor: 'pointer',
-    width: '160px',
-    height: '100%',
-    backgroundImage: 'url("/images/button_startgame.png")',
-    backgroundSize: 'cover',
-    display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    margin: '0px auto',
-
-    '&:hover': {
-      opacity: '0.8',
-    },
-    '& > p': {
-      margin: '0',
-      fontFamily: 'RajdhaniBold',
-      fontSize: '20px',
-      textTransform: 'uppercase',
-    },
-    [theme.breakpoints.down('930')]: {
-      width: '75vw',
-      height: '24vw',
-      '& > p': {
-        fontSize: '10vw',
-      },
-    },
-  },
-
-  readyButton: {
-    position: 'absolute',
-    width: '120px',
-    height: '36px',
-    left: '-60px',
-    top: '-20px',
-    zIndex: '10'
-  },
-
-  last_history: {
-    background: 'rgba(0, 0, 0, 0.9)',
+  
+  vsDiv: {
     position: 'fixed',
-    top: '0',
-    left: '0',
-    width: '100vw',
-    height: '100vh',
-    zIndex: '100000',
-    borderRadius: '0px',
+    width: '100%',
+    height: '100%',
+    background: 'rgba(0, 0, 0, 0.7)',
+    left: '0px',
+    top: '0px',
+    zIndex: '200',
 
-    '& .b-game-card': {
-      padding: '0px',
-      width: '10vw',
-      height: '15vw',
-      display: 'inline-block',
-      margin: '20px',
+    '& > .player1-vs, & > .player2-vs': {
+      width: '50%',
+      height: '100%',
+      display: 'inline-flex',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'contain',
+      backgroundPosition: 'center',
+      position: 'absolute',
+      alignItems: 'center',
+
+      '& .fire': {
+        width: '100%',
+        textAlign: 'center',
+        fontWeight: 'bolder',
+        fontSize: '100px',
+        fontFamily: 'Caesar Dressing',
+      },
     },
 
-    '& > div': {
-      display: 'block',
-      textAlign: 'center'
+    '& > .player1-vs': {
+      left: '-50vw',
     },
 
-    '& .close-button': {
+    '& > .player2-vs': {
+      right: '-50vw',
+    },
+
+    '& > .vs-div': {
+      width: '100px',
+      height: '120vh',
+      display: 'inline-flex',
       color: 'white',
-      fontWeight: 'bolder',
-      float: 'right',
-      cursor: 'pointer',
-      padding: '10px 30px'
-    },
+      position: 'absolute',
+      backgroundImage: 'linear-gradient(90deg, #00d7e1, #c7fcff, #c7fcff, #00d7e1)',
+      transform: 'skew(-15deg, 0deg)',
+      paddingTop: 'calc(50vh - 100px)',
+      left: 'calc(50vw - 50px)',
+      top: '-120vh',
+      zIndex: '2',
 
-    '& h1': {
-      top: '40vh',
-      position: 'relative'
-    }
+      '&::after': {
+        content: "'VS'",
+        textShadow: '#8fd90f 10px 0 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0, #8fd90f 10px 10px 0',
+        fontFamily: 'Belwe Bold',
+        position: 'absolute',
+        fontWeight: 'bolder',
+        textAlign: 'center',
+        fontSize: '200px',
+        left: '-90px',
+        top: 'calc(60vh - 100px)',
+        lineHeight: '200px',
+      }
+    },
   }
 });
 

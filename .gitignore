@@ -22,3 +22,5 @@ yarn-error.log*
 _static
 start.cmd
 *.png
+src/components/Card/Card.js
+public/images/cards/cards.rar

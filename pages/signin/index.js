@@ -7,7 +7,7 @@ function Home(props) {
 
   return (
     <Layout>
-      <SigninPage socket={props.socket} />
+      <SigninPage socket={props.socket} baseURL={props.baseURL} />
     </Layout>
   );
 }

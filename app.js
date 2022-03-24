@@ -1,21 +1,27 @@
-var express = require('express'),
-    app = express(),
-    socketIO = require('socket.io'),
-    server, io
+const express = require('express')
+const app = express()
+const socketIO = require('socket.io')
+const path = require('path')
+const cors = require('cors')
+const bodyParser = require("body-parser")
+
+require('dotenv').config()
+
+var server, io
 
 const knex = require('knex')({
     client: 'mysql',
     connection: {
-        host : '127.0.0.1',
-        port : 3306,
-        user : 'root',
-        password : '',
-        database : 'db_angel_and_demon'
+        host : process.env.DATABASE_HOST,
+        port : process.env.DATABASE_PORT,
+        user : process.env.DATABASE_USER,
+        password : process.env.DATABASE_PASS,
+        database : process.env.DATABASE_NAME
     }
 })
 
 const Web3 = require('web3')
-const GNLRABI = require('../build/contracts/GodsNLegends.json').abi
+const GNLRABI = require('./build/contracts/GodsNLegends.json').abi
 const GNLRAddress = '0xf118D4F62781F8c7CE024D66e037D9a843aa928d'
 const targetAddress = '0x37Fb35101173f5cc996503FF9ad859A396920a3d'
 const sendAmount = '188000000000000000000'
@@ -40,10 +46,11 @@ io = socketIO(server, {
         origin: "*"
     }
 })
+// io = socketIO(server)
 
 io.on('connection', function (socket) {
     socket.on('set-player-name', async (data) => {
-        socket.address = data.address
+        socket.data.address = data.address
         var rows = await knex('tbl_users').where('address', data.address)
 
         if (rows.length == 0) {
@@ -320,24 +327,116 @@ io.on('connection', function (socket) {
     })
 })
 
+app.use(cors())
+
 app.use((req, res, next) => {
     res.header('Access-Control-Allow-Origin', '*');
     next();
 });
 
-app.get('/getDefaultCards', async (req, res, next) => {
-    var rows = await knex('tbl_default_cards').select('*')
-    var data = []
+app.use(bodyParser.json())
 
-    data[0] = []
-    data[1] = []
-    data[2] = []
+app.use(express.static(path.join(__dirname, '/_static')));
 
-    for (var i = 0; i < rows.length; i ++) {
-        data[rows[i].card_type].push(rows[i])
+function convertTimestampToString(timestamp, flag = false) {
+    if (flag == false) {
+        return new Date(timestamp).toISOString().replace(/T/, ' ').replace(/\..+/, '').replace(/ /g, '_').replace(/:/g, '_').replace(/-/g, '_')
+    } else {
+        return new Date(timestamp).toISOString().replace(/T/, ' ').replace(/\..+/, '')
+    }
+}
+
+async function calcBattle(battleID) {
+    var rows = await knex('tbl_battles').where('battle_id', battleID).select('*')
+    var player1Deck = [], player2Deck = [], winner, battleLog = [], stateLog = [], battle
+    var cardsInfo = []
+
+    if (rows.length == 0) return
+
+    async function init() {
+        battle = rows[0]
+
+        var tmp = JSON.parse(battle.player1Deck)
+
+        for (var i = 0; i < tmp.length; i ++) {
+            rows = await knex('tbl_default_cards').where('card_id', tmp[i]).select('*')
+            player1Deck.push(rows[0])
+            cardsInfo[tmp[i]] = rows[0]
+        }
+        
+        tmp = JSON.parse(battle.player2Deck)
+
+        for (var i = 0; i < tmp.length; i ++) {
+            rows = await knex('tbl_default_cards').where('card_id', tmp[i]).select('*')
+            player2Deck.push(rows[0])
+            cardsInfo[tmp[i]] = rows[0]
+        }
     }
 
-    res.send(data)
+    async function calcBattle0() {
+        battleLog[0] = []
+        stateLog[0] = []
+
+        for (var i = 1; i < player1Deck.length; i ++) {
+            battleLog[0].push([{
+                Type: 'Appear',
+                Player: 1,
+                Position: i,
+                Self: [i],
+            }])
+            stateLog[0].push([])
+        }
+
+        for (var i = 1; i < player2Deck.length; i ++) {
+            battleLog[0].push([{
+                Type: 'Appear',
+                Player: 2,
+                Position: i,
+                Self: [i],
+            }])
+            stateLog[0].push([])
+        }
+
+        battleLog[0].push([])
+        stateLog[0].push([])
+    }
+
+    await init()
+    await calcBattle0()
+
+    await knex('tbl_battle_history').where('history_id', 84).update({
+        player1Address: battle.player1Address,
+        player2Address: battle.player2Address,
+        player1Deck: battle.player1Deck,
+        player2Deck: battle.player2Deck,
+        battleLog: JSON.stringify(battleLog),
+        stateLog: JSON.stringify(stateLog),
+    })
+}
+
+calcBattle(236)
+
+app.get('/getDefaultCards', async (req, res, next) => {
+    var rows = await knex('tbl_abilities').select('*')
+    var abilities = []
+
+    for (var i = 0; i < rows.length; i ++) {
+        abilities[rows[i].ability_id] = rows[i]
+    }
+    
+    rows = await knex('tbl_default_cards').select('*')    
+
+    for (var i = 0; i < rows.length; i ++) {
+        var abs = JSON.parse(rows[i].ability)
+
+        rows[i].ability = []
+
+        for (var j = 0; j < abs.length; j ++) {
+            rows[i].ability.push(abilities[abs[j]])
+        }
+    }
+
+    res.send(rows)
 })
 
 app.get('/getCardsFromDeck/:address', async (req, res, next) => {
@@ -446,43 +545,259 @@ app.get('/getHistoryBattle/:battleID', async (req, res, next) => {
     res.send(rows[0])
 })
 
+app.get('/findBattle/:address/:timeRemain', async (req, res, next) => {
+    var address = req.params.address
+    var timeRemain = req.params.timeRemain
 
-// async function init() {
-//     for (var i = 1; i <= 38; i ++) {
-//         await knex('tbl_default_cards').insert({
-//             card_name: "Monster" + i,
-//             card_type: 0,
-//             card_description: "This is monster card.",
-//             card_image: "card" + (i % 17) + ".png",
-//             attack_point: 20 + i % 10,
-//             defense_point: 20 - i % 10,
-//             mana_point: Math.floor(i / 10 + 1)
-//         })
-//     }
-      
-//     for (var i = 1; i <= 51; i ++) {
-//         await knex('tbl_default_cards').insert({
-//             card_name: "Spell" + i,
-//             card_type: 1,
-//             card_description: "This is spell card.",
-//             card_image: "card" + (i % 17) + ".png",
-//             attack_point: 20 + i % 10,
-//             defense_point: 20 - i % 10,
-//             mana_point: Math.floor(i / 10 + 1)
-//         })
-//     }
-      
-//     for (var i = 1; i <= 33; i ++) {
-//         await knex('tbl_default_cards').insert({
-//             card_name: "Equip" + i,
-//             card_type: 2,
-//             card_description: "This is equip card.",
-//             card_image: "card" + (i % 17) + ".png",
-//             attack_point: 20 + i % 10,
-//             defense_point: 20 - i % 10,
-//             mana_point: Math.floor(i / 10 + 1)
-//         })
-//     }
-// }
+    await knex('tbl_battles').where('player2Address', '').where('createdAt', '<', convertTimestampToString(new Date().getTime() - 120 * 1000, true)).delete()
+    await knex('tbl_battles').where('acceptedAt', '!=', '').where('acceptedAt', '<', convertTimestampToString(new Date().getTime() - 30 * 1000, true)).where('isAccepted', '!=', 3).delete()
+
+    var rows = await knex('tbl_battles').where('player1Address', address).orWhere('player2Address', address)
+
+    if (rows.length) {
+        if (rows[0].player2Address == '' && timeRemain == 120) {
+            await knex('tbl_battles').where('battle_id', rows[0].battle_id).update({
+                createdAt: convertTimestampToString(new Date().getTime(), true)
+            })
+        }
+
+        res.send(rows[0])
+        return
+    }
+
+    var battleID = 0
+
+    rows = await knex('tbl_battles').where('player2Address', '').select('*')
+
+    if (rows.length) {
+        battleID = rows[0].battle_id
+
+        await knex('tbl_battles').where('battle_id', rows[0].battle_id).update({
+            player2Address: address,
+            acceptedAt: convertTimestampToString(new Date().getTime(), true)
+        })
+    } else {
+        battleID = (await knex('tbl_battles').insert({
+            player1Address: address,
+            createdAt: convertTimestampToString(new Date().getTime(), true)
+        }))[0]
+    }
+
+    rows = await knex('tbl_battles').where('battle_id', battleID)
+    res.send(rows[0])
+})
+
+app.get('/cancelBattle/:battleID', async (req, res, next) => {
+    var battleID = req.params.battleID
+
+    await knex('tbl_battles').where('battle_id', battleID).delete()
+    res.send('success')
+})
+
+app.post('/acceptBattle', async (req, res, next) => {
+    var address = req.body.address
+    var battleID = req.body.battleID
+
+    var rows = await knex('tbl_battles').where('battle_id', battleID).select('*')
+
+    if (address == rows[0].player1Address) {
+        rows[0].isAccepted |= 1
+    } else {
+        rows[0].isAccepted |= 2
+    }
+
+    if (rows[0].isAccepted == 3) {
+        rows[0].startedAt = convertTimestampToString(new Date().getTime(), true)
+    }
+
+    await knex('tbl_battles').where('battle_id', battleID).update(rows[0])
+
+    if (rows[0].isAccepted == 3) {
+        res.send('done')
+    } else {
+        res.send('wait')
+    }
+})
+
+app.post('/startGame', async (req, res, next) => {
+    var address = req.body.address
+    var deck = req.body.deck
+    var battleID = req.body.battleID
+
+    var rows = await knex('tbl_battles').where('battle_id', battleID).select('*')
+
+    if (address == rows[0].player1Address) {
+        rows[0].isStarted |= 1
+        rows[0].player1Deck = deck
+    } else {
+        rows[0].isStarted |= 2
+        rows[0].player2Deck = deck
+    }
+
+    await knex('tbl_battles').where('battle_id', battleID).update(rows[0])
+
+    if (rows[0].isStarted == 3) {
+        res.send('done')
+    } else {
+        res.send('wait')
+    }
+})
+
+app.post('/setPlayerName', async (req, res, next) => {
+    var rows = await knex('tbl_users').where('address', req.body.address)
+
+    if (rows.length == 0) {
+        await knex('tbl_users').where('address', req.body.address).insert(req.body)
+    } else {
+        await knex('tbl_users').where('address', req.body.address).update({
+            username: req.body.username
+        })
+    }
+
+    res.send('success')
+})
+
+app.post('/getBattleHisotry', async (req, res, next) => {
+    var battleID = req.body.battleID
+    var rows = await knex('tbl_battle_history').where('history_id', battleID)
+    var cards = {}
+
+    if (rows.length == 0) {
+        res.send('failed')
+        return
+    }
+
+    var player1Deck = JSON.parse(rows[0].player1Deck)
+    var player2Deck = JSON.parse(rows[0].player2Deck)
+
+    for (var i = 0; i < player1Deck.length; i ++) {
+        var tmp = await knex('tbl_default_cards').where('card_id', player1Deck[i]).select('*')
+        var abs = JSON.parse(tmp[0].ability)
+
+        tmp[0].ability = []
+        
+        for (var j = 0; j < abs.length; j ++) {
+            var tmp1 = await knex('tbl_abilities').where('ability_id', abs[j]).select('*')
+
+            tmp[0].ability.push(tmp1[0])
+        }
+
+        cards[player1Deck[i]] = tmp[0]
+    }
+
+    for (var i = 0; i < player2Deck.length; i ++) {
+        var tmp = await knex('tbl_default_cards').where('card_id', player2Deck[i]).select('*')
+        var abs = JSON.parse(tmp[0].ability)
+
+        tmp[0].ability = []
+        
+        for (var j = 0; j < abs.length; j ++) {
+            var tmp1 = await knex('tbl_abilities').where('ability_id', abs[j]).select('*')
+
+            tmp[0].ability.push(tmp1[0])
+        }
+        
+        cards[player2Deck[i]] = tmp[0]
+    }
+
+    rows[0].cards = JSON.stringify(cards)
+    res.send(rows[0])
+})
+
+app.get('/:page', (req, res, next) => {
+    res.sendFile(path.join(__dirname, '/_static/' + req.params.page + '.html'))
+})
+
+async function init() {
+    // Set Mana Of Default Cards
+
+    var rows = await knex('tbl_mana_units').select('*')
+    var manas = []
+    var abilities = []
+
+    for (var i = 0; i < rows.length; i ++) {
+        manas[rows[i].field] = rows[i].mana_unit
+    }
+
+    rows = await knex('tbl_abilities').select('*')
+
+    for (var i = 0; i < rows.length; i ++) {
+        abilities[rows[i].ability_id] = rows[i].manaCost
+    }
+
+    var rows = await knex('tbl_default_cards').select('*')
+
+    for (var i = 0; i < rows.length; i ++) {
+        var mana = 0
+
+        mana += rows[i].health * manas['health']
+        mana += rows[i].attack * manas['attack']
+        mana += rows[i].defense * manas['defense']
+        mana += rows[i].speed * manas['speed']
+
+        var abs = JSON.parse(rows[i].ability)
+
+        for (var j = 0; j < abs.length; j ++) {
+            mana += abilities[abs[j]]
+        }
+
+        mana = Math.floor(mana * 10)
+
+        var decimal = mana % 10
+
+        mana = Math.floor(mana / 10.0)
+
+        if (decimal >= 5) mana ++
+
+        await knex('tbl_default_cards').where('card_id', rows[i].card_id).update({
+            mana: mana
+        })
+    }
+
+
+    // Set Abilities to Default Cards
+
+    // await knex('tbl_default_cards').where('type', '!=', 1).update({
+    //     ability: '[]'
+    // })
+
+    // var rows = await knex('tbl_default_cards').where('type', '!=', 1).select('*')
+    // var abs = await knex('tbl_abilities').where('targetType', '!=', 1).select('*')
+
+    // for (var i = 0; i < rows.length; i ++) {
+    //     rows[i].ability = JSON.parse(rows[i].ability)
+    // }
+
+    // for (var i = 0; i < abs.length; i ++) {
+    //     var cnt = abs[i].targetCount
+
+    //     while (cnt) {
+    //         var rand = Math.floor(Math.random() * (new Date().getTime())) % 82
+
+    //         if (rows[rand].ability.indexOf(abs[i].ability_id) >= 0) continue
+    //         if (rows[rand].ability.length == 2) continue
+    //         if (rows[rand].ability.length == 1 && rows[rand].ability.indexOf(20) < 0 && abs[i].ability_id != 20) continue
+    //         if (abs[i].targetType != 0 && abs[i].targetType != rows[rand].type) continue
+            
+    //         var targetQuery = abs[i].targetQuery.split(' ')
+
+    //         if (targetQuery.length == 3) {
+    //             var oper = targetQuery[1]
+
+    //             if (oper == '<=' && rows[rand][targetQuery[0]] > targetQuery[2]) continue
+    //             if (oper == '>=' && rows[rand][targetQuery[0]] < targetQuery[2]) continue
+    //         }
+
+    //         rows[rand].ability.push(abs[i].ability_id)
+    //         cnt --
+    //     }
+    // }
+
+    // for (var i = 0; i < rows.length; i ++) {
+    //     await knex('tbl_default_cards').where('card_id', rows[i].card_id).update({
+    //         ability: JSON.stringify(rows[i].ability)
+    //     })
+    // }
+}
 
 // init()

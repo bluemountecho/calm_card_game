@@ -7,7 +7,7 @@ function MakeDeck(props) {
 
   return (
     <Layout>
-      <MakeDeckPage socket={props.socket}/>
+      <MakeDeckPage socket={props.socket} baseURL={props.baseURL}/>
     </Layout>
   );
 }

@@ -1,10 +1,11 @@
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import { makeStyles } from '@material-ui/core';
 import { useRouter } from 'next/router';
 import styles from './style';
 import TopButtons from '../../components/TopButtons';
 import BottomButtons from '../../components/BottomButtons';
+import {connect} from '../../components/connector'
 
 const useStyles = makeStyles(styles);
 

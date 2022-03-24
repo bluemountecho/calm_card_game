@@ -12,6 +12,7 @@
     "alertifyjs": "^1.13.1",
     "axios": "^0.26.0",
     "clsx": "latest",
+    "dotenv": "^16.0.0",
     "jquery": "^3.6.0",
     "knex": "^1.0.3",
     "mysql": "^2.18.1",

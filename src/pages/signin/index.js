@@ -18,14 +18,15 @@ function SigninPage(props) {
   const classes = useStyles()
   const router = useRouter()
   var username = ''
-  const {socket} = props
   var flag = true
   const [loginLabel, setLoginLabel] = useState('Login')
 
   useEffect(() => {
     connect(async function (account) {
-      var name = (await axios.get('http://167.86.120.197/getPlayerName/' + account)).data
+      var name = (await axios.get(props.baseURL + '/getPlayerName/' + account)).data
       $('#usernameInput').val(name)
+    }, () => {
+      setLoginLabel('Login')
     })
   },[])
 
@@ -47,16 +48,22 @@ function SigninPage(props) {
       return
     }
 
-    connect(OnConnected)
+    connect(OnConnected, () => {
+      setLoginLabel('Login')
+    })
   }
 
   async function OnConnected(account) {
-    socket.emit('set-player-name', {
+    var res = await axios.post(props.baseURL + '/setPlayerName', {
       address: account,
       username: username
     })
 
-    router.push('/makedeck')
+    setLoginLabel('Login')
+
+    if (res.data == 'success') {
+      router.push('/startgame')
+    }
   }
 
   return (

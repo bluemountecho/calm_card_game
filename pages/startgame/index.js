@@ -3,11 +3,11 @@ import React from 'react';
 import StartGamePage from '../../src/pages/startgame';
 import Layout from '../../src/layouts';
 
-function StartGame() {
+function StartGame(props) {
 
   return (
     <Layout>
-      <StartGamePage />
+      <StartGamePage socket={props.socket} baseURL={props.baseURL} />
     </Layout>
   );
 }

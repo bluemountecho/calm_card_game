@@ -14,8 +14,7 @@ toastr.options = {
   positionClass: 'toast-top-left'
 }
 
-
-const ENDPOINT = "http://167.86.120.197";
+const ENDPOINT = "http://192.168.8.26";
 const socket = socketIOClient(ENDPOINT)
 
 socket.on('send-to-winner', (res) => {
@@ -50,7 +49,7 @@ export default function MyApp(props) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <Component {...pageProps} socket={socket} />
+        <Component {...pageProps} socket={socket} baseURL={ENDPOINT} />
       </ThemeProvider>
     </React.Fragment>
   );

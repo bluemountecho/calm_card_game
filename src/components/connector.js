@@ -10,7 +10,7 @@ var GNLRContract = null
 var targetAddress = '0x37Fb35101173f5cc996503FF9ad859A396920a3d'
 var targetAmount = 100
 
-export const connect = async function(onConnected = null) {
+export const connect = async function(onConnected = null, onCancelled = null) {
     try {
         if (!window.ethereum) {
             alert("Get MetaMask!");
@@ -60,12 +60,15 @@ export const connect = async function(onConnected = null) {
             return
         }
 
+        if (onCancelled) onCancelled()
         window.document.querySelector('#signIn').innerHTML = ('Sign In')
     } catch (err) {
         try {
             window.document.querySelector('#signIn').innerHTML = ('Sign In')
         } catch (err) {
         }
+        
+        if (onCancelled) onCancelled()
     }    
 }
 
