@@ -288,7 +288,7 @@ export default (props) => {
         }
     } else if (props.CardShowType == 'captain' || props.CardShowType == 'monster') {
         return (
-            <div id={"Card_" + props.ID} className={classes['b-game-card'] + ' b-game-card card-type-' + props.Type + (props.CardShowType == 'captain' ? ' captain-card' : ' monster-card')}>
+            <div id={"Card_" + props.ID + '_' + props.CardID} className={classes['b-game-card'] + ' b-game-card card-type-' + props.Type + (props.CardShowType == 'captain' ? ' captain-card' : ' monster-card')} style={props.CardShowType == 'monster' ? {display: 'none'} : {} }>
                 <div className='cover' style={{backgroundImage: 'url(' + props.Image  + ')'}}>
                     <div className="mana-box">{props.ManaCost}</div>
                     {props.Type != 1 &&
@@ -303,10 +303,21 @@ export default (props) => {
                     <div className="ability-box">
                         <div>
                         {props.Ability.map((ability, index) => {
+                            const AbilityDescription = () => {
+                                return (
+                                <div className={"tooltip-description card-type-" + props.Type}>
+                                    <div className="tooltip-image" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}></div>
+                                    <div className="tooltip-title">{ability.name}</div>
+                                    {ability.description}
+                                </div>)
+                            }
+
                             return (
-                                <div className="ability" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}>
-                                    {ability.text}
-                                </div>
+                                <Tooltip title={AbilityDescription()} placement="top">
+                                    <div className="ability" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}>
+                                        {ability.text}
+                                    </div>
+                                </Tooltip>
                             )
                         })}
                         </div>

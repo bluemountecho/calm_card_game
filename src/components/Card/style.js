@@ -10,6 +10,73 @@ const styles = createStyles({
         transition: 'transform 0.35s',
         cursor: 'pointer',
 
+        '&.card-type-1.active > .cover': {
+            boxShadow: '0px 0px 12px 7px #f722ab',
+            transition: 'none',
+        },
+
+        '&.card-type-2.active > .cover': {
+            boxShadow: '0px 0px 12px 7px #6624c8',
+            transition: 'none',
+        },
+
+        '&.card-type-3.active > .cover': {
+            boxShadow: '0px 0px 12px 7px #368d4e',
+            transition: 'none',
+        },
+
+        '&.card-type-4.active > .cover': {
+            boxShadow: '0px 0px 12px 7px #1d69ef',
+            transition: 'none',
+        },
+
+        '&.captain-card': {
+            width: '11vw',
+            maxWidth: 'calc(20vh - 27px)',
+            height: '16vw',
+            maxHeight: 'calc(30vh - 40px)',
+            paddingBottom: '0px',
+            margin: 'auto',
+            pointerEvents: 'none',
+
+            '& .ability': {
+                pointerEvents: 'initial !important',
+            },
+
+            '&:hover': {
+                transform: 'scale(1)',
+                zIndex: 'initial',
+            },
+
+            '&:hover .cover': {
+                boxShadow: '0px 0px 8px 8px #000000',
+            }
+        },
+
+        '&.monster-card': {
+            width: '11vw',
+            maxWidth: 'calc(20vh - 27px)',
+            height: '16vw',
+            maxHeight: 'calc(30vh - 40px)',
+            paddingBottom: '0px',
+            margin: 'auto',
+            transition: "none !important",
+            // pointerEvents: 'none',
+
+            '& .ability': {
+                pointerEvents: 'initial !important',
+            },
+
+            '&:hover': {
+                transform: 'scale(1)',
+                zIndex: 'initial',
+            },
+
+            '&:hover .cover': {
+                boxShadow: '0px 0px 8px 8px #000000',
+            }
+        },
+
         '&.disabled-card': {
             pointerEvents: 'none'
         },
@@ -40,7 +107,7 @@ const styles = createStyles({
             overflow: 'visible',
             backgroundImage: 'linear-gradient(120deg, #f6d365 0%, #fda085 100%)',
             backgroundSize: 'cover',
-            boxShadow: '0px 0px 8px 1px #000000ad',
+            boxShadow: '0px 0px 8px 8px #000000',
             perspectiveOrigin: '50% 50%',
             transformStyle: 'preserve-3d',
             transformOrigin: 'center',
@@ -284,24 +351,6 @@ const styles = createStyles({
 
         '&.card-type-4 .ability': {
             border: '3px solid #1d69ef',
-        },
-
-        '&.captain-card': {
-            width: '11.2vw',
-            maxWidth: '20vh',
-            height: '16vw',
-            maxHeight: '30vh',
-            paddingBottom: '0px',
-            margin: '0px auto',
-        },
-
-        '&.monster-card': {
-            width: '10vw',
-            maxWidth: '20vh',
-            height: '14.28vw',
-            maxHeight: '30vh',
-            paddingBottom: '0px',
-            margin: '0px auto',
         },
     },
 

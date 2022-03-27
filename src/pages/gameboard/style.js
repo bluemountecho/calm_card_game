@@ -13,6 +13,7 @@ const styles = createStyles({
     backgroundImage: 'url("/images/game_back.png")',
     backgroundSize: 'cover',
     padding: '5vh 0px',
+    overflow: 'hidden',
     [theme.breakpoints.down('930')]: {
       flexDirection: 'column',
       padding: '100px 0 20px',
@@ -60,6 +61,26 @@ const styles = createStyles({
         width: '60%',
         textAlign: 'center',
         position: 'relative',
+        padding: '20px 0px',
+
+        '& > .monster-div': {
+          width: '25%',
+          display: 'inline-flex',
+          padding: '20px',
+          alignItems: 'center',
+
+          '& > label': {
+            width: '100%',
+            textAlign: 'center',
+            color: 'white',
+            fontSize: '50px',
+          },
+
+          '&.has-border': {
+            border: '2px solid white',
+            borderRadius: '3px',
+          }
+        }
       }
     }
   },
