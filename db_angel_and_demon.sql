@@ -11,7 +11,7 @@
  Target Server Version : 100417
  File Encoding         : 65001
 
- Date: 25/03/2022 06:27:42
+ Date: 28/03/2022 14:11:53
 */
 
 SET NAMES utf8mb4;
@@ -88,13 +88,13 @@ CREATE TABLE `tbl_battle_history`  (
   `winner` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0x0000000000000000000000000000000000000000',
   `finishedAt` datetime(0) NULL DEFAULT NULL,
   `isPaid` tinyint(2) NULL DEFAULT 0,
+  `battle_id` int(11) NULL DEFAULT 0,
   PRIMARY KEY (`history_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 85 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 99 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tbl_battle_history
 -- ----------------------------
-INSERT INTO `tbl_battle_history` VALUES (84, '0xe95defe950545563bb7adcda767ad3da459f801e', '0xbf96178161586b8c9c5096e35ac2ea2ad1fad2a7', '[397,406,402,401,400,405,478]', '[468,391,401,402,449]', '[[[{\"Type\":\"Appear\",\"Player\":1,\"Position\":1,\"Self\":406}],[{\"Type\":\"Appear\",\"Player\":1,\"Position\":2,\"Self\":402}],[{\"Type\":\"Appear\",\"Player\":1,\"Position\":3,\"Self\":401}],[{\"Type\":\"Appear\",\"Player\":1,\"Position\":4,\"Self\":400}],[{\"Type\":\"Appear\",\"Player\":1,\"Position\":5,\"Self\":405}],[{\"Type\":\"Appear\",\"Player\":1,\"Position\":6,\"Self\":478}],[{\"Type\":\"Appear\",\"Player\":2,\"Position\":1,\"Self\":391}],[{\"Type\":\"Appear\",\"Player\":2,\"Position\":2,\"Self\":401}],[{\"Type\":\"Appear\",\"Player\":2,\"Position\":3,\"Self\":402}],[{\"Type\":\"Appear\",\"Player\":2,\"Position\":4,\"Self\":449}],[]]]', '[[[],[],[],[],[],[],[],[],[],[],[]]]', '0x0000000000000000000000000000000000000000', NULL, 0);
 
 -- ----------------------------
 -- Table structure for tbl_battles
@@ -112,12 +112,11 @@ CREATE TABLE `tbl_battles`  (
   `acceptedAt` datetime(0) NULL DEFAULT NULL,
   `startedAt` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`battle_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 237 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 269 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tbl_battles
 -- ----------------------------
-INSERT INTO `tbl_battles` VALUES (236, '0xe95defe950545563bb7adcda767ad3da459f801e', '0xbf96178161586b8c9c5096e35ac2ea2ad1fad2a7', '[397,406,402,401,400,405,478]', '[468,391,401,402,449]', 3, 3, '2022-03-24 00:10:16', '2022-03-24 00:10:24', '2022-03-24 00:10:37');
 
 -- ----------------------------
 -- Table structure for tbl_default_cards
