@@ -355,6 +355,7 @@ try {
         var rows = await knex('tbl_battles').where('battle_id', battleID).select('*')
         var player1Deck = [], player2Deck = [], winner, battleLog = [], stateLog = [], battle
         var cardsInfo = []
+        var winner, befPlayer = 2
 
         if (rows.length == 0) return
 
@@ -676,8 +677,8 @@ try {
                 stateLog[0].push([])
             }
 
-            battleLog[0].push([])
-            stateLog[0].push([])
+            // battleLog[0].push([])
+            // stateLog[0].push([])
             
             var tmp = JSON.parse(player1Deck[0].ability)
             
@@ -705,8 +706,8 @@ try {
                 calcAbility(battleLog[0], stateLog[0], tmp[i], 2, 1, player2Deck, player1Deck)
             }
 
-            battleLog[0].push([])
-            stateLog[0].push([])
+            // battleLog[0].push([])
+            // stateLog[0].push([])
         }
 
         async function calcBattleRound(roundIndex) {
@@ -716,7 +717,6 @@ try {
             var log = battleLog[roundIndex]
             var state = stateLog[roundIndex]
             var vis = []
-            var befPlayer = 2
 
             vis[1] = []
             vis[2] = []
@@ -823,31 +823,80 @@ try {
                 }])
                 state.push([])
 
-                log.push([{
-                    Type: 'Blood',
-                    Self: targetID,
-                    Player: targetPlayer,
-                    Position: targetPosition
-                }, {
-                    Type: 'ChangeHealth',
-                    Text: -friendDeck[curPosition].attack,
-                    Player: targetPlayer,
-                    Self: targetID,
-                    NotShowGif: true,
-                }])
+                var missed = false
+                // var totalSpeed = friendDeck[curPosition].speed + enemyDeck[targetPosition].speed
 
-                enemyDeck[targetPosition].health -= friendDeck[curPosition].attack
+                // if (Math.random() < friendDeck[targetPosition].speed / totalSpeed / 2.0) missed = true
 
-                if (enemyDeck[targetPosition].health < 0) enemyDeck[targetPosition].health = 0
+                if (friendDeck[curPosition].speed < enemyDeck[targetPosition].speed) {
+                    var diff = enemyDeck[targetPosition].speed - friendDeck[curPosition].speed
 
-                state.push([{
-                    Type: 'health',
-                    Amount: -friendDeck[curPosition].attack,
-                    Value: enemyDeck[targetPosition].health,
-                    Player: targetPlayer,
-                    Self: targetID,
-                    Position: targetPosition
-                }])
+                    if (Math.random() < diff * 0.15) missed = true
+                }
+
+                if (missed == false) {
+                    if ((friendDeck[curPosition].type == 2 || friendDeck[curPosition].type == 3) && (enemyDeck[targetPosition].defense > 0)) {
+                        log.push([{
+                            Type: 'Blood',
+                            Self: targetID,
+                            Player: targetPlayer,
+                            Position: targetPosition
+                        }, {
+                            Type: 'ChangeDefense',
+                            Text: -friendDeck[curPosition].attack,
+                            Player: targetPlayer,
+                            Self: targetID,
+                            NotShowGif: true,
+                        }])
+
+                        enemyDeck[targetPosition].defense -= friendDeck[curPosition].attack
+                        
+                        if (enemyDeck[targetPosition].defense < 0) enemyDeck[targetPosition].defense = 0
+
+                        state.push([{
+                            Type: 'defense',
+                            Amount: -friendDeck[curPosition].attack,
+                            Value: enemyDeck[targetPosition].defense,
+                            Player: targetPlayer,
+                            Self: targetID,
+                            Position: targetPosition
+                        }])
+                    } else {
+                        log.push([{
+                            Type: 'Blood',
+                            Self: targetID,
+                            Player: targetPlayer,
+                            Position: targetPosition
+                        }, {
+                            Type: 'ChangeHealth',
+                            Text: -friendDeck[curPosition].attack,
+                            Player: targetPlayer,
+                            Self: targetID,
+                            NotShowGif: true,
+                        }])
+
+                        enemyDeck[targetPosition].health -= friendDeck[curPosition].attack
+
+                        if (enemyDeck[targetPosition].health < 0) enemyDeck[targetPosition].health = 0
+
+                        state.push([{
+                            Type: 'health',
+                            Amount: -friendDeck[curPosition].attack,
+                            Value: enemyDeck[targetPosition].health,
+                            Player: targetPlayer,
+                            Self: targetID,
+                            Position: targetPosition
+                        }])
+                    }
+                } else {
+                    log.push([{
+                        Type: 'Missed',
+                        Self: targetID,
+                        Player: targetPlayer,
+                        Position: targetPosition
+                    }])
+                    state.push([])
+                }
 
                 if (enemyDeck[targetPosition].health == 0) {
                     log.push([{
@@ -873,7 +922,12 @@ try {
 
                     enemyDeck.splice(targetPosition, 1)
                     
-                    if (enemyDeck.length == 1) return true
+                    if (enemyDeck.length == 1) {
+                        if (curPlayer == 1) winner = battle.player1Address
+                        else winner = battle.player2Address
+
+                        return true
+                    }
                 }
             }
 
@@ -891,17 +945,20 @@ try {
             if (res) break
         }
 
-        await knex('tbl_battle_history').where('history_id', 84).update({
+        await knex('tbl_battles').where('battle_id', battleID).delete()
+
+        return (await knex('tbl_battle_history').insert({
             player1Address: battle.player1Address,
             player2Address: battle.player2Address,
             player1Deck: battle.player1Deck,
             player2Deck: battle.player2Deck,
             battleLog: JSON.stringify(battleLog),
             stateLog: JSON.stringify(stateLog),
-        })
+            winner: winner,
+            finishedAt: convertTimestampToString(new Date().getTime(), true),
+            battle_id: battleID
+        }))[0]
     }
-
-    calcBattle(236)
 
     app.get('/getDefaultCards', async (req, res, next) => {
         var rows = await knex('tbl_abilities').select('*')
@@ -1039,7 +1096,38 @@ try {
         await knex('tbl_battles').where('player2Address', '').where('createdAt', '<', convertTimestampToString(new Date().getTime() - 120 * 1000, true)).delete()
         await knex('tbl_battles').where('acceptedAt', '!=', '').where('acceptedAt', '<', convertTimestampToString(new Date().getTime() - 30 * 1000, true)).where('isAccepted', '!=', 3).delete()
 
-        var rows = await knex('tbl_battles').where('player1Address', address).orWhere('player2Address', address)
+        var rows = await knex('tbl_battles').where('startedAt', '!=', '').where('startedAt', '<', convertTimestampToString(new Date().getTime() - 180 * 1000, true)).where('isStarted', '!=', 3).select('*')
+
+        for (var i = 0; i < rows.length; i ++) {
+            if (rows[i].isStarted == 0) continue
+            if (rows[i].isStarted == 1) {
+                await knex('tbl_battle_history').insert({
+                    player1Address: rows[i].player1Address,
+                    player2Address: rows[i].player2Address,
+                    player1Deck: rows[i].player1Deck,
+                    player2Deck: rows[i].player2Deck,
+                    battleLog: '[]',
+                    stateLog: '[]',
+                    winner: player1Address,
+                    finishedAt: convertTimestampToString(new Date().getTime(), true),
+                })
+            } else {
+                await knex('tbl_battle_history').insert({
+                    player1Address: rows[i].player1Address,
+                    player2Address: rows[i].player2Address,
+                    player1Deck: rows[i].player1Deck,
+                    player2Deck: rows[i].player2Deck,
+                    battleLog: '[]',
+                    stateLog: '[]',
+                    winner: player2Address,
+                    finishedAt: convertTimestampToString(new Date().getTime(), true),
+                })
+            }
+        }
+
+        await knex('tbl_battles').where('startedAt', '!=', '').where('startedAt', '<', convertTimestampToString(new Date().getTime() - 180 * 1000, true)).where('isStarted', '!=', 3).delete()
+
+        rows = await knex('tbl_battles').where('player1Address', address).orWhere('player2Address', address)
 
         if (rows.length) {
             if (rows[0].player2Address == '' && timeRemain == 120) {
@@ -1124,9 +1212,17 @@ try {
         await knex('tbl_battles').where('battle_id', battleID).update(rows[0])
 
         if (rows[0].isStarted == 3) {
-            res.send('done')
+            var result = await calcBattle(battleID)
+
+            res.send({
+                message: 'done',
+                data: result
+            })
         } else {
-            res.send('wait')
+            res.send({
+                message: 'wait',
+                data: battleID
+            })
         }
     })
 

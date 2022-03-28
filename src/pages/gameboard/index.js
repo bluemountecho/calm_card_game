@@ -349,10 +349,12 @@ function GameBoardPage(props) {
 
     $('#Card_' + data.Self + '_' + data.Player).append($(newElem))
 
-    if (data.Text > 0) {
-      await activeCard(data, 'change_positive')
-    } else {
-      await activeCard(data, 'change_negative')
+    if (!data.NotShowGif) {
+      if (data.Text > 0) {
+        await activeCard(data, 'change_positive')
+      } else {
+        await activeCard(data, 'change_negative')
+      }
     }
 
     await Animate($(newElem), {
@@ -367,7 +369,9 @@ function GameBoardPage(props) {
       $(attackBox).css('color', 'red')
     }
     
-    await inActiveCard(data)
+    if (!data.NotShowGif) {
+      await inActiveCard(data)
+    }
 
     $(newElem).remove()
   }
@@ -503,6 +507,32 @@ function GameBoardPage(props) {
     $(newElem1).remove()
   }
 
+  async function missedAnimation(data) {
+    var elem = $('#Card_' + data.Self + '_' + data.Player)
+    var newElem = $(renderToString(<img style={{position: 'fixed', zIndex: '400', left: cardPos[data.Player][data.Position].left, top: cardPos[data.Player][data.Position].top, width: $(elem)[0].offsetWidth, height: $(elem)[0].offsetHeight}} src="/images/effects/missed.gif" />))
+    var newElem1 = $(renderToString(<div style={{position: 'fixed', zIndex: '500', left: cardPos[data.Player][data.Position].left, top: cardPos[data.Player][data.Position].top + ($(elem)[0].offsetHeight / 2), width: $(elem)[0].offsetWidth, textAlign: 'center', color: 'white', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'black', fontFamily: 'Caesar Dressing', fontSize: '30px'}}>Miss</div>))
+
+    $('#gameboard').append(newElem)
+    $('#gameboard').append(newElem1)
+
+    await Animate(newElem1, {
+      top: '-=100px',
+      opacity: '0',
+      trans: 1,
+    }, {
+      step: function(now, fx) {
+        if (fx.prop == 'trans') {
+          $(this).css('transform','scale(' + (1 + now) + ')')
+        }
+      },
+      duration: timeUnit * 3,
+      easing: "linear",
+    })
+
+    $(newElem).remove()
+    $(newElem1).remove()
+  }
+
   async function dieAnimation(data) {
     var elem = $('#Card_' + data.Self + '_' + data.Player)
     var newElem = $(renderToString(<img style={{position: 'fixed', zIndex: '500', left: cardPos[data.Player][data.Position].left, top: cardPos[data.Player][data.Position].top + ($(elem)[0].offsetHeight - $(elem)[0].offsetWidth) / 2, width: $(elem)[0].offsetWidth}} src="/images/effects/die.gif" />))
@@ -511,7 +541,7 @@ function GameBoardPage(props) {
       trans: 1,
     }, {
       step: function(now, fx) {
-        $(this).css('transform','scale(' + (1 - now) + ')');  
+        $(this).css('transform','scale(' + (1 - now) + ')')
       },
       duration: timeUnit * 0.4,
       easing: "linear",
@@ -561,16 +591,16 @@ function GameBoardPage(props) {
 
         if (data.Type == 'Appear') {
           func = appearAnimation
-        // } else if (data.Type == 'UseAbility') {
-        //   func = useAbilityAnimation
-        // } else if (data.Type == 'ChangeAttack') {
-        //   func = changeAttackAnimation
-        // } else if (data.Type == 'ChangeSpeed') {
-        //   func = changeSpeedAnimation
+        } else if (data.Type == 'UseAbility') {
+          func = useAbilityAnimation
+        } else if (data.Type == 'ChangeAttack') {
+          func = changeAttackAnimation
+        } else if (data.Type == 'ChangeSpeed') {
+          func = changeSpeedAnimation
         } else if (data.Type == 'ChangeHealth') {
           func = changeHealthAnimation
-        // } else if (data.Type == 'ChangeDefense') {
-        //   func = changeDefenseAnimation
+        } else if (data.Type == 'ChangeDefense') {
+          func = changeDefenseAnimation
         } else if (data.Type == 'MeleeAttack') {
           func = meleeAttackAnimation
         } else if (data.Type == 'RangedAttack') {
@@ -583,6 +613,8 @@ function GameBoardPage(props) {
           func = dieAnimation
         } else if (data.Type == 'Remove') {
           func = removeAnimation
+        } else if (data.Type == 'Missed') {
+          func = missedAnimation
         }
 
         if (func != null) {
@@ -606,8 +638,6 @@ function GameBoardPage(props) {
 
         if (data.Type == 'remove') {
           playerInfo.splice(data.Position, 1)
-          console.log(playerInfo)
-          // continue
         } else {
           playerInfo[data.Position][data.Type] = data.Value
         }
@@ -646,7 +676,7 @@ function GameBoardPage(props) {
     battleLog = JSON.parse(battleInfo.battleLog)
     stateLog = JSON.parse(battleInfo.stateLog)
 
-    console.log(battleLog, stateLog)
+    console.log(battleLog)
 
     for (var i = 0; i < player1Deck.length; i ++) {
       player1Data.push({...cards[player1Deck[i]]})

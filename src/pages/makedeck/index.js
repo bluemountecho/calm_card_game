@@ -344,7 +344,7 @@ function DeckCardList(props) {
     }
 
     connect(async (account) => {
-      await axios.post(baseURL + '/startGame', {
+      var res = await axios.post(baseURL + '/startGame', {
         address: account,
         deck: JSON.stringify(tmp),
         battleID: battleInfo.battle_id
