@@ -16,8 +16,8 @@ function GameBoardPage(props) {
   const classes = useStyles();
   const router = useRouter();
   const {baseURL, socket} = props
-  const [timeUnit, setTimeUnit] = useState(200)
-  const [showVS, setShowVS] = useState(false)
+  const [timeUnit, setTimeUnit] = useState(300)
+  const [showVS, setShowVS] = useState(true)
   const [player1Info, setPlayer1Info] = useState([])
   const [player2Info, setPlayer2Info] = useState([])
   const [player1Name, setPlayer1Name] = useState('')
@@ -651,7 +651,7 @@ function GameBoardPage(props) {
         $('.monster-card').css('transform', 'scale(1)')
       }
       
-      // await delay(timeUnit)
+      await delay(timeUnit)
 
       if (battleLog[roundIndex][i].length == 0) {
         await delay(timeUnit)
@@ -717,7 +717,7 @@ function GameBoardPage(props) {
   }
 
   useEffect(async () => {
-    battleInfo = (await axios.post(baseURL + '/getBattleHisotry', {
+    battleInfo = (await axios.post(baseURL + '/getBattleHistory', {
       battleID: window.location.search.substring(8)
     })).data
 
@@ -727,7 +727,7 @@ function GameBoardPage(props) {
     }
 
     await init()
-    // await vsAnimation()
+    await vsAnimation()
     await roundAnimation(0)
 
     var round = 1
@@ -737,6 +737,8 @@ function GameBoardPage(props) {
 
       await roundAnimation(round ++)
     }
+
+    router.push('/startgame')
   }, [])
 
   return (

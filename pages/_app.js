@@ -15,19 +15,19 @@ toastr.options = {
 }
 
 const ENDPOINT = "http://192.168.8.26";
-const socket = socketIOClient(ENDPOINT)
+// const socket = socketIOClient(ENDPOINT)
 
-socket.on('send-to-winner', (res) => {
-  connect((account) => {
-    if (res.address == account) {
-      if (res.status == false) {
-        toastr.success('You will recieve GNLR prize soon!')
-      } else {
-        toastr.success('You recieved GNLR prize. Please check your wallet!')
-      }
-    }
-  })
-})
+// socket.on('send-to-winner', (res) => {
+//   connect((account) => {
+//     if (res.address == account) {
+//       if (res.status == false) {
+//         toastr.success('You will recieve GNLR prize soon!')
+//       } else {
+//         toastr.success('You recieved GNLR prize. Please check your wallet!')
+//       }
+//     }
+//   })
+// })
 
 export default function MyApp(props) {
   const { Component, pageProps } = props;
@@ -49,7 +49,7 @@ export default function MyApp(props) {
       <ThemeProvider theme={theme}>
         {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
         <CssBaseline />
-        <Component {...pageProps} socket={socket} baseURL={ENDPOINT} />
+        <Component {...pageProps} socket={null} baseURL={ENDPOINT} />
       </ThemeProvider>
     </React.Fragment>
   );

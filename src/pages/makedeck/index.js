@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { makeStyles } from '@material-ui/core'
+import { makeStyles, LinearProgress } from '@material-ui/core'
 import { useRouter } from 'next/router'
 import styles from './style'
 import Card from '../../components/Card/Card';
@@ -10,6 +10,8 @@ import axios from 'axios'
 const useStyles = makeStyles(styles);
 
 var battleInfo
+var accountAddress
+var timerID
 
 function MakeDeckPage(props) {
   const classes = useStyles();
@@ -19,7 +21,34 @@ function MakeDeckPage(props) {
   const [monsters, setMonsters] = useState([])
   const [showExceedDialog, setShowExceedDialog] = useState(false)
   const [showSelect2Cards, setShowSelect2Cards] = useState(false)
+  const [showStartGame, setShowStartGame] = useState(true)
+  const [showWaitOpponent, setShowWaitOpponent] = useState(false)
   const {baseURL} = props
+  const [timeRemain, setTimeRemain] = useState(180)
+
+  async function timerFunc() {
+    var tmp = 180 - Math.floor((new Date().getTime() - new Date(battleInfo.startedAt).getTime()) / 1000)
+
+    if (tmp % 5 == 0) {
+      battleInfo = (await axios.get(baseURL + '/getBattle/' + accountAddress)).data
+
+      if (battleInfo.length == 0) {
+        router.push('/startgame')
+      } else {
+        battleInfo = battleInfo[0]
+      }
+
+      if (battleInfo.isStarted == 3) {
+        router.push('/makedeck')
+      }
+    }
+
+    if (tmp < 0) {
+      router.push('/startgame')
+    } else {
+      setTimeRemain(tmp)
+    }
+  }
 
   useEffect(async () => {
     var rows = (await axios.get(baseURL + '/getDefaultCards')).data
@@ -35,7 +64,16 @@ function MakeDeckPage(props) {
     setMonsters(monsters)
 
     connect(async (account) => {
-      battleInfo = (await axios.get(baseURL + '/findBattle/' + account + '/0')).data
+      accountAddress = account
+      battleInfo = (await axios.get(baseURL + '/getBattle/' + account)).data
+
+      if (battleInfo.length == 0) {
+        router.push('/startgame')
+      } else {
+        battleInfo = battleInfo[0]
+      }
+
+      timerID = setInterval(timerFunc, 1000)
     }, () => {
       router.push('/signin')
     })
@@ -80,7 +118,13 @@ function MakeDeckPage(props) {
             height: Math.round(bounding.height)
         };
     }
-  }, []);
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      clearInterval(timerID)
+    }
+  }, [])
 
   return (
     <>
@@ -92,6 +136,7 @@ function MakeDeckPage(props) {
             setMonsters={setMonsters}
             addedCards={addedCards}
             setAddedCards={setAddedCards}
+            timeRemain={timeRemain}
           />
           <DeckCardList
             addedCards={addedCards}
@@ -99,6 +144,9 @@ function MakeDeckPage(props) {
             baseURL = {baseURL}
             setShowExceedDialog={setShowExceedDialog}
             setShowSelect2Cards={setShowSelect2Cards}
+            showStartGame={showStartGame}
+            setShowWaitOpponent={setShowWaitOpponent}
+            setShowStartGame={setShowStartGame}
           />
         </div>
       </div>
@@ -110,13 +158,17 @@ function MakeDeckPage(props) {
       <Select2CardsDialog
         setShowSelect2Cards={setShowSelect2Cards}
       />}
+      {showWaitOpponent &&
+      <WaitForOpponent
+        baseURL={baseURL}
+      />}
     </>
   );
 }
 
 function CardList(props) {
   const classes = useStyles()
-  const {captains, monsters, setMonsters, addedCards, setAddedCards} = props
+  const {captains, monsters, setMonsters, addedCards, setAddedCards, timeRemain} = props
   const [filter, setFilter] = useState(0)
   const [ordering, setOrdering] = useState(0)
   const [manaFilter, setManaFilter] = useState(0)
@@ -185,7 +237,7 @@ function CardList(props) {
       <div className={classes.cardList + ' cardListDiv'}>
         <div className="toolbar">
           <div>
-            <h1>Time Left: </h1>
+            <h1>Time Left: {timeRemain} seconds</h1>
             {/* <input type="text" placeholder="Search..." /> */}
           </div>
           <div>
@@ -307,10 +359,66 @@ function Select2CardsDialog(props) {
   )
 }
 
+function WaitForOpponent(props) {
+  const classes = useStyles()
+  const {baseURL} = props
+  const [opponentName, setOpponentName] = useState('')
+  const [timeRemain, setTimeRemain] = useState(180)
+  const router = useRouter()
+  var battleHistory
+
+  async function timerFunc() {
+    var tmp = 180 - Math.floor((new Date().getTime() - new Date(battleInfo.startedAt).getTime()) / 1000)
+
+    if (tmp % 5 == 0) {
+      battleHistory = (await axios.get(baseURL + '/getBattleHistory/' + battleInfo.battle_id)).data
+
+      if (battleHistory.length) {
+        router.push('/gameboard?battle=' + battleHistory[0].history_id)
+      }
+    }
+
+    if (tmp < 0) {
+      router.push('/startgame')
+    } else {
+      setTimeRemain(tmp)
+    }
+  }
+
+  useEffect(async () => {
+    var opponentAddress = battleInfo.player2Address
+
+    if (battleInfo.player2Address == accountAddress) {
+      opponentAddress = battleInfo.player1Address
+    }
+
+    setOpponentName((await axios.get(baseURL + '/getPlayerName/' + opponentAddress)).data)
+    timerID = setInterval(timerFunc, 1000)
+    battleHistory = (await axios.get(baseURL + '/getBattleHistory/' + battleInfo.battle_id)).data
+
+    if (battleHistory.length) {
+      router.push('/gameboard?battle=' + battleHistory[0].history_id)
+    }
+  }, [])
+
+  return (
+    <div className={classes.battleDialog}>
+      <div className="dialogTitle">Waiting...</div>
+      <p>
+        Please wait your opponent "{ opponentName }" to be ready.<br/>
+      </p>
+      <p>
+        {timeRemain} seconds remain ...<br />
+        <LinearProgress variant="determinate" value={(180 - timeRemain) / 180.0 * 100.0} />
+      </p>
+    </div>
+  )
+}
+
 function DeckCardList(props) {
   const classes = useStyles()
   const router = useRouter();
-  const {baseURL, addedCards, setAddedCards, setShowExceedDialog, setShowSelect2Cards} = props
+  const {baseURL, addedCards, setAddedCards, setShowExceedDialog, setShowSelect2Cards, showStartGame, setShowStartGame, setShowWaitOpponent} = props
   var captain = []
   var monsters = []
   var total = 0
@@ -344,11 +452,20 @@ function DeckCardList(props) {
     }
 
     connect(async (account) => {
-      var res = await axios.post(baseURL + '/startGame', {
+      var res = (await axios.post(baseURL + '/startGame', {
         address: account,
         deck: JSON.stringify(tmp),
         battleID: battleInfo.battle_id
-      })
+      })).data
+
+      if (res.message == 'done') {
+        router.push('/gameboard?battle=' + res.data)
+      } else {
+        setShowWaitOpponent(true)
+        setShowStartGame(false)
+        $('*').css('pointer-events', 'none')
+        clearInterval(timerID)
+      }
     }, () => {
       router.push('/signin')
     })
@@ -415,11 +532,12 @@ function DeckCardList(props) {
           </div>
         </div>
         <div className={classes.deckCardListFooter}>
+          {showStartGame == true &&
           <div style={{display: 'block', width: 'fit-content', margin: '0px auto', height: '50px'}}>
             <div id="startButton" className={classes.button} onClick={() => startGame()}>
               <p>Start Battle</p>
             </div>
-          </div>
+          </div>}
         </div>
       </div>
     </>
