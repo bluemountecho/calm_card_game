@@ -579,6 +579,20 @@ function GameBoardPage(props) {
     await delay(timeUnit)
   }
 
+  async function winnerAnimation(data) {
+    var name = (await axios.get(baseURL + '/getPlayerName/' + data.Address)).data
+    var newElem = $(renderToString(<div className={classes.vsDiv} style={{backgroundColor: 'rgba(0, 0, 0, 0.7)', backgroundImage: 'url(/images/effects/firework.gif)', backgroundSize: 'cover'}}>
+      {data.Player == 1 &&
+      <div className='player1-vs' style={player1Data.length ? {backgroundImage: 'url(' + getTransImageURL(player1Data[0].image) + ')', left: '25vw !important'} : {}}><span className="fire">{name}</span></div>}
+      {data.Player == 2 &&
+      <div className='player1-vs' style={player2Data.length ? {backgroundImage: 'url(' + getTransImageURL(player2Data[0].image) + ')', left: '25vw !important'} : {}}><span className="fire">{name}</span></div>}
+    </div>))
+
+    $('#gameboard').append(newElem)
+
+    await delay(3000)
+  }
+
   async function roundAnimation(roundIndex) {
     if (roundIndex > 0) {
       await showRoundAnimation(roundIndex)
@@ -615,6 +629,8 @@ function GameBoardPage(props) {
           func = removeAnimation
         } else if (data.Type == 'Missed') {
           func = missedAnimation
+        } else if (data.Type == 'Winner') {
+          func = winnerAnimation
         }
 
         if (func != null) {

@@ -41,12 +41,12 @@ server = app.listen(80, () => {
     console.log('Server started at http://localhost')
 })
 
-app.use(cors())
+// app.use(cors())
 
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-});
+// app.use((req, res, next) => {
+//     res.header('Access-Control-Allow-Origin', '*');
+//     next();
+// });
 
 app.use(bodyParser.json())
 
@@ -639,6 +639,13 @@ try {
                     if (enemyDeck.length == 1) {
                         if (curPlayer == 1) winner = battle.player1Address
                         else winner = battle.player2Address
+
+                        log.push([{
+                            Type: 'Winner',
+                            Player: curPlayer,
+                            Address: winner
+                        }])
+                        state.push([])
 
                         return true
                     }
