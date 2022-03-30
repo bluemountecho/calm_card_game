@@ -100,12 +100,12 @@ function JoinToBattleDialog(props) {
   const classes = useStyles()
   const {setJoinToBattleDialog, baseURL} = props
   const [opponentName, setOpponentName] = useState('')
-  const [timeRemain, setTimeRemain] = useState(30)
+  const [timeRemain, setTimeRemain] = useState(60)
   const [acceptButton, setAcceptButton] = useState(true)
   const router = useRouter()
 
   async function timerFunc() {
-    var tmp = 30 - Math.floor((new Date().getTime() - new Date(battleInfo.acceptedAt).getTime()) / 1000)
+    var tmp = 60 - Math.floor((new Date().getTime() - new Date(battleInfo.acceptedAt).getTime()) / 1000)
 
     if (tmp % 5 == 0) {
       battleInfo = (await axios.get(baseURL + '/findBattle/' + accountAddress + '/0')).data

@@ -11,12 +11,12 @@ import { renderToString } from 'react-dom/server'
 const useStyles = makeStyles(styles);
 
 var battleInfo
+var timeUnit = 300
 
 function GameBoardPage(props) {
   const classes = useStyles();
   const router = useRouter();
   const {baseURL, socket} = props
-  const [timeUnit, setTimeUnit] = useState(300)
   const [showVS, setShowVS] = useState(true)
   const [player1Info, setPlayer1Info] = useState([])
   const [player2Info, setPlayer2Info] = useState([])
@@ -167,7 +167,7 @@ function GameBoardPage(props) {
   }
 
   async function showRoundAnimation(idx) {
-    var newElem = $(renderToString(<div style={{width: '100%', height: '200px', fontSize: '100px', fontFamily: 'Caesar Dressing', fontWeight: 'bolder', color: 'white', position: 'fixed', left: '-100%', top: 'calc(50vh - 100px)', textAlign: 'center', zIndex: '300', WebkitTextStrokeWidth: '2px', WebkitTextStrokeColor: 'black'}}>Round {idx}</div>))
+    var newElem = $(renderToString(<div style={{width: '100%', height: '200px', fontSize: '100px', fontFamily: 'Belwe Bold', fontWeight: 'bolder', color: 'white', position: 'fixed', left: '-100%', top: 'calc(50vh - 100px)', textAlign: 'center', zIndex: '300', WebkitTextStrokeWidth: '2px', WebkitTextStrokeColor: 'black'}}>Round {idx}</div>))
 
     $('#gameboard').append($(newElem))
 
@@ -187,7 +187,7 @@ function GameBoardPage(props) {
   async function appearAnimation(data) {
     const {Self, Player, Position} = data
     var elem = $('#Card_' + Self + '_' + Player)
-    var duration = timeUnit
+    var duration = timeUnit * 0.5
     
     if (Position == 1) {
       await activeCard({
@@ -234,7 +234,7 @@ function GameBoardPage(props) {
     var elem = $('#Card_' + data.Self + '_' + data.Player)
     var attackBox = $(elem).find('.attack-box')
     var color = data.Text < 0 ? 'red' : 'green'
-    var newElem = $(renderToString(<div style={{width: '100px', height: '50px', fontSize: '30px', fontFamily: 'Caesar Dressing', fontWeight: 'bolder', color: color, position: 'absolute', left: -50, top: $(attackBox)[0].offsetTop, textAlign: 'center', zIndex: '200', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'white'}}>
+    var newElem = $(renderToString(<div style={{width: '100px', height: '50px', fontSize: '30px', fontFamily: 'Belwe Bold', fontWeight: 'bolder', color: color, position: 'absolute', left: -50, top: $(attackBox)[0].offsetTop, textAlign: 'center', zIndex: '200', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'white'}}>
       {data.Text}
     </div>))
 
@@ -267,7 +267,7 @@ function GameBoardPage(props) {
     var elem = $('#Card_' + data.Self + '_' + data.Player)
     var attackBox = $(elem).find('.speed-box')
     var color = data.Text < 0 ? 'red' : 'green'
-    var newElem = $(renderToString(<div style={{width: '100px', height: '50px', fontSize: '30px', fontFamily: 'Caesar Dressing', fontWeight: 'bolder', color: color, position: 'absolute', left: -50, top: $(attackBox)[0].offsetTop, textAlign: 'center', zIndex: '200', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'white'}}>
+    var newElem = $(renderToString(<div style={{width: '100px', height: '50px', fontSize: '30px', fontFamily: 'Belwe Bold', fontWeight: 'bolder', color: color, position: 'absolute', left: -50, top: $(attackBox)[0].offsetTop, textAlign: 'center', zIndex: '200', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'white'}}>
       {data.Text}
     </div>))
 
@@ -300,7 +300,7 @@ function GameBoardPage(props) {
     var elem = $('#Card_' + data.Self + '_' + data.Player)
     var attackBox = $(elem).find('.health-box')
     var color = data.Text < 0 ? 'red' : 'green'
-    var newElem = $(renderToString(<div style={{width: '100px', height: '50px', fontSize: '30px', fontFamily: 'Caesar Dressing', fontWeight: 'bolder', color: color, position: 'absolute', right: -50, top: $(attackBox)[0].offsetTop, textAlign: 'center', zIndex: '200', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'white'}}>
+    var newElem = $(renderToString(<div style={{width: '100px', height: '50px', fontSize: '30px', fontFamily: 'Belwe Bold', fontWeight: 'bolder', color: color, position: 'absolute', right: -50, top: $(attackBox)[0].offsetTop, textAlign: 'center', zIndex: '200', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'white'}}>
       {data.Text}
     </div>))
 
@@ -343,7 +343,7 @@ function GameBoardPage(props) {
     }
 
     var color = data.Text < 0 ? 'red' : 'green'
-    var newElem = $(renderToString(<div style={{width: '100px', height: '50px', fontSize: '30px', fontFamily: 'Caesar Dressing', fontWeight: 'bolder', color: color, position: 'absolute', right: -50, top: $(attackBox)[0].offsetTop, textAlign: 'center', zIndex: '200', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'white'}}>
+    var newElem = $(renderToString(<div style={{width: '100px', height: '50px', fontSize: '30px', fontFamily: 'Belwe Bold', fontWeight: 'bolder', color: color, position: 'absolute', right: -50, top: $(attackBox)[0].offsetTop, textAlign: 'center', zIndex: '200', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'white'}}>
       {data.Text}
     </div>))
 
@@ -458,6 +458,7 @@ function GameBoardPage(props) {
   }
 
   async function magicAttackAnimation(data) {
+    console.log(timeUnit)
     var selfElem = $('#Card_' + data.SelfID + '_' + data.SelfPlayer)
     var targetElem = $('#Card_' + data.TargetID + '_' + data.TargetPlayer)
     var deg = 180 * Math.atan2(cardPos[data.SelfPlayer][data.SelfPosition].top - cardPos[data.TargetPlayer][data.TargetPosition].top, cardPos[data.SelfPlayer][data.SelfPosition].left - cardPos[data.TargetPlayer][data.TargetPosition].left) / Math.PI + 90
@@ -510,7 +511,7 @@ function GameBoardPage(props) {
   async function missedAnimation(data) {
     var elem = $('#Card_' + data.Self + '_' + data.Player)
     var newElem = $(renderToString(<img style={{position: 'fixed', zIndex: '400', left: cardPos[data.Player][data.Position].left, top: cardPos[data.Player][data.Position].top, width: $(elem)[0].offsetWidth, height: $(elem)[0].offsetHeight}} src="/images/effects/missed.gif" />))
-    var newElem1 = $(renderToString(<div style={{position: 'fixed', zIndex: '500', left: cardPos[data.Player][data.Position].left, top: cardPos[data.Player][data.Position].top + ($(elem)[0].offsetHeight / 2), width: $(elem)[0].offsetWidth, textAlign: 'center', color: 'white', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'black', fontFamily: 'Caesar Dressing', fontSize: '30px'}}>Miss</div>))
+    var newElem1 = $(renderToString(<div style={{position: 'fixed', zIndex: '500', left: cardPos[data.Player][data.Position].left, top: cardPos[data.Player][data.Position].top + ($(elem)[0].offsetHeight / 2), width: $(elem)[0].offsetWidth, textAlign: 'center', color: 'white', WebkitTextStrokeWidth: '1px', WebkitTextStrokeColor: 'black', fontFamily: 'Belwe Bold', fontSize: '30px'}}>Miss</div>))
 
     $('#gameboard').append(newElem)
     $('#gameboard').append(newElem1)
@@ -581,11 +582,11 @@ function GameBoardPage(props) {
 
   async function winnerAnimation(data) {
     var name = (await axios.get(baseURL + '/getPlayerName/' + data.Address)).data
-    var newElem = $(renderToString(<div className={classes.vsDiv} style={{backgroundColor: 'rgba(0, 0, 0, 0.7)', backgroundImage: 'url(/images/effects/firework.gif)', backgroundSize: 'cover'}}>
+    var newElem = $(renderToString(<div className={classes.vsDiv} style={{backgroundColor: 'rgba(0, 0, 0, 0.7)'}}>
       {data.Player == 1 &&
-      <div className='player1-vs' style={player1Data.length ? {backgroundImage: 'url(' + getTransImageURL(player1Data[0].image) + ')', left: '25vw !important'} : {}}><span className="fire">{name}</span></div>}
+      <div className='player1-vs' style={player1Data.length ? {backgroundImage: 'url(' + getTransImageURL(player1Data[0].image) + ')', left: '25vw !important'} : {}}><span className="fire">"{name}" won!<p>"{name}" will receive GNLR token in 5 minutes.<br/>{name}! Please check your wallet.</p></span></div>}
       {data.Player == 2 &&
-      <div className='player1-vs' style={player2Data.length ? {backgroundImage: 'url(' + getTransImageURL(player2Data[0].image) + ')', left: '25vw !important'} : {}}><span className="fire">{name}</span></div>}
+      <div className='player1-vs' style={player2Data.length ? {backgroundImage: 'url(' + getTransImageURL(player2Data[0].image) + ')', left: '25vw !important'} : {}}><span className="fire">"{name}" won!<p>"{name}" will receive GNLR token in 5 minutes.<br/>{name}! Please check your wallet.</p></span></div>}
     </div>))
 
     $('#gameboard').append(newElem)
@@ -754,8 +755,20 @@ function GameBoardPage(props) {
       await roundAnimation(round ++)
     }
 
-    router.push('/startgame')
+    // router.push('/startgame')
   }, [])
+
+  function speedDown() {
+    if (timeUnit == 500) return
+
+    timeUnit += 100
+  }
+
+  function speedUp() {
+    if (timeUnit == 100) return
+
+    timeUnit -= 100
+  }
 
   return (
     <>
@@ -782,9 +795,25 @@ function GameBoardPage(props) {
             </>}
           </div>
           <div className="cards-pos">
-          {[3,4,5,6].map((value, index) => {
+          {[2,3,4,5,6].map((value, index) => {
             return <>
-              <div className="monster-div has-border" id={"pos_1_" + value}><label>{value}</label></div>
+              <div className="monster-div has-border" id={"pos_1_" + value}><label>{}</label></div>
+            </>
+          })}
+          </div>
+          <div className="cards-side">
+            <div className="speed-div">
+              <button onClick={speedDown}>{">"}</button>
+              <button onClick={speedUp}>{">>"}</button>
+            </div>
+          </div>
+        </div>
+        <div className="cards-row">
+          <div className="cards-side"></div>
+          <div className="cards-pos">
+          {[0,1,0,1,0].map((value, index) => {
+            return <>
+              <div className={"monster-div" + (value ? (index == 1 ? " has-border" : " has-border-1") : "")} id={index < 2 ? "pos_1_" + value : "pos_2_" + value}><label>{}</label></div>
             </>
           })}
           </div>
@@ -793,20 +822,9 @@ function GameBoardPage(props) {
         <div className="cards-row">
           <div className="cards-side"></div>
           <div className="cards-pos">
-          {[2,1,1,2].map((value, index) => {
+          {[6,5,4,3,2].map((value, index) => {
             return <>
-              <div className="monster-div has-border" id={index < 2 ? "pos_1_" + value : "pos_2_" + value}><label>{value}</label></div>
-            </>
-          })}
-          </div>
-          <div className="cards-side"></div>
-        </div>
-        <div className="cards-row">
-          <div className="cards-side"></div>
-          <div className="cards-pos">
-          {[6,5,4,3].map((value, index) => {
-            return <>
-              <div className="monster-div has-border" id={"pos_2_" + value}><label>{value}</label></div>
+              <div className="monster-div has-border-1" id={"pos_2_" + value}><label>{}</label></div>
             </>
           })}
           </div>
