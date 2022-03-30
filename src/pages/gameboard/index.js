@@ -755,7 +755,7 @@ function GameBoardPage(props) {
       await roundAnimation(round ++)
     }
 
-    // router.push('/startgame')
+    router.push('/startgame')
   }, [])
 
   function speedDown() {
