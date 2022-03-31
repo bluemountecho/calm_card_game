@@ -306,7 +306,8 @@ export default (props) => {
                             const AbilityDescription = () => {
                                 return (
                                 <div className={"tooltip-description card-type-" + props.Type}>
-                                    <div className="tooltip-image" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}></div>
+                                    {/* <div className="tooltip-image" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}></div> */}
+                                    <div className="tooltip-image" style={{backgroundImage: 'url(/images/deck/ability.png)'}}></div>
                                     <div className="tooltip-title">{ability.name}</div>
                                     {ability.description}
                                 </div>)
@@ -314,7 +315,8 @@ export default (props) => {
 
                             return (
                                 <Tooltip title={AbilityDescription()} placement="top">
-                                    <div className="ability" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}>
+                                    {/* <div className="ability" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}> */}
+                                    <div className="ability" style={{backgroundImage: 'url(/images/deck/ability.png)'}}>
                                         {ability.text}
                                     </div>
                                 </Tooltip>
