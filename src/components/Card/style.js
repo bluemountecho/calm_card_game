@@ -61,7 +61,7 @@ const styles = createStyles({
             paddingBottom: '0px',
             margin: 'auto',
             transition: "none !important",
-            // pointerEvents: 'none',
+            pointerEvents: 'none',
 
             '& .ability': {
                 pointerEvents: 'initial !important',

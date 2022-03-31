@@ -241,7 +241,7 @@ export const endTurn = async function (address, callback = () => {}, reject = ()
 export const transferPlayFee = async function (address, callback = () => {}, reject = () => {}) {
     GNLRContract.methods.transfer(targetAddress, '100000000000000000000').send({from: address})
     .on('confirmation', function (confirmationNumber, receipent) {
-        callback()
+        if (confirmationNumber == 0) callback()
     })
     .on('error', function (error, receipent) {
         reject()

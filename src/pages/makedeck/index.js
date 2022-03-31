@@ -463,7 +463,7 @@ function DeckCardList(props) {
       } else {
         setShowWaitOpponent(true)
         setShowStartGame(false)
-        $('*').css('pointer-events', 'none')
+        // $('*').css('pointer-events', 'none')
         clearInterval(timerID)
       }
     }, () => {

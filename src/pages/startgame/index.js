@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import styles from './style';
 import TopButtons from '../../components/TopButtons';
 import BottomButtons from '../../components/BottomButtons';
-import {connect} from '../../components/connector'
+import {connect, transferPlayFee} from '../../components/connector'
 import axios from 'axios'
 
 const useStyles = makeStyles(styles);
@@ -129,16 +129,27 @@ function JoinToBattleDialog(props) {
   }
 
   async function acceptBattle() {
-    var res = (await axios.post(baseURL + '/acceptBattle', {
-      address: accountAddress,
-      battleID: battleInfo.battle_id
-    })).data
-
-    if (res == 'done') {
-      router.push('/makedeck')
-    } else {
-      setAcceptButton(false)
-    }
+    setAcceptButton(false)
+    
+    connect(async (account) => {
+      console.log(account)
+      transferPlayFee(account, async () => {
+        var res = (await axios.post(baseURL + '/acceptBattle', {
+          address: accountAddress,
+          battleID: battleInfo.battle_id
+        })).data
+    
+        if (res == 'done') {
+          router.push('/makedeck')
+        } else {
+          setAcceptButton(false)
+        }
+      }, async () => {
+        await closeDialog()
+      })
+    }, async () => {
+      await closeDialog()
+    })
   }
 
   useEffect(async () => {
@@ -164,11 +175,11 @@ function JoinToBattleDialog(props) {
       <div className="dialogTitle">Accept Battle!</div>
       <p>
         We found a battle. Your opponent is "{ opponentName }".<br/>
-        Please accept battle in 30 secconds!
+        Please accept battle in 60 secconds!
       </p>
       <p>
         {timeRemain} secs remain ...<br />
-        <LinearProgress variant="determinate" value={(30 - timeRemain) / 30.0 * 100.0} />
+        <LinearProgress variant="determinate" value={(60 - timeRemain) / 60.0 * 100.0} />
       </p>
       {!acceptButton &&
         <p>Please wait until opponent accept battle!</p>}

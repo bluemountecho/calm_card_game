@@ -171,7 +171,7 @@ const styles = createStyles({
       color: 'white',
       position: 'absolute',
       backgroundImage: 'linear-gradient(90deg, #00d7e1, #c7fcff, #c7fcff, #00d7e1)',
-      transform: 'skew(-15deg, 0deg)',
+      transform: 'skew(15deg, 0deg)',
       paddingTop: 'calc(50vh - 100px)',
       left: 'calc(50vw - 50px)',
       top: '-120vh',
@@ -186,6 +186,7 @@ const styles = createStyles({
         textAlign: 'center',
         fontSize: '200px',
         left: '-90px',
+        transform: 'skew(-30deg, 0deg)',
         top: 'calc(60vh - 100px)',
         lineHeight: '200px',
       }

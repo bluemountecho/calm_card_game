@@ -458,7 +458,6 @@ function GameBoardPage(props) {
   }
 
   async function magicAttackAnimation(data) {
-    console.log(timeUnit)
     var selfElem = $('#Card_' + data.SelfID + '_' + data.SelfPlayer)
     var targetElem = $('#Card_' + data.TargetID + '_' + data.TargetPlayer)
     var deg = 180 * Math.atan2(cardPos[data.SelfPlayer][data.SelfPosition].top - cardPos[data.TargetPlayer][data.TargetPosition].top, cardPos[data.SelfPlayer][data.SelfPosition].left - cardPos[data.TargetPlayer][data.TargetPosition].left) / Math.PI + 90
@@ -692,8 +691,6 @@ function GameBoardPage(props) {
     player2Deck = JSON.parse(battleInfo.player2Deck)
     battleLog = JSON.parse(battleInfo.battleLog)
     stateLog = JSON.parse(battleInfo.stateLog)
-
-    console.log(battleLog)
 
     for (var i = 0; i < player1Deck.length; i ++) {
       player1Data.push({...cards[player1Deck[i]]})

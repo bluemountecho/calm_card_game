@@ -14,7 +14,7 @@ toastr.options = {
   positionClass: 'toast-top-left'
 }
 
-const ENDPOINT = "http://167.86.120.197";
+const ENDPOINT = "http://192.168.8.26";
 // const socket = socketIOClient(ENDPOINT)
 
 // socket.on('send-to-winner', (res) => {
