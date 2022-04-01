@@ -17,7 +17,7 @@ function GameBoardPage(props) {
   const classes = useStyles();
   const router = useRouter();
   const {baseURL, socket} = props
-  const [showVS, setShowVS] = useState(true)
+  const [showVS, setShowVS] = useState(false)
   const [player1Info, setPlayer1Info] = useState([])
   const [player2Info, setPlayer2Info] = useState([])
   const [player1Name, setPlayer1Name] = useState('')
@@ -741,7 +741,7 @@ function GameBoardPage(props) {
     }
 
     await init()
-    await vsAnimation()
+    // await vsAnimation()
     await roundAnimation(0)
 
     var round = 1
@@ -752,7 +752,7 @@ function GameBoardPage(props) {
       await roundAnimation(round ++)
     }
 
-    router.push('/startgame')
+    // router.push('/startgame')
   }, [])
 
   function speedDown() {

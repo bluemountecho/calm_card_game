@@ -224,8 +224,10 @@ const styles = createStyles({
         '& .attack-box': {
             position: 'absolute',
             left: '-15px',
-            top: 'calc(40% - 15px)',
-            backgroundSize: '40px 40px',
+            top: 'calc(40% - 20px)',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
             textAlign: 'center',
             width: '40px',
             height: '40px',
@@ -252,10 +254,12 @@ const styles = createStyles({
 
         '& .speed-box': {
             backgroundImage: 'url(/images/deck/speed.png)',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
             position: 'absolute',
             left: '-15px',
-            top: 'calc(40% + 25px)',
-            backgroundSize: '40px 40px',
+            top: 'calc(40% + 30px)',
             textAlign: 'center',
             width: '40px',
             height: '40px',
@@ -270,10 +274,12 @@ const styles = createStyles({
 
         '& .defense-box': {
             backgroundImage: 'url(/images/deck/defense.png)',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
             position: 'absolute',
             right: '-15px',
-            top: 'calc(40% - 15px)',
-            backgroundSize: '40px 40px',
+            top: 'calc(40% - 20px)',
             textAlign: 'center',
             width: '40px',
             height: '40px',
@@ -288,10 +294,12 @@ const styles = createStyles({
 
         '& .health-box': {
             backgroundImage: 'url(/images/deck/health.png)',
+            backgroundSize: 'contain',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center',
             position: 'absolute',
             right: '-15px',
-            top: 'calc(40% + 25px)',
-            backgroundSize: '40px 40px',
+            top: 'calc(40% + 30px)',
             textAlign: 'center',
             width: '40px',
             height: '40px',

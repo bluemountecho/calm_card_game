@@ -157,7 +157,8 @@ export default (props) => {
             {props.Ability.map((ability, index) => {
                 return (
                     <div className="ability-row">
-                        <div className="ability-image" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}>{ability.text}</div>
+                        {/* <div className="ability-image" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}>{ability.text}</div> */}
+                        <div className="ability-image" style={{backgroundImage: 'url(/images/deck/ability.png)'}}>{ability.text}</div>
                         <div className="ability-title">{ability.name}</div>
                         <div className="ability-description">{ability.description}</div>
                     </div>
@@ -205,7 +206,8 @@ export default (props) => {
                             const AbilityDescription = () => {
                                 return (
                                 <div className={"tooltip-description card-type-" + props.Type}>
-                                    <div className="tooltip-image" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}></div>
+                                    {/* <div className="tooltip-image" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}></div> */}
+                                    <div className="tooltip-image" style={{backgroundImage: 'url(/images/deck/ability.png)'}}></div>
                                     <div className="tooltip-title">{ability.name}</div>
                                     {ability.description}
                                 </div>)
@@ -213,7 +215,8 @@ export default (props) => {
 
                             return (
                                 <Tooltip title={AbilityDescription()} placement="top">
-                                    <div className="ability" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}>
+                                    {/* <div className="ability" style={ability.image == '' ? {} : {backgroundImage: 'url(' + ability.image + ')'}}> */}
+                                    <div className="ability" style={{backgroundImage: 'url(/images/deck/ability.png)'}}>
                                         {ability.text}
                                     </div>
                                 </Tooltip>
