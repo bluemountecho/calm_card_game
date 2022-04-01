@@ -68,6 +68,7 @@ async function calcBattle(battleID) {
     var player1Deck = [], player2Deck = [], winner, battleLog = [], stateLog = [], battle
     var cardsInfo = []
     var winner, befPlayer = 2
+    var round = 1
 
     if (rows.length == 0) return
 
@@ -445,6 +446,117 @@ async function calcBattle(battleID) {
                 
                 friend[1].health = orgHealth
             }
+        } else if (ab_type == 25) {
+            for (var i = 1; i < friend.length; i ++) {
+                var orgDefense = cardsInfo[friend[i].card_id].defense
+                var curDefense = friend[i].defense + 1
+
+                if (orgDefense >= curDefense) {
+                    battles.push({
+                        Type: 'ChangeDefense',
+                        Text: '+1',
+                        Player: friendPlayer,
+                        Self: friend[i].card_id,
+                    })
+        
+                    states.push({
+                        Type: 'defense',
+                        Amount: 1,
+                        Value: curDefense,
+                        Player: friendPlayer,
+                        Self: friend[i].card_id,
+                        Position: i
+                    })
+                    
+                    friend[i].defense = curDefense
+                }
+            }
+        } else if (ab_type == 26) {
+            for (var i = 1; i < enemy.length; i ++) {
+                enemy[i].speed = enemy[i].speed - 1
+
+                if (enemy[i].speed < 1) enemy[i].speed = 1
+                
+                battles.push({
+                    Type: 'ChangeSpeed',
+                    Text: '-1',
+                    Player: enemyPlayer,
+                    Self: enemy[i].card_id,
+                })
+    
+                states.push({
+                    Type: 'speed',
+                    Amount: -1,
+                    Value: enemy[i].speed,
+                    Player: enemyPlayer,
+                    Self: enemy[i].card_id,
+                    Position: i
+                })
+            }
+        } else if (ab_type == 32) {
+            var orgDefense = cardsInfo[enemy[1].card_id].defense
+            var orgAttack = cardsInfo[enemy[1].card_id].attack
+            var orgSpeed = cardsInfo[enemy[1].card_id].speed
+
+            if (orgDefense < enemy[1].defense) {
+                battles.push({
+                    Type: 'ChangeDefense',
+                    Text: '+' + (orgDefense - enemy[1].defense),
+                    Player: enemyPlayer,
+                    Self: enemy[1].card_id,
+                })
+    
+                states.push({
+                    Type: 'defense',
+                    Amount: orgDefense - enemy[1].defense,
+                    Value: orgDefense,
+                    Player: enemyPlayer,
+                    Self: enemy[1].card_id,
+                    Position: 1
+                })
+                
+                enemy[1].defense = orgDefense
+            }
+
+            if (orgAttack < enemy[1].attack) {
+                battles.push({
+                    Type: 'ChangeAttack',
+                    Text: '+' + (orgAttack - enemy[1].attack),
+                    Player: enemyPlayer,
+                    Self: enemy[1].card_id,
+                })
+    
+                states.push({
+                    Type: 'attack',
+                    Amount: orgAttack - enemy[1].attack,
+                    Value: orgAttack,
+                    Player: enemyPlayer,
+                    Self: enemy[1].card_id,
+                    Position: 1
+                })
+
+                enemy[1].attack = orgAttack
+            }
+
+            if (orgSpeed < enemy[1].speed) {
+                battles.push({
+                    Type: 'ChangeSpeed',
+                    Text: '+' + (orgSpeed - enemy[1].speed),
+                    Player: enemyPlayer,
+                    Self: enemy[1].card_id,
+                })
+    
+                states.push({
+                    Type: 'speed',
+                    Amount: orgSpeed - enemy[1].speed,
+                    Value: orgSpeed,
+                    Player: enemyPlayer,
+                    Self: enemy[1].card_id,
+                    Position: 1
+                })
+
+                enemy[1].speed = orgSpeed
+            }
         }
 
         _stateLog.push(states)
@@ -603,7 +715,8 @@ async function calcBattle(battleID) {
             if ((friendDeck[curPosition].type == 2 && curPosition > 1)
                 && !(curAbility.indexOf(13) >= 0)
                 && !(curAbility.indexOf(14) >= 0 && curPosition <= 2)
-                && !(curAbility.indexOf(19) >= 0)) continue
+                && !(curAbility.indexOf(19) >= 0)
+                && !(curAbility.indexOf(27) >= 0)) continue
 
             if (friendDeck[curPosition].type == 2) aniName = 'MeleeAttack'
             else if (friendDeck[curPosition].type == 3) aniName = 'RangedAttack'
@@ -648,9 +761,28 @@ async function calcBattle(battleID) {
                 calcAbility(log, state, 16, curPlayer, targetPlayer, friendDeck, enemyDeck)
             }
 
+            // Dispel
+            if (curAbility.indexOf(32) >= 0) {
+                log.push([{
+                    Type: 'UseAbility',
+                    Player: curPlayer,
+                    Self: friendDeck[curPosition].card_id,
+                    AbilityIndex: curAbility.indexOf(32)
+                }])
+                state.push([])
+                calcAbility(log, state, 32, curPlayer, targetPlayer, friendDeck, enemyDeck)
+            }
+
             // Last Attack
             if (curAbility.indexOf(19) >= 0) {
                 targetPosition = enemyDeck.length - 1
+            }
+
+            // Random Attack
+            if (curAbility.indexOf(27) >= 0) {
+                var tmp = Math.floor(Math.random() * 7719) % (enemyDeck.length - 1) + 1
+
+                targetPosition = tmp
             }
 
             // Tank Heal
@@ -663,6 +795,39 @@ async function calcBattle(battleID) {
                 }])
                 state.push([])
                 calcAbility(log, state, 21, curPlayer, targetPlayer, friendDeck, enemyDeck)
+            }
+            
+            // Protect
+            if (curAbility.indexOf(25) >= 0) {
+                log.push([{
+                    Type: 'UseAbility',
+                    Player: curPlayer,
+                    Self: friendDeck[curPosition].card_id,
+                    AbilityIndex: curAbility.indexOf(25)
+                }])
+                state.push([])
+                calcAbility(log, state, 25, curPlayer, targetPlayer, friendDeck, enemyDeck)
+            }
+            
+            // Slow
+            if (curAbility.indexOf(26) >= 0 && roundIndex % 2 == 0) {
+                log.push([{
+                    Type: 'UseAbility',
+                    Player: curPlayer,
+                    Self: friendDeck[curPosition].card_id,
+                    AbilityIndex: curAbility.indexOf(26)
+                }])
+                state.push([])
+                calcAbility(log, state, 26, curPlayer, targetPlayer, friendDeck, enemyDeck)
+            }
+
+            // Targeted
+            for (var i = 1; i < enemyDeck.length; i ++) {
+                var tmpAbility = JSON.parse(enemyDeck[i].ability)
+
+                if (tmpAbility.indexOf(24) >= 0 && (friendDeck[curPosition].type == 3 || friendDeck[curPosition].type == 4 || i == 1)) {
+                    targetPosition = i
+                }
             }
             
             targetID = enemyDeck[targetPosition].card_id
@@ -689,10 +854,10 @@ async function calcBattle(battleID) {
 
             var diff = friendDeck[curPosition].speed < enemyDeck[targetPosition].speed ? enemyDeck[targetPosition].speed - friendDeck[curPosition].speed : 0
 
-            if (Math.random() < diff * 0.15 + orgMiss) missed = true
+            if (Math.random() < diff * 0.1 + orgMiss) missed = true
 
-            if (missed == false) {
-                if ((friendDeck[curPosition].type == 2 || friendDeck[curPosition].type == 3) && (enemyDeck[targetPosition].defense > 0)) {
+            if (missed == false || curAbility.indexOf(33) >= 0) {
+                if ((friendDeck[curPosition].type == 2 || friendDeck[curPosition].type == 3) && enemyDeck[targetPosition].defense > 0 && curAbility.indexOf(34) < 0) {
                     var tmpAttack = friendDeck[curPosition].attack
 
                     if (targetAbility.indexOf(17) >= 0) tmpAttack -= 1
@@ -726,7 +891,7 @@ async function calcBattle(battleID) {
                     var tmpAttack = friendDeck[curPosition].attack
 
                     if ((friendDeck[curPosition].type == 2 || friendDeck[curPosition].type == 3) && targetAbility.indexOf(17) >= 0) tmpAttack -= 1
-                    if (friendDeck[curPosition].type == 4 && targetAbility.indexOf(23) >= 0) tmpAttack -= 1
+                    else if (targetAbility.indexOf(23) >= 0) tmpAttack -= 1
 
                     log.push([{
                         Type: 'Blood',
@@ -820,6 +985,93 @@ async function calcBattle(battleID) {
                     log.push(tmpLogs)
                     state.push(tmpStates)
                 }
+
+                var isReflect = false
+
+                if (targetAbility.indexOf(29) >= 0 && (friendDeck[curPosition].type == 2 || friendDeck[curPosition].type == 3)) isReflect = true
+                else if (targetAbility.indexOf(30) >= 0 && friendDeck[curPosition].type == 4) isReflect = true
+                else if (friendDeck[curPosition].type == 2 || friendDeck[curPosition].type == 3) {
+                    for (var k = 1; k < enemyDeck.length; k ++) {
+                        var tmpAbility = JSON.parse(enemyDeck[k].ability)
+
+                        if (tmpAbility.indexOf(35) >= 0) {
+                            isReflect = true
+                            break
+                        }
+                    }
+                } else if (friendDeck[curPosition].type == 4) {
+                    for (var k = 1; k < enemyDeck.length; k ++) {
+                        var tmpAbility = JSON.parse(enemyDeck[k].ability)
+
+                        if (tmpAbility.indexOf(36) >= 0) {
+                            isReflect = true
+                            break
+                        }
+                    }
+                }
+
+                if (isReflect) {
+                    friendDeck[curPosition].health = friendDeck[curPosition].health - 1
+
+                    if (friendDeck[curPosition].health < 0) friendDeck[curPosition].health = 0
+
+                    log.push([{
+                        Type: 'ChangeHealth',
+                        Text: '-1',
+                        Player: curPlayer,
+                        Self: curSelf,
+                    }])
+        
+                    state.push([{
+                        Type: 'health',
+                        Amount: -1,
+                        Value: friendDeck[curPosition].health,
+                        Player: curPlayer,
+                        Self: curSelf,
+                        Position: curPosition
+                    }])
+
+                    if (friendDeck[curPosition].health == 0) {
+                        log.push([{
+                            Type: 'Die',
+                            Self: curSelf,
+                            Player: curPlayer,
+                            Position: curPosition
+                        }])
+                        state.push([])
+                        
+                        log.push([{
+                            Type: 'Remove',
+                            Self: curSelf,
+                            Player: curPlayer,
+                            Position: curPosition
+                        }])
+                        state.push([{
+                            Type: 'remove',
+                            Player: curPlayer,
+                            Self: curSelf,
+                            Position: curPosition
+                        }])
+
+                        friendDeck.splice(curPosition, 1)
+
+                        if (friendDeck.length == 1) {
+                            if (curPlayer == 1) winner = battle.player2Address
+                            else winner = battle.player1Address
+        
+                            log.push([{
+                                Type: 'Winner',
+                                Player: targetPlayer,
+                                Address: winner
+                            }])
+                            state.push([])
+        
+                            TransferToWinner(winner).then(res => {})
+        
+                            return true
+                        }
+                    }
+                }
             } else {
                 log.push([{
                     Type: 'Missed',
@@ -872,9 +1124,7 @@ async function calcBattle(battleID) {
                         }])
                         state.push([])
     
-                        // TransferToWinner(winner).then(res => {
-    
-                        // })
+                        TransferToWinner(winner).then(res => {})
     
                         return true
                     }
@@ -882,6 +1132,30 @@ async function calcBattle(battleID) {
                     if (curAbility.indexOf(22) >= 0) {
                         befPlayer = targetPlayer
                         vis[curPlayer][curSelf] = 0
+                    }
+
+                    for (var l = 1; l < friendDeck.length; l ++) {
+                        var tmpAbility = JSON.parse(friendDeck[l].ability)
+
+                        if (tmpAbility.indexOf(28) >= 0) {
+                            friendDeck[l].health += 1
+
+                            log.push([{
+                                Type: 'ChangeHealth',
+                                Text: '+1',
+                                Player: curPlayer,
+                                Self: friendDeck[l].card_id,
+                            }])
+                
+                            state.push([{
+                                Type: 'health',
+                                Amount: 1,
+                                Value: friendDeck[l].health,
+                                Player: curPlayer,
+                                Self: friendDeck[l].card_id,
+                                Position: l
+                            }])
+                        }
                     }
                 }
             }
@@ -893,29 +1167,15 @@ async function calcBattle(battleID) {
     await init()
     await calcBattle0()
 
-    var round = 1
-
     while (true) {
         var res = await calcBattleRound(round ++)
 
         if (res) break
     }
 
-    // await knex('tbl_battles').where('battle_id', battleID).delete()
+    await knex('tbl_battles').where('battle_id', battleID).delete()
 
-    // return (await knex('tbl_battle_history').insert({
-    //     player1Address: battle.player1Address,
-    //     player2Address: battle.player2Address,
-    //     player1Deck: battle.player1Deck,
-    //     player2Deck: battle.player2Deck,
-    //     battleLog: JSON.stringify(battleLog),
-    //     stateLog: JSON.stringify(stateLog),
-    //     winner: winner,
-    //     finishedAt: convertTimestampToString(new Date().getTime(), true),
-    //     battle_id: battleID
-    // }))[0]
-
-    return (await knex('tbl_battle_history').where('history_id', 103).update({
+    return (await knex('tbl_battle_history').insert({
         player1Address: battle.player1Address,
         player2Address: battle.player2Address,
         player1Deck: battle.player1Deck,
@@ -1274,4 +1534,4 @@ async function init() {
     await calcBattle(299)
 }
 
-init()
+// init()
