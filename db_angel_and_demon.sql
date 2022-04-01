@@ -11,7 +11,7 @@
  Target Server Version : 100417
  File Encoding         : 65001
 
- Date: 28/03/2022 14:11:53
+ Date: 01/04/2022 06:43:38
 */
 
 SET NAMES utf8mb4;
@@ -49,27 +49,27 @@ INSERT INTO `tbl_abilities` VALUES (9, 'Melee Attack Up', 'All friendly monsters
 INSERT INTO `tbl_abilities` VALUES (10, 'Melee Attack Down', 'All enemy monsters have -1 melee attack.', '/images/deck/melee-attack.png', '-1', 3, 1, 1, '');
 INSERT INTO `tbl_abilities` VALUES (11, 'Ranged Attack Up', 'All friendly monsters have +1 ranged attack.', '/images/deck/ranged-attack.png', '+1', 4, 1, 1, '');
 INSERT INTO `tbl_abilities` VALUES (12, 'Ranged Attack Down', 'All enemy monsters have -1 ranged attack.', '/images/deck/ranged-attack.png', '-1', 4, 1, 1, '');
-INSERT INTO `tbl_abilities` VALUES (13, 'Killer', 'Monsters have Killer ability can attack at any position and will target enemy monsters with lowest health point.', '/images/abilities/killer.png', NULL, 2.5, 2, 5, 'health <= 3');
-INSERT INTO `tbl_abilities` VALUES (14, 'Ranged Melee', 'Monsters have Ranged Melee ability can attack at the second position.', '/images/abilities/ranged_melee.png', NULL, 1, 2, 3, '');
-INSERT INTO `tbl_abilities` VALUES (15, 'Sniper', 'Monsters have Sniper ability attack Ranged and Magic monsters that are not in first position.', '/images/abilities/sniper.png', NULL, 2.5, 3, 3, 'health <= 2');
-INSERT INTO `tbl_abilities` VALUES (16, 'Cleaner', 'Monsters have Cleaner ability remove all negative effects of friendly monster at the first position.', '/images/abilities/cleaner.png', NULL, 0.5, 4, 5, '');
-INSERT INTO `tbl_abilities` VALUES (17, 'Shield', 'Monsters have Shield ability get reduced damage from melee and ranged monsters.', '/images/abilities/shield.png', NULL, 1, 0, 6, '');
-INSERT INTO `tbl_abilities` VALUES (18, 'Battle Attack', 'Monsters have Battle Attack ability attack monsters near the target monster.', '/images/abilities/battle.png', NULL, 1.5, 0, 3, 'attack <= 2');
-INSERT INTO `tbl_abilities` VALUES (19, 'Last Attack', 'Monsters have Last Attack ability attack monsters at the last position.', '/images/abilities/last_attack.png', NULL, 1, 0, 2, '');
-INSERT INTO `tbl_abilities` VALUES (20, 'Evasion', 'Monsters have Evasion ability get increased chance of evading.', '/images/abilities/evasion.png', NULL, 1, 0, 5, 'health <= 5');
-INSERT INTO `tbl_abilities` VALUES (21, 'Tank Heal', 'Monsters have Tank Heal ability restores health point of monster at the first position.', '/images/abilities/tank_helper.png', NULL, 4, 4, 3, 'health <= 3');
-INSERT INTO `tbl_abilities` VALUES (22, 'Double Attack', 'Monsters have Double Attack ability attacks and kill the target, they can attack next monster once more.', '/images/abilities/double_attack.png', NULL, 2, 0, 2, '');
-INSERT INTO `tbl_abilities` VALUES (23, 'Magic Shield', 'Monsters have Magic Shield ability get reduced damage from magic monsters.', '/images/abilities/magic_shield.png', NULL, 1, 0, 3, '');
-INSERT INTO `tbl_abilities` VALUES (24, 'Targeted', 'All enemy monsters will attack this monster.', '/images/abilities/targeted.png', NULL, 4, 2, 3, 'health >= 6');
-INSERT INTO `tbl_abilities` VALUES (25, 'Protect', 'All friendly monsters gain +1 defense in each round.', '/images/abilities/protect.png', NULL, 4, 4, 1, 'health <= 3');
-INSERT INTO `tbl_abilities` VALUES (26, 'Slow', 'Reduces all enemy monsters speed by -1.', '/images/abilities/slow.png', NULL, 1.5, 4, 1, 'health <= 3');
-INSERT INTO `tbl_abilities` VALUES (27, 'Random Attack', 'Monsters have Random Attack ability will attack random monsters.', '/images/abilities/random_attack.png', NULL, 2.5, 0, 3, '');
-INSERT INTO `tbl_abilities` VALUES (28, 'Death Gainer', 'Monsters have Death Gainer will get 1 health point when enemy monster dies.', '/images/abilities/death_gainer.png', NULL, 1, 0, 3, '');
-INSERT INTO `tbl_abilities` VALUES (29, 'Reflect', 'When enemy melee and ranged monsters hit this monster, some damage will be reflected.', '', 'R', 1, 0, 4, 'health >= 4');
+INSERT INTO `tbl_abilities` VALUES (13, 'Killer', 'Monsters have Killer ability can attack at any position and will target enemy monsters with lowest health point.', '/images/abilities/killer.png', 'KL', 2.5, 2, 5, 'health <= 3');
+INSERT INTO `tbl_abilities` VALUES (14, 'Ranged Melee', 'Monsters have Ranged Melee ability can attack at the second position.', '/images/abilities/ranged_melee.png', 'RM', 1, 2, 3, '');
+INSERT INTO `tbl_abilities` VALUES (15, 'Sniper', 'Monsters have Sniper ability attack Ranged and Magic monsters that are not in first position.', '/images/abilities/sniper.png', 'SN', 2.5, 3, 3, 'health <= 2');
+INSERT INTO `tbl_abilities` VALUES (16, 'Cleaner', 'Monsters have Cleaner ability remove all negative effects of friendly monster at the first position.', '/images/abilities/cleaner.png', 'CL', 0.5, 4, 5, '');
+INSERT INTO `tbl_abilities` VALUES (17, 'Shield', 'Monsters have Shield ability get reduced damage from melee and ranged monsters.', '/images/abilities/shield.png', 'SH', 1, 0, 6, '');
+INSERT INTO `tbl_abilities` VALUES (18, 'Battle Attack', 'Monsters have Battle Attack ability attack monsters near the target monster.', '/images/abilities/battle.png', 'BA', 1.5, 0, 3, 'attack <= 2');
+INSERT INTO `tbl_abilities` VALUES (19, 'Last Attack', 'Monsters have Last Attack ability attack monsters at the last position.', '/images/abilities/last_attack.png', 'LA', 1, 0, 2, '');
+INSERT INTO `tbl_abilities` VALUES (20, 'Evasion', 'Monsters have Evasion ability get increased chance of evading.', '/images/abilities/evasion.png', 'EV', 1, 0, 5, 'health <= 5');
+INSERT INTO `tbl_abilities` VALUES (21, 'Tank Heal', 'Monsters have Tank Heal ability restores health point of monster at the first position.', '/images/abilities/tank_helper.png', 'TH', 4, 4, 3, 'health <= 3');
+INSERT INTO `tbl_abilities` VALUES (22, 'Double Attack', 'Monsters have Double Attack ability attacks and kill the target, they can attack next monster once more.', '/images/abilities/double_attack.png', 'DA', 2, 0, 2, '');
+INSERT INTO `tbl_abilities` VALUES (23, 'Magic Shield', 'Monsters have Magic Shield ability get reduced damage from magic monsters.', '/images/abilities/magic_shield.png', 'MD', 1, 0, 3, '');
+INSERT INTO `tbl_abilities` VALUES (24, 'Targeted', 'All enemy monsters will attack this monster.', '/images/abilities/targeted.png', 'TR', 4, 2, 3, 'health >= 6');
+INSERT INTO `tbl_abilities` VALUES (25, 'Protect', 'All friendly monsters gain +1 defense in each round.', '/images/abilities/protect.png', 'PR', 4, 4, 1, 'health <= 3');
+INSERT INTO `tbl_abilities` VALUES (26, 'Slow', 'Reduces all enemy monsters speed by -1 in every 2 rounds.', '/images/abilities/slow.png', 'SL', 1.5, 4, 1, 'health <= 3');
+INSERT INTO `tbl_abilities` VALUES (27, 'Random Attack', 'Monsters have Random Attack ability will attack random monsters.', '/images/abilities/random_attack.png', 'RA', 2.5, 0, 3, '');
+INSERT INTO `tbl_abilities` VALUES (28, 'Death Gainer', 'Monsters have Death Gainer will get 1 health point when enemy monster dies.', '/images/abilities/death_gainer.png', 'DG', 1, 0, 3, '');
+INSERT INTO `tbl_abilities` VALUES (29, 'Reflect', 'When enemy melee and ranged monsters hit this monster, some damage will be reflected.', '', 'RF', 1, 0, 4, 'health >= 4');
 INSERT INTO `tbl_abilities` VALUES (30, 'Magic Reflect', 'When enemy magic monsters hit this monster, some damage will be reflected.', '', 'MR', 1, 0, 4, 'health >= 4');
-INSERT INTO `tbl_abilities` VALUES (32, 'Dispel', 'When this monster hits enemy monster, it clears all positive status effects on that enemy.', '/images/abilities/dispel.png', NULL, 1.5, 4, 2, 'health <= 3');
-INSERT INTO `tbl_abilities` VALUES (33, 'True Strike', 'This monster\'s attack never miss.', '/images/abilities/true_strike.png', NULL, 1.5, 0, 3, 'attack >= 2');
-INSERT INTO `tbl_abilities` VALUES (34, 'Pure Attack', 'This monster\'s damage is pure damage.', '', 'P', 1.5, 0, 3, 'attack >= 2');
+INSERT INTO `tbl_abilities` VALUES (32, 'Dispel', 'This monster clears all positive status effects on first enemy.', '/images/abilities/dispel.png', 'DS', 1.5, 4, 2, 'health <= 3');
+INSERT INTO `tbl_abilities` VALUES (33, 'True Strike', 'This monster\'s attack never miss.', '/images/abilities/true_strike.png', 'TS', 1.5, 0, 3, 'attack >= 2');
+INSERT INTO `tbl_abilities` VALUES (34, 'Pure Attack', 'This monster\'s damage is pure damage.', '', 'PA', 1.5, 0, 3, 'attack >= 2');
 INSERT INTO `tbl_abilities` VALUES (35, 'Reflects', 'This monster makes friendly monsters to reflect melee and ranged damage.', '', 'RS', 3, 4, 1, 'health <= 3');
 INSERT INTO `tbl_abilities` VALUES (36, 'Magic Reflects', 'This monster makes friendly monsters to reflect magic damage.', '', 'MS', 3, 4, 1, 'health <= 3');
 
@@ -87,10 +87,9 @@ CREATE TABLE `tbl_battle_history`  (
   `stateLog` longtext CHARACTER SET utf8 COLLATE utf8_general_ci NULL,
   `winner` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT '0x0000000000000000000000000000000000000000',
   `finishedAt` datetime(0) NULL DEFAULT NULL,
-  `isPaid` tinyint(2) NULL DEFAULT 0,
   `battle_id` int(11) NULL DEFAULT 0,
   PRIMARY KEY (`history_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 99 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 107 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tbl_battle_history
@@ -112,7 +111,7 @@ CREATE TABLE `tbl_battles`  (
   `acceptedAt` datetime(0) NULL DEFAULT NULL,
   `startedAt` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`battle_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 269 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 304 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tbl_battles
@@ -174,7 +173,7 @@ INSERT INTO `tbl_default_cards` VALUES (420, 'GIANT BOAR', NULL, 3, 5, 1, 0, 4, 
 INSERT INTO `tbl_default_cards` VALUES (421, 'GOLEM', NULL, 3, 2, 3, 2, 3, '[15]', 6, '/images/cards/golem.png');
 INSERT INTO `tbl_default_cards` VALUES (422, 'GRIMOIRE', NULL, 3, 4, 2, 1, 1, '[20]', 4, '/images/cards/grimoire.png');
 INSERT INTO `tbl_default_cards` VALUES (423, 'GRYPHON', NULL, 2, 4, 1, 3, 2, '[]', 4, '/images/cards/gryphon.png');
-INSERT INTO `tbl_default_cards` VALUES (424, 'HARPY', NULL, 4, 1, 2, 2, 3, '[18]', 4, '/images/cards/harpy.png');
+INSERT INTO `tbl_default_cards` VALUES (424, 'HARPY', NULL, 4, 1, 2, 2, 3, '[18,15]', 5, '/images/cards/harpy.png');
 INSERT INTO `tbl_default_cards` VALUES (425, 'HELLHOUND', NULL, 3, 4, 2, 2, 2, '[17]', 5, '/images/cards/hellhound.png');
 INSERT INTO `tbl_default_cards` VALUES (426, 'HYDRA', NULL, 4, 1, 3, 1, 4, '[21]', 6, '/images/cards/hydra.png');
 INSERT INTO `tbl_default_cards` VALUES (427, 'IBIS', NULL, 4, 4, 2, 2, 1, '[16]', 4, '/images/cards/ibis.png');
@@ -207,7 +206,7 @@ INSERT INTO `tbl_default_cards` VALUES (453, 'RAMIEL', NULL, 4, 1, 1, 2, 5, '[32
 INSERT INTO `tbl_default_cards` VALUES (454, 'RAPHAEL', NULL, 2, 3, 2, 2, 1, '[13]', 6, '/images/cards/raphael.png');
 INSERT INTO `tbl_default_cards` VALUES (455, 'SAMAEL', NULL, 4, 2, 1, 0, 3, '[]', 2, '/images/cards/samael.png');
 INSERT INTO `tbl_default_cards` VALUES (456, 'SATAN', NULL, 1, 0, 0, 0, 0, '[12]', 4, '/images/cards/satan.png');
-INSERT INTO `tbl_default_cards` VALUES (457, 'SATYR', NULL, 2, 7, 1, 1, 1, '[18]', 6, '/images/cards/satyr.png');
+INSERT INTO `tbl_default_cards` VALUES (457, 'SATYR', NULL, 2, 7, 1, 1, 1, '[18,13]', 6, '/images/cards/satyr.png');
 INSERT INTO `tbl_default_cards` VALUES (458, 'SEAHORSE', NULL, 4, 3, 3, 3, 4, '[21]', 8, '/images/cards/seahorse.png');
 INSERT INTO `tbl_default_cards` VALUES (459, 'SENU MATE', NULL, 2, 9, 3, 2, 4, '[22]', 9, '/images/cards/senu_mate.png');
 INSERT INTO `tbl_default_cards` VALUES (460, 'SERAPH', NULL, 3, 3, 2, 3, 2, '[]', 4, '/images/cards/seraph.png');
@@ -263,9 +262,5 @@ CREATE TABLE `tbl_users`  (
 -- ----------------------------
 -- Records of tbl_users
 -- ----------------------------
-INSERT INTO `tbl_users` VALUES ('0xbf96178161586b8c9c5096e35ac2ea2ad1fad2a7', 'talentboy726', NULL);
-INSERT INTO `tbl_users` VALUES ('0xdee22860dacca3df48ecd9af89a457f3a3d8ec9f', 'Hector', NULL);
-INSERT INTO `tbl_users` VALUES ('0xe95defe950545563bb7adcda767ad3da459f801e', 'Tactful', NULL);
-INSERT INTO `tbl_users` VALUES ('0xebab85d0f68acfc0104ad449a7ebc1216e10f4b0', 'gfdfd', NULL);
 
 SET FOREIGN_KEY_CHECKS = 1;
