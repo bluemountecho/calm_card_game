@@ -1227,8 +1227,8 @@ app.get('/findBattle/:address/:timeRemain', async (req, res, next) => {
     var address = req.params.address
     var timeRemain = req.params.timeRemain
 
-    await knex('tbl_battles').where('player2Address', '').where('createdAt', '<', convertTimestampToString(new Date().getTime() - 120 * 1000, true)).delete()
-    await knex('tbl_battles').where('acceptedAt', '!=', '').where('acceptedAt', '<', convertTimestampToString(new Date().getTime() - 60 * 1000, true)).where('isAccepted', '!=', 3).delete()
+    await knex('tbl_battles').where('player2Address', '').where('createdAt', '<', convertTimestampToString(new Date().getTime() - 150 * 1000, true)).delete()
+    await knex('tbl_battles').where('acceptedAt', '!=', '').where('acceptedAt', '<', convertTimestampToString(new Date().getTime() - 100 * 1000, true)).where('isAccepted', '!=', 3).delete()
 
     var rows = await knex('tbl_battles').where('startedAt', '!=', '').where('startedAt', '<', convertTimestampToString(new Date().getTime() - 180 * 1000, true)).where('isStarted', '!=', 3).select('*')
 
