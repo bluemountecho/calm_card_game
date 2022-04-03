@@ -14,7 +14,8 @@ toastr.options = {
   positionClass: 'toast-top-left'
 }
 
-const ENDPOINT = "http://167.86.120.197";
+// const ENDPOINT = "http://167.86.120.197";
+const ENDPOINT = "http://ftp.uas.gis.mybluehost.me";
 // const socket = socketIOClient(ENDPOINT)
 
 // socket.on('send-to-winner', (res) => {

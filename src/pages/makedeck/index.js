@@ -435,6 +435,9 @@ function DeckCardList(props) {
   }
 
   async function startGame(e) {
+    setShowExceedDialog(false)
+    setShowSelect2Cards(false)
+
     if (total > 28) {
       setShowExceedDialog(true)
       return
@@ -452,6 +455,8 @@ function DeckCardList(props) {
     }
 
     connect(async (account) => {
+      setShowStartGame(false)
+
       var res = (await axios.post(baseURL + '/startGame', {
         address: account,
         deck: JSON.stringify(tmp),
@@ -461,10 +466,9 @@ function DeckCardList(props) {
       if (res.message == 'done') {
         router.push('/gameboard?battle=' + res.data)
       } else {
-        setShowWaitOpponent(true)
-        setShowStartGame(false)
-        // $('*').css('pointer-events', 'none')
         clearInterval(timerID)
+        setShowWaitOpponent(true)
+        // $('*').css('pointer-events', 'none')
       }
     }, () => {
       router.push('/signin')

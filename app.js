@@ -891,7 +891,7 @@ async function calcBattle(battleID) {
                     var tmpAttack = friendDeck[curPosition].attack
 
                     if ((friendDeck[curPosition].type == 2 || friendDeck[curPosition].type == 3) && targetAbility.indexOf(17) >= 0) tmpAttack -= 1
-                    else if (targetAbility.indexOf(23) >= 0) tmpAttack -= 1
+                    else if (friendDeck[curPosition].type == 4 && targetAbility.indexOf(23) >= 0) tmpAttack -= 1
 
                     log.push([{
                         Type: 'Blood',

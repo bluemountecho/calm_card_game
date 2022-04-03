@@ -11,7 +11,7 @@
  Target Server Version : 100417
  File Encoding         : 65001
 
- Date: 01/04/2022 06:43:38
+ Date: 03/04/2022 03:50:17
 */
 
 SET NAMES utf8mb4;
@@ -89,7 +89,7 @@ CREATE TABLE `tbl_battle_history`  (
   `finishedAt` datetime(0) NULL DEFAULT NULL,
   `battle_id` int(11) NULL DEFAULT 0,
   PRIMARY KEY (`history_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 107 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 110 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tbl_battle_history
@@ -111,7 +111,7 @@ CREATE TABLE `tbl_battles`  (
   `acceptedAt` datetime(0) NULL DEFAULT NULL,
   `startedAt` datetime(0) NULL DEFAULT NULL,
   PRIMARY KEY (`battle_id`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 304 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 311 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of tbl_battles
