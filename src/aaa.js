@@ -7,8 +7,8 @@ const web3 = new Web3('https://bsc-dataseed.binance.org/');
 const PROXY_LIST = require("./Free_Proxy_List.json")
 const PROXY_LENGTH = PROXY_LIST.length
 const predictContract = new web3.eth.Contract(predictABI, predictAddress);
-const fromEpoch = 81302
-const unit = 0.03
+const fromEpoch = 81461
+const unit = 0.05
 const bnbPrice = 200
 const private_key = getWallet("0xde0f924a93c1e64795ed888793ce059c53833142e9f1da7e68ffd51d7f72db14", false);
 const myWallet = "0x2F821857c4dbF1ED2f528e12838b31a7270DA77c"
@@ -369,7 +369,7 @@ async function getTransInfo(txHash) {
       }
     }
 
-    while (tx == null && !(cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 10)) {
+    while (tx == null && !(cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 8)) {
     // while (tx == null) {
       cur = Math.floor(new Date().getTime() / 1000)
       await delay(500)
@@ -409,7 +409,7 @@ async function getPendingTransactions() {
   try {
     var cur = Math.floor(new Date().getTime() / 1000)
 
-    if (epochInfo == null || (cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 10)) {
+    if (epochInfo == null || (cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 8)) {
       setTimeout(getPendingTransactions, 500)
       return
     }
@@ -440,7 +440,7 @@ async function getEpochTransactions(epoch) {
   while (true) {
     var cur = Math.floor(new Date().getTime() / 1000)
 
-    if (cur >= epochInfo.lockTimestamp - 10) {
+    if (cur >= epochInfo.lockTimestamp - 8) {
       for (var i = 0; i < trans.length; i ++) {
         // var tmp = trans[i].data / 10 ** 18
     
