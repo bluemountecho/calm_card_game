@@ -6,12 +6,18 @@ const predictAddress = "0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA"
 const web3 = new Web3('https://bsc-dataseed.binance.org/');
 const PROXY_LIST = require("./Free_Proxy_List.json")
 const PROXY_LENGTH = PROXY_LIST.length
+const fromEpoch = 82076
+var unit1 = 0.05
+const unit2 = 0.01
+const private_key1 = getWallet("0xde0f924a93c1e64795ed888793ce059c53833142e9f1da7e68ffd51d7f72db14", false);
+const private_key2 = getWallet("0x412ce2a10801e7b89e63f8a92a918bb9591d7647a620262089341ece4b8a2861", false);
+const mainWallet = "0xf06A3c62E346247dDd76952958f05b77ab817729"
+const myWallet1 = "0x2F821857c4dbF1ED2f528e12838b31a7270DA77c"
+const myWallet2 = "0x53E304cEce3957bd9ce33cD97529dC5b29a76cCD"
+const BINANCE_APIKEY = 'bHcrCCPAt3kWIj1nMLii614ElBCmNm2Pg2Bo3W8Dn9DIW63y9wTHztWr3O4o0seX'
+const BINANCE_APISECRET = 'nxbpDULQvIG11jQrSw3PoNiNbVueOfNFQpoC5C5KM4ogL6IRFZbaZz77xB4XzCTg'
 const predictContract = new web3.eth.Contract(predictABI, predictAddress);
-const fromEpoch = 81461
-const unit = 0.05
-const bnbPrice = 200
-const private_key = getWallet("0xde0f924a93c1e64795ed888793ce059c53833142e9f1da7e68ffd51d7f72db14", false);
-const myWallet = "0x2F821857c4dbF1ED2f528e12838b31a7270DA77c"
+
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms))
 const myLogger = new Console({
   stdout: fs.createWriteStream("log.txt"),
@@ -87,219 +93,36 @@ async function getEpochInfo(epoch, to_db = true) {
   await knex('tbl_rounds').insert(obj)
 }
 
-async function getRangedEpoch(start, end) {
-  for (var i = start; i <= end; i += 5) {
-    try {
-      myLogger.log(i)
-      var funcs = []
+async function getBalanceOf(wallet) {
+  var res = await web3.eth.getBalance(wallet)
 
-      for (var j = 0; j < 5 && i + j <= end; j ++) {
-        funcs.push(getEpochInfo(i + j))
-      }
-
-      await Promise.all(funcs)
-      await delay(1000)
-    } catch (err) {
-      myLogger.log(err)
-    }
-  }
-}
-
-async function analyzeNormalEpoches() {
-  var rows = await knex('tbl_rounds').select('*').where('epoch', '>=', fromEpoch)
-  var loseStreak = 0
-  var curAmount = 0
-  var result = ""
-  var res = {
-    total: 0,
-    win: 0,
-    lose: 0,
-    winAmount: 0,
-    loseAmount: 0,
-    loseStreakCounts: {},
-    maxLoseStreak: 0,
-    minBNB: 0,
-  }
-
-  for (var i = 0; i < rows.length; i ++) {
-    if (rows[i].rewardBaseCalAmount == 0) continue
-
-    res.total ++
-    
-    if (rows[i].rewardAmount / rows[i].rewardBaseCalAmount > 2) {
-      res.lose ++
-      res.loseAmount += unit
-      curAmount -= unit
-      loseStreak ++
-      result += 'X'
-    }
-    else {
-      res.win ++
-      res.winAmount += unit * (rows[i].rewardAmount / rows[i].rewardBaseCalAmount - 1)
-      curAmount += unit * (rows[i].rewardAmount / rows[i].rewardBaseCalAmount - 1)
-
-      if (!res.loseStreakCounts[loseStreak]) {
-        res.loseStreakCounts[loseStreak] = 0
-      }
-
-      res.loseStreakCounts[loseStreak] ++      
-      loseStreak = 0
-      result += 'O'
-    }
-
-    if (result.length % 100 == 99) result += '\n'
-    if (curAmount < res.minBNB) res.minBNB = curAmount
-    if (loseStreak > res.maxLoseStreak) res.maxLoseStreak = loseStreak
-  }
-
-  myLogger.log(result + '\n\n\n')
-  myLogger.info(res)
-  myLogger.info("Win Rate: ", (res.win / res.total * 100).toFixed(2), "%")
-  myLogger.info("Win Amount: ", (res.winAmount - res.loseAmount).toFixed(2), " BNB")
-  myLogger.info("Win Amount(USD): ", ((res.winAmount - res.loseAmount) * bnbPrice).toFixed(2), " USD")
-}
-
-async function analyzeSkippingEpoches() {
-  var rows = await knex('tbl_rounds').select('*').where('epoch', '>=', fromEpoch)
-  var loseStreak = 0
-  var curAmount = 0
-  var result = ""
-  var res = {
-    total: 0,
-    win: 0,
-    lose: 0,
-    winAmount: 0,
-    loseAmount: 0,
-    loseStreakCounts: {},
-    maxLoseStreak: 0,
-    minBNB: 0,
-  }
-
-  for (var i = 0; i < rows.length; i ++) {
-    if (rows[i].rewardBaseCalAmount == 0) continue
-
-    res.total ++
-    
-    if (rows[i].rewardAmount / rows[i].rewardBaseCalAmount > 2) {
-      res.lose ++
-      res.loseAmount += unit
-      curAmount -= unit
-      loseStreak ++
-      result += 'X'
-      i ++
-    }
-    else {
-      res.win ++
-      res.winAmount += unit * (rows[i].rewardAmount / rows[i].rewardBaseCalAmount - 1)
-      curAmount += unit * (rows[i].rewardAmount / rows[i].rewardBaseCalAmount - 1)
-
-      if (!res.loseStreakCounts[loseStreak]) {
-        res.loseStreakCounts[loseStreak] = 0
-      }
-
-      res.loseStreakCounts[loseStreak] ++      
-      loseStreak = 0
-      result += 'O'
-    }
-
-    if (result.length % 100 == 99) result += '\n'
-    if (curAmount < res.minBNB) res.minBNB = curAmount
-    if (loseStreak > res.maxLoseStreak) res.maxLoseStreak = loseStreak
-  }
-
-  myLogger.log(result + '\n\n\n')
-  myLogger.info(res)
-  myLogger.info("Win Rate: ", (res.win / res.total * 100).toFixed(2), "%")
-  myLogger.info("Win Amount: ", (res.winAmount - res.loseAmount).toFixed(2), " BNB")
-  myLogger.info("Win Amount(USD): ", ((res.winAmount - res.loseAmount) * bnbPrice).toFixed(2), " USD")
-}
-
-async function analyzeGrowingAmountEpoches() {
-  var rows = await knex('tbl_rounds').select('*').where('epoch', '>=', fromEpoch)
-  var loseStreak = 0
-  var curBetAmount = unit
-  var curAmount = 0
-  var result = ""
-  var res = {
-    total: 0,
-    win: 0,
-    lose: 0,
-    winAmount: 0,
-    loseAmount: 0,
-    loseStreakCounts: {},
-    maxLoseStreak: 0,
-    minBNB: 0,
-  }
-
-  for (var i = 0; i < rows.length; i ++) {
-    if (rows[i].rewardBaseCalAmount == 0) continue
-
-    res.total ++
-    
-    if (rows[i].rewardAmount / rows[i].rewardBaseCalAmount > 2) {
-      res.lose ++
-      res.loseAmount += curBetAmount
-      curAmount -= curBetAmount
-      loseStreak ++
-
-      if (curBetAmount == unit) curBetAmount = 2 * unit
-      else if (curBetAmount == 2 * unit) curBetAmount = 6 * unit
-      else if (curBetAmount == 6 * unit) curBetAmount = 18 * unit
-      else if (curBetAmount == 18 * unit) curBetAmount = unit
-      result += 'X'
-    }
-    else {
-      res.win ++
-      res.winAmount += curBetAmount * (rows[i].rewardAmount / rows[i].rewardBaseCalAmount - 1)
-      curAmount += curBetAmount * (rows[i].rewardAmount / rows[i].rewardBaseCalAmount - 1)
-
-      if (!res.loseStreakCounts[loseStreak]) {
-        res.loseStreakCounts[loseStreak] = 0
-      }
-
-      res.loseStreakCounts[loseStreak] ++      
-      loseStreak = 0
-      
-      curBetAmount = unit
-      result += 'O'
-    }
-
-    if (result.length % 100 == 99) result += '\n'
-    if (curAmount < res.minBNB) res.minBNB = curAmount
-    if (loseStreak > res.maxLoseStreak) res.maxLoseStreak = loseStreak
-  }
-
-  myLogger.log(result + '\n\n\n')
-  myLogger.info(res)
-  myLogger.info("Win Rate: ", (res.win / res.total * 100).toFixed(2), "%")
-  myLogger.info("Win Amount: ", (res.winAmount - res.loseAmount).toFixed(2), " BNB")
-  myLogger.info("Win Amount(USD): ", ((res.winAmount - res.loseAmount) * bnbPrice).toFixed(2), " USD")
+  return res / 10 ** 18
 }
 
 async function betToEpoch(epoch, isBull) {
   console.log("=============================")
   try {
     var amount = web3.utils
-    .toBN(Math.floor(unit * 1000))
+    .toBN(Math.floor(unit1 * 1000))
     .mul(web3.utils.toBN(10).pow(web3.utils.toBN(15)))
     var data
 
     if (isBull == true) {
       await predictContract.methods
         .betBull(epoch)
-        .estimateGas({ from: myWallet, value: amount });
+        .estimateGas({ from: myWallet1, value: amount });
 
       data = predictContract.methods.betBull(epoch).encodeABI();
     } else {
       await predictContract.methods
         .betBear(epoch)
-        .estimateGas({ from: myWallet, value: amount });
+        .estimateGas({ from: myWallet1, value: amount });
 
       data = predictContract.methods.betBear(epoch).encodeABI();
     }
     
     var rawTransaction = {
-      from: myWallet,
+      from: myWallet1,
       to: predictAddress,
       value: amount,
       gas: 200000,
@@ -308,7 +131,7 @@ async function betToEpoch(epoch, isBull) {
     };
     var signedTx = await web3.eth.accounts.signTransaction(
       rawTransaction,
-      private_key
+      private_key1
     );
 
     await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
@@ -324,10 +147,10 @@ async function claimEpoch(epoch) {
   try {
     await predictContract.methods
       .claim([epoch])
-      .estimateGas({ from: myWallet });
+      .estimateGas({ from: myWallet1 });
     var data = predictContract.methods.claim([epoch]).encodeABI();    
     var rawTransaction = {
-      from: myWallet,
+      from: myWallet1,
       to: predictAddress,
       gas: 200000,
       gasPrice: 7000000000,
@@ -335,7 +158,7 @@ async function claimEpoch(epoch) {
     };
     var signedTx = await web3.eth.accounts.signTransaction(
       rawTransaction,
-      private_key
+      private_key1
     );
 
     await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
@@ -356,32 +179,36 @@ async function getTransInfo(txHash) {
   if (!txHash || txHash.length != 66) return
 
   try {
-    var cur = Math.floor(new Date().getTime() / 1000)
+    var cur = new Date().getTime() / 1000
     var tx
 
     while (true) {
       try {
         if (web3Index > PROXY_LENGTH - 2) web3Index = 0
-        tx = await web3s[web3Index ++].eth.getTransaction(txHash);
+        tx = await web3s[web3Index].eth.getTransaction(txHash);
         break
       } catch (err) {
-
+        myLogger.log('getTransInfo', PROXY_LIST[web3Index])
       }
+
+      web3Index ++
     }
 
-    while (tx == null && !(cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 8)) {
+    while (tx == null && !(cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 7.5)) {
     // while (tx == null) {
-      cur = Math.floor(new Date().getTime() / 1000)
-      await delay(500)
+      cur = new Date().getTime() / 1000
+      await delay(200)
 
       while (true) {
         try {
           if (web3Index > PROXY_LENGTH - 2) web3Index = 0
-          tx = await web3s[web3Index ++].eth.getTransaction(txHash)
+          tx = await web3s[web3Index].eth.getTransaction(txHash)
           break
         } catch (err) {
-  
+          myLogger.log('getTransInfo', PROXY_LIST[web3Index])
         }
+
+        web3Index ++
       }
     }
 
@@ -407,10 +234,10 @@ async function getTransInfo(txHash) {
 
 async function getPendingTransactions() {
   try {
-    var cur = Math.floor(new Date().getTime() / 1000)
+    var cur = new Date().getTime() / 1000
 
-    if (epochInfo == null || (cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 8)) {
-      setTimeout(getPendingTransactions, 500)
+    if (epochInfo == null || (cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 7.5)) {
+      setTimeout(getPendingTransactions, 200)
       return
     }
 
@@ -426,7 +253,7 @@ async function getPendingTransactions() {
     myLogger.log("getPendingTransactions", err)
   }
 
-  setTimeout(getPendingTransactions, 500)
+  setTimeout(getPendingTransactions, 200)
 }
 
 async function getEpochTransactions(epoch) {
@@ -438,9 +265,9 @@ async function getEpochTransactions(epoch) {
   epochInfo = await getEpochInfo(epoch, false)
 
   while (true) {
-    var cur = Math.floor(new Date().getTime() / 1000)
+    var cur = new Date().getTime() / 1000
 
-    if (cur >= epochInfo.lockTimestamp - 8) {
+    if (cur >= epochInfo.lockTimestamp - 7.5) {
       for (var i = 0; i < trans.length; i ++) {
         // var tmp = trans[i].data / 10 ** 18
     
@@ -462,16 +289,29 @@ async function getEpochTransactions(epoch) {
       myLogger.log("===================================")
       myLogger.log("")
 
-      if (bullCount > bearCount && (bullCount + bearCount) >= 20 && Math.abs(bullCount - bearCount) >= 3) {
+      var betTo = ''
+
+      if (bullCount > bearCount && (bullCount + bearCount) >= 30 && (bullCount / bearCount) >= 1.2) {
         await betToEpoch(epoch, true)
-      } else if (bullCount < bearCount && (bullCount + bearCount) >= 20 && Math.abs(bullCount - bearCount) >= 3) {
+        betTo = "bull"
+      } else if (bullCount < bearCount && (bullCount + bearCount) >= 30 && (bearCount / bullCount) >= 1.2) {
         await betToEpoch(epoch, false)
+        betTo = "bear"
       } else {
         console.log("=============================")
         console.log('|    ', epoch, ":\t", " Skip ", '    |')
         console.log("=============================")
         console.log("")
+        betTo = "skip"
       }
+
+      await knex('tbl_my_results').insert({
+        round_id: epoch,
+        bet_to: betTo,
+        bet_amount: unit1,
+        bull_cnt: bullCount,
+        bear_cnt: bearCount
+      })
 
       break
     }
@@ -490,12 +330,16 @@ async function init() {
   // myLogger.log('\n\n\n')
   // await analyzeSkippingEpoches()
 
-
-
+  
 
   var epoch = fromEpoch
 
   getPendingTransactions()
+
+  unit1 = await getBalanceOf(myWallet1)
+  unit1 = unit1 / 10
+
+  if (unit1 < 0.01) unit1 = 0.01
 
   while (true) {
     try {
@@ -505,10 +349,10 @@ async function init() {
       myLogger.log(err)
     }
 
-    await delay(120000)
+    await delay(60000)
 
     try {
-      var res = await predictContract.methods.claimable(epoch - 1, myWallet).call()
+      var res = await predictContract.methods.claimable(epoch - 1, myWallet1).call()
 
       if (res == true) {
         await claimEpoch(epoch - 1)
@@ -516,6 +360,15 @@ async function init() {
     } catch (err) {
       myLogger.log("Claim ", err)
     }
+
+    await delay(10000)
+    
+    unit1 = await getBalanceOf(myWallet1)
+    unit1 = unit1 / 10
+
+    if (unit1 < 0.01) unit1 = 0.01
+
+    await getEpochInfo(epoch - 1)
 
     epoch ++
   }
