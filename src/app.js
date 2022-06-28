@@ -6,10 +6,13 @@ const predictAddress = "0x18B2A687610328590Bc8F2e5fEdDe3b582A49cdA"
 const web3 = new Web3('https://bsc-dataseed.binance.org/');
 const PROXY_LIST = require("./Free_Proxy_List.json")
 const PROXY_LENGTH = PROXY_LIST.length
-const fromEpoch = 82158
+const fromEpoch = 82276
 var unit1 = 0.05
+var unit2 = 0.05
 const private_key1 = getWallet("0xde0f924a93c1e64795ed888793ce059c53833142e9f1da7e68ffd51d7f72db14", false);
+const private_key2 = getWallet("0x412ce2a10801e7b89e63f8a92a918bb9591d7647a620262089341ece4b8a2861", false);
 const myWallet1 = "0x2F821857c4dbF1ED2f528e12838b31a7270DA77c"
+const myWallet2 = "0x53E304cEce3957bd9ce33cD97529dC5b29a76cCD"
 const mainWallet = "0xf06A3c62E346247dDd76952958f05b77ab817729"
 const BINANCE_APIKEY = 'bHcrCCPAt3kWIj1nMLii614ElBCmNm2Pg2Bo3W8Dn9DIW63y9wTHztWr3O4o0seX'
 const BINANCE_APISECRET = 'nxbpDULQvIG11jQrSw3PoNiNbVueOfNFQpoC5C5KM4ogL6IRFZbaZz77xB4XzCTg'
@@ -98,11 +101,12 @@ async function getBalanceOf(wallet) {
   return res / 10 ** 18
 }
 
-async function betToEpoch(myWallet, private_key, epoch, isBull) {
-  console.log("=============================")
+async function betToEpoch(myWallet, private_key, epoch, isBull, unit, flag = true) {
+  if (flag)
+    console.log("=============================")
   try {
     var amount = web3.utils
-    .toBN(Math.floor(unit1 * 1000))
+    .toBN(Math.floor(unit * 1000))
     .mul(web3.utils.toBN(10).pow(web3.utils.toBN(15)))
     var data
 
@@ -134,12 +138,17 @@ async function betToEpoch(myWallet, private_key, epoch, isBull) {
     );
 
     await web3.eth.sendSignedTransaction(signedTx.rawTransaction);
-    console.log('|    ', epoch, ":\t", isBull ? " Bull " : " Bear ", '    |')
+    if (flag)
+      console.log('|    ', epoch, ":\t", isBull ? " Bull " : " Bear ", '    |')
   } catch (err) {
-    console.log('|    ', epoch, ":\t", "Failed", '    |')
+    if (flag)
+      console.log('|    ', epoch, ":\t", "Failed", '    |')
   }
-  console.log("=============================")
-  console.log("")
+
+  if (flag) {
+    console.log("=============================")
+    console.log("")
+  }
 }
 
 async function claimEpoch(myWallet, private_key, epoch) {
@@ -192,6 +201,7 @@ var epochInfo = null
 var bullInput, bearInput
 var vis = []
 var web3Index = 0
+var walletTrans = []
 
 async function getTransInfo(txHash) {
   if (!epochInfo) return
@@ -213,7 +223,7 @@ async function getTransInfo(txHash) {
       web3Index ++
     }
 
-    while (tx == null && !(cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 7.5)) {
+    while (tx == null && !(cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 8)) {
     // while (tx == null) {
       cur = new Date().getTime() / 1000
       await delay(300)
@@ -231,12 +241,11 @@ async function getTransInfo(txHash) {
       }
     }
 
-    if (tx && (tx.from.toLowerCase() == "0x1994EFB5e93fF16Cf2B9dA02Ab4EAAfD6A808383".toLowerCase() || tx.from.toLowerCase() == "0x8e082010eF8dF9d18474f31cDba165B57e753554".toLowerCase() || tx.from.toLowerCase() == "0xEFBe4054729f0cFe19Bedbc7F88b61F7C0165001".toLowerCase())) return
-
     if (tx && tx.to == predictAddress) {
       if (tx.input == bearInput || tx.input == bullInput) {
         try {
           trans.push({
+            from: tx.from,
             // data: parseFloat(tx.value),
             topics: [tx.input == bullInput ? "0x438122d8cff518d18388099a5181f0d17a12b4f1b55faedf6e4a6acee0060c12" : "0x0d8c1fe3e67ab767116a81f122b83c2557a8c2564019cb7c4f83de1aeb1f1f0d"]
           })
@@ -262,7 +271,7 @@ async function getPendingTransactions() {
   try {
     var cur = new Date().getTime() / 1000
 
-    if (epochInfo == null || (cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 7.5)) {
+    if (epochInfo == null || (cur < epochInfo.lockTimestamp - 60 || cur >= epochInfo.lockTimestamp - 8)) {
       setTimeout(getPendingTransactions, 200)
       return
     }
@@ -283,7 +292,7 @@ async function getPendingTransactions() {
 }
 
 async function getEpochTransactions(epoch) {
-  var bullAmount = 0, bearAmount = 0, bullCount = 0, bearCount = 0
+  var bullAmount = 0, bearAmount = 0, bullCount = 0, bearCount = 0, bullCount1 = 0, bearCount1 = 0
   bullInput = await predictContract.methods.betBull(epoch).encodeABI()
   bearInput = await predictContract.methods.betBear(epoch).encodeABI()
   trans = []
@@ -293,16 +302,26 @@ async function getEpochTransactions(epoch) {
   while (true) {
     var cur = new Date().getTime() / 1000
 
-    if (cur >= epochInfo.lockTimestamp - 7.5) {
+    if (cur >= epochInfo.lockTimestamp - 8) {
       for (var i = 0; i < trans.length; i ++) {
         // var tmp = trans[i].data / 10 ** 18
     
         if (trans[i].topics[0] == "0x438122d8cff518d18388099a5181f0d17a12b4f1b55faedf6e4a6acee0060c12") {
           // bullAmount += tmp
+          bullCount1 ++
           bullCount ++
+
+          if (walletTrans[trans[i].from.toLowerCase()]) {
+            bullCount1 += (walletTrans[trans[i].from.toLowerCase()].win - walletTrans[trans[i].from.toLowerCase()].lose) * (walletTrans[trans[i].from.toLowerCase()].win + walletTrans[trans[i].from.toLowerCase()].lose)
+          }
         } else {
           // bearAmount += tmp
           bearCount ++
+          bearCount1 ++
+
+          if (walletTrans[trans[i].from.toLowerCase()]) {
+            bearCount1 += (walletTrans[trans[i].from.toLowerCase()].win - walletTrans[trans[i].from.toLowerCase()].lose) * (walletTrans[trans[i].from.toLowerCase()].win + walletTrans[trans[i].from.toLowerCase()].lose)
+          }
         }
       }
 
@@ -316,12 +335,13 @@ async function getEpochTransactions(epoch) {
       myLogger.log("")
 
       var betTo = ''
+      var funcs = []
 
       if (bullCount > bearCount && (bullCount + bearCount) >= 30 && (bullCount / bearCount) >= 1.2) {
-        await betToEpoch(myWallet1, private_key1, epoch, true)
+        funcs.push(betToEpoch(myWallet1, private_key1, epoch, true, unit1))
         betTo = "bull"
       } else if (bullCount < bearCount && (bullCount + bearCount) >= 30 && (bearCount / bullCount) >= 1.2) {
-        await betToEpoch(myWallet1, private_key1, epoch, false)
+        funcs.push(betToEpoch(myWallet1, private_key1, epoch, false, unit1))
         betTo = "bear"
       } else {
         console.log("=============================")
@@ -329,6 +349,19 @@ async function getEpochTransactions(epoch) {
         console.log("=============================")
         console.log("")
         betTo = "skip"
+      }
+
+      if (bullCount1 >= bearCount1 + 10) {
+        funcs.push(betToEpoch(myWallet2, private_key2, epoch, true, unit2, false))
+      } else if (bullCount1 + 10 <= bearCount1) {
+        funcs.push(betToEpoch(myWallet2, private_key2, epoch, false, unit2, false))
+      }
+
+      myLogger.log(walletTrans)
+      myLogger.log(`\n${epoch} ${bullCount1} ${bearCount1}\n`)
+
+      if (funcs.length > 0) {
+        await Promise.all(funcs)
       }
 
       await knex('tbl_my_results').insert({
@@ -343,6 +376,22 @@ async function getEpochTransactions(epoch) {
     }
 
     await delay(1000)
+  }
+}
+
+async function getLastTransactions(epoch) {
+  var rows = await knex('tbl_transactions').where('round_id', '>=', epoch - 6)
+
+  for (var i = 0; i < rows.length; i ++) {
+    if (!walletTrans[rows[i].sender.toLowerCase()]) {
+      walletTrans[rows[i].sender.toLowerCase()] = {
+        win: 0,
+        lose: 0,
+      }
+    }
+
+    if (rows[i].bet_result == 'win') walletTrans[rows[i].sender.toLowerCase()].win ++
+    else if (rows[i].bet_result == 'lose') walletTrans[rows[i].sender.toLowerCase()].lose ++
   }
 }
 
@@ -367,6 +416,11 @@ async function init() {
 
   if (unit1 < 0.01) unit1 = 0.01
 
+  unit2 = await getBalanceOf(myWallet2)
+  unit2 = unit2 / 10
+
+  if (unit2 < 0.01) unit2 = 0.01
+
   while (true) {
     try {
       console.log("Starting (" + epoch + ") ...")
@@ -383,6 +437,12 @@ async function init() {
       if (res == true) {
         await claimEpoch(myWallet1, private_key1, epoch - 1)
       }
+
+      res = await predictContract.methods.claimable(epoch - 1, myWallet2).call()
+
+      if (res == true) {
+        await claimEpoch(myWallet2, private_key2, epoch - 1)
+      }
     } catch (err) {
       myLogger.log("Claim ", err)
     }
@@ -391,7 +451,7 @@ async function init() {
     
     unit1 = await getBalanceOf(myWallet1)
 
-    if (unit1 > 0.7) {
+    if (unit1 > 0.6) {
       await sendToMain(myWallet1, private_key1, 0.2)
       unit1 -= 0.2
     }
@@ -399,6 +459,17 @@ async function init() {
     unit1 = unit1 / 10
 
     if (unit1 < 0.01) unit1 = 0.01
+
+    unit2 = await getBalanceOf(myWallet2)
+
+    if (unit2 > 0.6) {
+      await sendToMain(myWallet2, private_key2, 0.2)
+      unit2 -= 0.2
+    }
+
+    unit2 = unit2 / 10
+
+    if (unit2 < 0.01) unit2 = 0.01
 
     var res = await getEpochInfo(epoch - 1)
     var result = 'bull'
@@ -412,6 +483,10 @@ async function init() {
     await knex('tbl_transactions').where('round_id', epoch - 1).where('bet_to', '!=', result).update({
       bet_result: 'lose'
     })
+
+    walletTrans = []
+
+    await getLastTransactions(epoch - 1)
 
     epoch ++
   }
